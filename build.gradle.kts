@@ -29,6 +29,8 @@ dependencies {
     implementation("org.springframework.kafka:spring-kafka")
     implementation("no.fintlabs:fint-kafka:4.0.1")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
+    testImplementation("com.ninja-squad:springmockk:4.0.2")
+    testImplementation("org.mockito.kotlin:mockito-kotlin:5.4.0")
 }
 
 tasks.test {

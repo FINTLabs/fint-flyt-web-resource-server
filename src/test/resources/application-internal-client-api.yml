@@ -1,0 +1,10 @@
+fint:
+  flyt:
+    resource-server:
+      security:
+        api:
+          internal-client:
+            enabled: true
+            permit-all: false
+            authorized-client-ids:
+              - 1234

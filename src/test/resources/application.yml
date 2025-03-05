@@ -1,0 +1,9 @@
+fint:
+  org-id: fintlabs.no
+  application-id: fint-flyt-resource-server-test
+spring:
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: null

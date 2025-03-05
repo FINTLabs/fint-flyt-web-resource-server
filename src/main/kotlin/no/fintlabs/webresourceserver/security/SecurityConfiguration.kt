@@ -1,6 +1,5 @@
 package no.fintlabs.webresourceserver.security
 
-import org.slf4j.LoggerFactory
 import no.fintlabs.cache.FintCacheConfiguration
 import no.fintlabs.webresourceserver.UrlPaths
 import no.fintlabs.webresourceserver.security.client.ClientJwtConverter
@@ -11,6 +10,7 @@ import no.fintlabs.webresourceserver.security.properties.InternalApiSecurityProp
 import no.fintlabs.webresourceserver.security.properties.InternalClientApiSecurityProperties
 import no.fintlabs.webresourceserver.security.user.UserClaimFormattingService
 import no.fintlabs.webresourceserver.security.user.UserJwtConverter
+import org.slf4j.LoggerFactory
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration
 import org.springframework.boot.context.properties.ConfigurationProperties
 import org.springframework.context.annotation.Bean
@@ -125,6 +125,7 @@ class SecurityConfiguration(
                     jwt.jwtAuthenticationConverter(converter)
                 }
             }
+
             http.authorizeHttpRequests { requests ->
                 requests.anyRequest()
                     .hasAnyAuthority(*apiSecurityProperties.getPermittedAuthorities())
