@@ -13,7 +13,7 @@ version = findProperty("version") ?: "1.0-SNAPSHOT"
 
 publishing {
     publications {
-        create<MavenPublication>("mavenJava") {
+        create<MavenPublication>("maven") {
             from(components["java"])
         }
     }
