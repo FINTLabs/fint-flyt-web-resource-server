@@ -17,12 +17,8 @@ publishing {
     }
     repositories {
         maven {
-            name = "reposilite"
+            name = "fintlabsRepositoryReleases"
             url = uri("https://repo.fintlabs.no/releases")
-            credentials {
-                username = findProperty("REPOSILITE_USERNAME") as String? ?: System.getenv("REPOSILITE_USERNAME")
-                password = findProperty("REPOSILITE_PASSWORD") as String? ?: System.getenv("REPOSILITE_PASSWORD")
-            }
         }
     }
 }
