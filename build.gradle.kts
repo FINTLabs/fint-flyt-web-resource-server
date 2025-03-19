@@ -16,10 +16,7 @@ publishing {
         }
     }
     repositories {
-        maven {
-            name = "fintlabsRepositoryReleases"
-            url = uri("https://repo.fintlabs.no/releases")
-        }
+        mavenLocal()
     }
 }
 
@@ -63,3 +60,5 @@ tasks.named<org.springframework.boot.gradle.tasks.bundling.BootJar>("bootJar") {
 tasks.named<Jar>("jar") {
     enabled = true
 }
+
+apply(from = "https://raw.githubusercontent.com/FINTLabs/fint-buildscripts/master/reposilite.ga.gradle")
