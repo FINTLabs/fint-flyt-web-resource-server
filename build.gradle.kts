@@ -1,3 +1,5 @@
+import org.springframework.boot.gradle.plugin.SpringBootPlugin
+
 plugins {
     id("org.springframework.boot") version "3.4.3"
     id("io.spring.dependency-management") version "1.1.7"
@@ -28,8 +30,13 @@ repositories {
     mavenCentral()
 }
 
+dependencyManagement {
+    imports {
+        mavenBom(SpringBootPlugin.BOM_COORDINATES)
+    }
+}
+
 dependencies {
-    testImplementation(kotlin("test"))
     implementation("org.springframework.boot:spring-boot-starter")
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-security")
@@ -40,6 +47,8 @@ dependencies {
     implementation("no.fintlabs:fint-flyt-cache:1.2.3")
     implementation("org.springframework.kafka:spring-kafka")
     implementation("no.fintlabs:fint-kafka:4.0.1")
+
+    testImplementation(kotlin("test"))
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.springframework.security:spring-security-test")
     testImplementation("com.ninja-squad:springmockk:4.0.2")
