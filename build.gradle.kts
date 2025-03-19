@@ -7,7 +7,7 @@ plugins {
 }
 
 group = "no.fintlabs"
-version = "1.0-SNAPSHOT"
+version = findProperty("version") ?: "1.0-SNAPSHOT"
 
 publishing {
     publications {
