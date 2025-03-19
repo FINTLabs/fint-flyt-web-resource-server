@@ -3,10 +3,19 @@ plugins {
     id("io.spring.dependency-management") version "1.1.7"
     kotlin("jvm") version "2.1.10"
     kotlin("plugin.spring") version "2.1.10"
+    id("maven-publish")
 }
 
 group = "no.fintlabs"
 version = "1.0-SNAPSHOT"
+
+publishing {
+    publications {
+        create<MavenPublication>("mavenJava") {
+            from(components["java"])
+        }
+    }
+}
 
 repositories {
     mavenLocal()
@@ -38,7 +47,7 @@ tasks.test {
     useJUnitPlatform()
 }
 kotlin {
-    jvmToolchain(21)
+    jvmToolchain(17)
 }
 
 tasks.named<org.springframework.boot.gradle.tasks.bundling.BootJar>("bootJar") {
