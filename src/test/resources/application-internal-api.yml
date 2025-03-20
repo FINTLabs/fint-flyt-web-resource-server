@@ -1,6 +1,6 @@
 fint:
   flyt:
-    resource-server:
+    webresourceserver:
       security:
         api:
           internal:
@@ -8,3 +8,6 @@ fint:
             permit-all: false
             authorized-org-id-role-pairs-json: "{\"example.no\":[\"admin\"],\"domain.no\":[\"user\"]}"
             admin-role: "admin"
+  cache:
+    defaultCacheEntryTimeToLiveMillis: 9223372036854775807
+    defaultCacheHeapSize: 1000000

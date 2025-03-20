@@ -24,7 +24,7 @@ class UserPermissionConsumerConfiguration(
 
     @Bean
     @ConditionalOnProperty(
-        value = ["fint.flyt.web.resource-server.user-permissions-consumer.enabled"],
+        value = ["fint.flyt.webresourceserver.user-permissions-consumer.enabled"],
         havingValue = "true"
     )
     fun createCacheConsumer(): ConcurrentMessageListenerContainer<String, UserPermission> {

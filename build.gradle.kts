@@ -3,9 +3,11 @@ import org.springframework.boot.gradle.plugin.SpringBootPlugin
 plugins {
     id("org.springframework.boot") version "3.4.3"
     id("io.spring.dependency-management") version "1.1.7"
+    id("java")
+    id("com.github.ben-manes.versions") version "0.52.0"
+    id("maven-publish")
     kotlin("jvm") version "2.1.10"
     kotlin("plugin.spring") version "2.1.10"
-    id("maven-publish")
 }
 
 group = "no.fintlabs"
@@ -22,10 +24,22 @@ repositories {
 dependencyManagement {
     imports {
         mavenBom(SpringBootPlugin.BOM_COORDINATES)
+//        mavenBom("org.springframework.boot:spring-boot-dependencies:3.4.3")
+//        mavenBom("org.jetbrains.kotlin:kotlin-bom:2.1.10")
     }
 }
 
+//configurations.configureEach {
+//    resolutionStrategy.eachDependency {
+//        if (requested.group == "org.jetbrains.kotlin") {
+//            useVersion("2.1.10")
+//        }
+//    }
+//}
+
 dependencies {
+//    implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:2.1.10")
+
     implementation("org.springframework.boot:spring-boot-starter")
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-security")
@@ -47,6 +61,7 @@ dependencies {
 tasks.test {
     useJUnitPlatform()
 }
+
 kotlin {
     jvmToolchain(17)
 }

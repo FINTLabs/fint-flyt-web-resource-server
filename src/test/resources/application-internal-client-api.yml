@@ -1,6 +1,6 @@
 fint:
   flyt:
-    resource-server:
+    webresourceserver:
       security:
         api:
           internal-client:
@@ -8,3 +8,6 @@ fint:
             permit-all: false
             authorized-client-ids:
               - 1234
+  cache:
+    defaultCacheEntryTimeToLiveMillis: 9223372036854775807
+    defaultCacheHeapSize: 1000000
