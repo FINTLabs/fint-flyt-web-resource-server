@@ -6,7 +6,7 @@ import jakarta.annotation.PostConstruct
 import org.slf4j.LoggerFactory
 
 class InternalApiSecurityProperties(
-    val authorizedOrgIdRolepairsJson: String = "{}",
+    var authorizedOrgIdRolePairsJson: String = "{}",
     var adminRole: String = "",
     private var authorizedOrgIdRolePairs: Map<String, List<String>> = emptyMap(),
 ) : ApiSecurityProperties() {
@@ -22,7 +22,7 @@ class InternalApiSecurityProperties(
         val mapper = ObjectMapper()
         try {
             authorizedOrgIdRolePairs = mapper.readValue(
-                authorizedOrgIdRolepairsJson,
+                authorizedOrgIdRolePairsJson,
                 object : TypeReference<Map<String, List<String>>>() {}
             )
             log.info("Authorized orgIds: {}", authorizedOrgIdRolePairs)
