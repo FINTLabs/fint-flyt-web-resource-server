@@ -1,24 +1,28 @@
 package no.fintlabs.webresourceserver.security
 
 import com.ninjasquad.springmockk.MockkBean
+import no.fintlabs.webresourceserver.TestApplication
 import no.fintlabs.webresourceserver.UrlPaths.EXTERNAL_API
+import no.fintlabs.webresourceserver.UrlPaths.INTERNAL_API
 import no.fintlabs.webresourceserver.security.client.sourceapplication.SourceApplicationAuthorizationRequestService
-import no.fintlabs.webresourceserver.testutils.SecurityTestUtils.clientIsAuthorized
-import no.fintlabs.webresourceserver.testutils.SecurityTestUtils.tokenContainsClientId
+import no.fintlabs.webresourceserver.testutils.SecurityTestUtils
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.http.HttpHeaders
 import org.springframework.security.oauth2.jwt.JwtDecoder
-import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.get
 
-@SpringBootTest
+@SpringBootTest(
+    classes = [TestApplication::class],
+    properties = [
+        "fint.cache.defaultCacheEntryTimeToLiveMillis=9223372036854775807",
+        "fint.cache.defaultCacheHeapSize=1000000"
+    ]
+)
 @AutoConfigureMockMvc
-@ActiveProfiles("internal-api")
-class ExternalApiDisabledTest {
+class InternalAndExternalApiDisabledTest {
 
     @Autowired
     lateinit var mockMvc: MockMvc
@@ -30,19 +34,28 @@ class ExternalApiDisabledTest {
     lateinit var clientAuthorizationRequestService: SourceApplicationAuthorizationRequestService
 
     private val externalApiUrl = "$EXTERNAL_API/dummy"
+    private val internalApiUrl = "$INTERNAL_API/dummy"
     private val jwtString = "jwtString"
 
     @Test
     fun givenTokenWithClientIdThatIsAuthorizedTheRequestShouldReturnForbidden() {
-        tokenContainsClientId(jwtDecoder, jwtString, "clientId1234")
-        clientIsAuthorized(clientAuthorizationRequestService, "clientId1234", "1")
+        val clientId = "clientId1234"
+        SecurityTestUtils.tokenContainsClientId(jwtDecoder, jwtString, clientId)
+        SecurityTestUtils.clientIsAuthorized(clientAuthorizationRequestService, clientId, "1")
 
         mockMvc.get(externalApiUrl) {
-            header(HttpHeaders.AUTHORIZATION, "Bearer $jwtString")
+            header("Authorization", "Bearer $jwtString")
         }
-            .andExpect {
-                status { isForbidden() }
-            }
+            .andExpect { status { isForbidden() } }
     }
 
+    @Test
+    fun givenTokenWithOrgIdThatIsAuthorizedTheRequestShouldReturnForbidden() {
+        SecurityTestUtils.tokenContainsOrgId(jwtDecoder, jwtString, "example.no")
+
+        mockMvc.get(internalApiUrl) {
+            header("Authorization", "Bearer $jwtString")
+        }
+            .andExpect { status { isForbidden() } }
+    }
 }

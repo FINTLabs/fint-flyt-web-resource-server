@@ -38,7 +38,7 @@ class ExternalApiEnabledTest {
     fun givenNoTokenShouldReturnUnauthorized() {
         mockMvc.get(externalApiUrl)
             .andExpect {
-                status { isUnauthorized() } // 401
+                status { isUnauthorized() }
             }
     }
 
