@@ -27,11 +27,11 @@ class UserJwtConverter(
         log.debug("Extracted objectIdentifier from JWT: {}", objectIdentifier)
 
         val modifiedClaims = jwt.claims.entries
-            .map { entry ->
-                if (entry.value is String) {
-                    entry.key to userClaimFormattingService.removeDoubleQuotesFromClaim(entry.value as String)
+            .map { (key, value) ->
+                if (value is String) {
+                    key to userClaimFormattingService.removeDoubleQuotesFromClaim(value)
                 } else {
-                    entry.key to entry.value
+                    key to value
                 }
             }
             .filter { it.second != null }
@@ -42,22 +42,18 @@ class UserJwtConverter(
 
         val modifiedJwt = Jwt.withTokenValue(jwt.tokenValue)
             .headers { it.putAll(jwt.headers) }
-            .claims { it.putAll(jwt.claims) }
+            .claims { it.putAll(modifiedClaims) }
             .build()
 
         val authorities = mutableListOf<GrantedAuthority>()
-
         if (organizationId != null && roles != null) {
-            if (adminRole.isNotBlank()) {
-                val isAdmin = roles.contains(adminRole)
-                if (isAdmin) {
-                    authorities.add(SimpleGrantedAuthority("ROLE_ADMIN"))
-                }
+            if (adminRole.isNotBlank() && roles.contains(adminRole)) {
+                authorities.add(SimpleGrantedAuthority("ROLE_ADMIN"))
             }
             for (role in roles) {
-                val authority = "ORGID_${organizationId}_ROLE_$role"
-                log.debug("orgIdAndRoleGrantedAuthorityString: {}", authority)
-                authorities.add(SimpleGrantedAuthority(authority))
+                val orgIdAndRoleGrantedAuthorityString = "ORGID_${organizationId}_ROLE_$role"
+                log.debug("orgIdAndRoleGrantedAuthorityString: {}", orgIdAndRoleGrantedAuthorityString)
+                authorities.add(SimpleGrantedAuthority(orgIdAndRoleGrantedAuthorityString))
             }
         }
 
