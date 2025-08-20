@@ -11,9 +11,8 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtAut
 
 class UserJwtConverter(
     private val securityProperties: InternalApiSecurityProperties,
-    private val userClaimFormattingService: UserClaimFormattingService
+    private val userClaimFormattingService: UserClaimFormattingService,
 ) : Converter<Jwt, AbstractAuthenticationToken> {
-
     private val log = LoggerFactory.getLogger(UserJwtConverter::class.java)
 
     override fun convert(jwt: Jwt): AbstractAuthenticationToken {
@@ -26,24 +25,29 @@ class UserJwtConverter(
         log.debug("Extracted roles from JWT: {}", roles)
         log.debug("Extracted objectIdentifier from JWT: {}", objectIdentifier)
 
-        val modifiedClaims = jwt.claims.entries
-            .map { (key, value) ->
-                if (value is String) {
-                    key to userClaimFormattingService.removeDoubleQuotesFromClaim(value)
-                } else {
-                    key to value
-                }
-            }
-            .filter { it.second != null }
-            .toMap(mutableMapOf())
+        val modifiedClaims =
+            jwt.claims.entries
+                .map { (key, value) ->
+                    if (value is String) {
+                        key to userClaimFormattingService.removeDoubleQuotesFromClaim(value)
+                    } else {
+                        key to value
+                    }
+                }.filter { it.second != null }
+                .toMap(mutableMapOf())
 
-        val sourceApplicationIdsString = userClaimFormattingService.convertSourceApplicationIdsIntoString(objectIdentifier)
+        val sourceApplicationIdsString =
+            userClaimFormattingService.convertSourceApplicationIdsIntoString(
+                objectIdentifier,
+            )
         modifiedClaims["sourceApplicationIds"] = sourceApplicationIdsString
 
-        val modifiedJwt = Jwt.withTokenValue(jwt.tokenValue)
-            .headers { it.putAll(jwt.headers) }
-            .claims { it.putAll(modifiedClaims) }
-            .build()
+        val modifiedJwt =
+            Jwt
+                .withTokenValue(jwt.tokenValue)
+                .headers { it.putAll(jwt.headers) }
+                .claims { it.putAll(modifiedClaims) }
+                .build()
 
         val authorities = mutableListOf<GrantedAuthority>()
         if (organizationId != null && roles != null) {

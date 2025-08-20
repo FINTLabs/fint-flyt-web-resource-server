@@ -8,7 +8,6 @@ import org.springframework.context.annotation.Configuration
 @EnableAutoConfiguration
 @Configuration
 class ResourceServerConfiguration {
-
     @Value("\${fint.cache.defaultCacheEntryTimeToLiveMillis:9223372036854775807}")
     private var defaultCacheEntryTimeToLiveMillis: Long = 9223372036854775807
 
@@ -20,5 +19,4 @@ class ResourceServerConfiguration {
         System.setProperty("fint.cache.defaultCacheEntryTimeToLiveMillis", defaultCacheEntryTimeToLiveMillis.toString())
         System.setProperty("fint.cache.defaultCacheHeapSize", defaultCacheHeapSize.toString())
     }
-
 }

@@ -16,10 +16,12 @@ import org.springframework.context.annotation.FilterType
         SourceApplicationJwtConverter::class,
         SecurityConfiguration::class,
     ],
-    excludeFilters = [ComponentScan.Filter(
-        type = FilterType.ASSIGNABLE_TYPE,
-        classes = [UserPermissionConsumerConfiguration::class]
-    )]
+    excludeFilters = [
+        ComponentScan.Filter(
+            type = FilterType.ASSIGNABLE_TYPE,
+            classes = [UserPermissionConsumerConfiguration::class],
+        ),
+    ],
 )
 class TestApplication
 

@@ -18,12 +18,11 @@ import org.springframework.test.web.servlet.get
     classes = [TestApplication::class],
     properties = [
         "fint.cache.defaultCacheEntryTimeToLiveMillis=9223372036854775807",
-        "fint.cache.defaultCacheHeapSize=1000000"
-    ]
+        "fint.cache.defaultCacheHeapSize=1000000",
+    ],
 )
 @AutoConfigureMockMvc
 class InternalAndExternalApiDisabledTest {
-
     @Autowired
     lateinit var mockMvc: MockMvc
 
@@ -43,19 +42,19 @@ class InternalAndExternalApiDisabledTest {
         SecurityTestUtils.tokenContainsClientId(jwtDecoder, jwtString, clientId)
         SecurityTestUtils.clientIsAuthorized(clientAuthorizationRequestService, clientId, "1")
 
-        mockMvc.get(externalApiUrl) {
-            header("Authorization", "Bearer $jwtString")
-        }
-            .andExpect { status { isForbidden() } }
+        mockMvc
+            .get(externalApiUrl) {
+                header("Authorization", "Bearer $jwtString")
+            }.andExpect { status { isForbidden() } }
     }
 
     @Test
     fun givenTokenWithOrgIdThatIsAuthorizedTheRequestShouldReturnForbidden() {
         SecurityTestUtils.tokenContainsOrgId(jwtDecoder, jwtString, "example.no")
 
-        mockMvc.get(internalApiUrl) {
-            header("Authorization", "Bearer $jwtString")
-        }
-            .andExpect { status { isForbidden() } }
+        mockMvc
+            .get(internalApiUrl) {
+                header("Authorization", "Bearer $jwtString")
+            }.andExpect { status { isForbidden() } }
     }
 }

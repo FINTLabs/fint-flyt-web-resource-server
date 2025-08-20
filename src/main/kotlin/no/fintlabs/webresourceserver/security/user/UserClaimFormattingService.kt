@@ -7,9 +7,8 @@ import org.springframework.stereotype.Service
 
 @Service
 class UserClaimFormattingService(
-    private val userPermissionCache: FintCache<String, UserPermission>
+    private val userPermissionCache: FintCache<String, UserPermission>,
 ) {
-
     companion object {
         private val log = LoggerFactory.getLogger(UserClaimFormattingService::class.java)
     }

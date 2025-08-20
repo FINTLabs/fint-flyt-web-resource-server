@@ -4,7 +4,8 @@ import org.springframework.security.oauth2.jwt.Jwt
 
 object JwtFactory {
     fun createEndUserJwt(): Jwt {
-        return Jwt.withTokenValue("test")
+        return Jwt
+            .withTokenValue("test")
             .header("kid", "123456789")
             .header("typ", "JWT")
             .header("alg", "RS256")
@@ -17,7 +18,6 @@ object JwtFactory {
                 claims["organizationid"] = "\"test.com\""
                 claims["organizationnumber"] = "\"123456789\""
                 claims["roles"] = listOf("role1", "role2", "role3")
-            }
-            .build()
+            }.build()
     }
 }

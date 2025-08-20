@@ -33,7 +33,6 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher
 class SecurityConfiguration(
     private val userClaimFormattingService: UserClaimFormattingService,
 ) {
-
     private val log = LoggerFactory.getLogger(SecurityConfiguration::class.java)
 
     @Bean
@@ -53,17 +52,17 @@ class SecurityConfiguration(
     @Bean
     fun internalApiFilterChain(
         http: HttpSecurity,
-        internalApiSecurityProperties: InternalApiSecurityProperties
+        internalApiSecurityProperties: InternalApiSecurityProperties,
     ): SecurityFilterChain {
         log.debug(
             "Internal API Security Properties: {}",
-            internalApiSecurityProperties.getPermittedAuthorities()
+            internalApiSecurityProperties.getPermittedAuthorities(),
         )
         return createFilterChain(
             http,
             "${UrlPaths.INTERNAL_API}/**",
             UserJwtConverter(internalApiSecurityProperties, userClaimFormattingService),
-            internalApiSecurityProperties
+            internalApiSecurityProperties,
         )
     }
 
@@ -72,13 +71,13 @@ class SecurityConfiguration(
     fun internalClientApiFilterChain(
         http: HttpSecurity,
         internalClientApiSecurityProperties: InternalClientApiSecurityProperties,
-        clientJwtConverter: ClientJwtConverter
+        clientJwtConverter: ClientJwtConverter,
     ): SecurityFilterChain {
         return createFilterChain(
             http,
             "${UrlPaths.INTERNAL_CLIENT_API}/**",
             clientJwtConverter,
-            internalClientApiSecurityProperties
+            internalClientApiSecurityProperties,
         )
     }
 
@@ -87,13 +86,13 @@ class SecurityConfiguration(
     fun externalApiFilterChain(
         http: HttpSecurity,
         externalApiSecurityProperties: ExternalApiSecurityProperties,
-        sourceApplicationJwtConverter: SourceApplicationJwtConverter
+        sourceApplicationJwtConverter: SourceApplicationJwtConverter,
     ): SecurityFilterChain {
         return createFilterChain(
             http,
             "${UrlPaths.EXTERNAL_API}/**",
             sourceApplicationJwtConverter,
-            externalApiSecurityProperties
+            externalApiSecurityProperties,
         )
     }
 
@@ -110,7 +109,8 @@ class SecurityConfiguration(
         converter: Converter<Jwt, AbstractAuthenticationToken>,
         apiSecurityProperties: ApiSecurityProperties,
     ): SecurityFilterChain {
-        http.securityMatcher(AntPathRequestMatcher(path))
+        http
+            .securityMatcher(AntPathRequestMatcher(path))
             .addFilterBefore(AuthorizationLogFilter(), BearerTokenAuthenticationFilter::class.java)
 
         if (!apiSecurityProperties.enabled) {
@@ -127,7 +127,8 @@ class SecurityConfiguration(
             }
 
             http.authorizeHttpRequests { requests ->
-                requests.anyRequest()
+                requests
+                    .anyRequest()
                     .hasAnyAuthority(*apiSecurityProperties.getPermittedAuthorities())
             }
             http.build()
@@ -147,5 +148,4 @@ class SecurityConfiguration(
         }
         return http.build()
     }
-
 }
