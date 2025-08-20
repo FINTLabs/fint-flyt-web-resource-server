@@ -15,14 +15,14 @@ import org.springframework.security.oauth2.jwt.Jwt
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken
 
 class UserJwtConverterTest {
-
     private val dummyCache = mockk<FintCache<String, UserPermission>>(relaxed = true)
 
     private val userClaimFormattingService = spyk(UserClaimFormattingService(dummyCache))
 
-    private val properties = mockk<InternalApiSecurityProperties>(relaxed = true).apply {
-        every { adminRole } returns ""
-    }
+    private val properties =
+        mockk<InternalApiSecurityProperties>(relaxed = true).apply {
+            every { adminRole } returns ""
+        }
 
     private val converter = UserJwtConverter(properties, userClaimFormattingService)
 
@@ -37,7 +37,6 @@ class UserJwtConverterTest {
 
     @Test
     fun convertingFintFlytUserJwtShouldRemoveIllegalCharactersFromClaims() {
-
         val jwt = JwtFactory.createEndUserJwt()
 
         val authToken = converter.convert(jwt) as JwtAuthenticationToken

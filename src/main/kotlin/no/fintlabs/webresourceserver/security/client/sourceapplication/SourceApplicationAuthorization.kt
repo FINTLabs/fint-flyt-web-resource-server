@@ -11,8 +11,11 @@ data class SourceApplicationAuthorization(
         var sourceApplicationId: String? = null,
     ) {
         fun authorized(authorized: Boolean) = apply { this.authorized = authorized }
+
         fun clientId(clientId: String) = apply { this.clientId = clientId }
+
         fun sourceApplicationId(sourceApplicationId: String?) = apply { this.sourceApplicationId = sourceApplicationId }
+
         fun build() = SourceApplicationAuthorization(authorized, clientId, sourceApplicationId)
     }
 

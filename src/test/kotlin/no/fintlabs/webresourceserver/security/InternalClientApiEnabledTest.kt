@@ -17,7 +17,6 @@ import org.springframework.test.web.servlet.get
 @AutoConfigureMockMvc
 @ActiveProfiles("internal-client-api")
 class InternalClientApiEnabledTest {
-
     @Autowired
     lateinit var mockMvc: MockMvc
 
@@ -32,7 +31,8 @@ class InternalClientApiEnabledTest {
 
     @Test
     fun givenNoTokenShouldReturnUnauthorized() {
-        mockMvc.get(internalClientApiUrl)
+        mockMvc
+            .get(internalClientApiUrl)
             .andExpect {
                 status { isUnauthorized() }
             }
@@ -42,33 +42,35 @@ class InternalClientApiEnabledTest {
     fun givenTokenWithoutClientIdShouldReturnForbidden() {
         SecurityTestUtils.tokenDoesNotContainClientId(jwtDecoder, jwtString)
 
-        mockMvc.get(internalClientApiUrl) {
-            header("Authorization", "Bearer $jwtString")
-        }.andExpect {
-            status { isForbidden() }
-        }
+        mockMvc
+            .get(internalClientApiUrl) {
+                header("Authorization", "Bearer $jwtString")
+            }.andExpect {
+                status { isForbidden() }
+            }
     }
 
     @Test
     fun givenTokenWithClientIdThatIsAuthorizedTheRequestShouldReturnOk() {
         SecurityTestUtils.tokenContainsClientId(jwtDecoder, jwtString, "1234")
 
-        mockMvc.get(internalClientApiUrl) {
-            header("Authorization", "Bearer $jwtString")
-        }.andExpect {
-            status { isOk() }
-        }
+        mockMvc
+            .get(internalClientApiUrl) {
+                header("Authorization", "Bearer $jwtString")
+            }.andExpect {
+                status { isOk() }
+            }
     }
 
     @Test
     fun givenTokenWithClientIdThatIsNotAuthorizedTheRequestShouldReturnForbidden() {
         SecurityTestUtils.tokenContainsClientId(jwtDecoder, jwtString, "abcd")
 
-        mockMvc.get(internalClientApiUrl) {
-            header("Authorization", "Bearer $jwtString")
-        }.andExpect {
-            status { isForbidden() }
-        }
+        mockMvc
+            .get(internalClientApiUrl) {
+                header("Authorization", "Bearer $jwtString")
+            }.andExpect {
+                status { isForbidden() }
+            }
     }
-
 }

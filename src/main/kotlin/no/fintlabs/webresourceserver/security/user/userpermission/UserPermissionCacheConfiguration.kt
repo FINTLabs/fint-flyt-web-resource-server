@@ -12,9 +12,8 @@ import java.time.Duration
 @Configuration
 @Import(FintCacheConfiguration::class)
 class UserPermissionCacheConfiguration(
-    private val fintCacheManager: FintCacheManager
+    private val fintCacheManager: FintCacheManager,
 ) {
-
     @Bean
     fun userPermissionCache(): FintCache<String, UserPermission> {
         return fintCacheManager.createCache(
@@ -25,8 +24,7 @@ class UserPermissionCacheConfiguration(
                 .builder()
                 .timeToLive(Duration.ofMillis(9223372036854775807L))
                 .heapSize(1000000L)
-                .build()
+                .build(),
         )
     }
-
 }

@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.RestController
 @RestController
 @RequestMapping("$EXTERNAL_API/dummy")
 class ExternalApiTestController {
-
     @GetMapping
     fun getDummy(): ResponseEntity<Any> {
         return ResponseEntity.ok().build()

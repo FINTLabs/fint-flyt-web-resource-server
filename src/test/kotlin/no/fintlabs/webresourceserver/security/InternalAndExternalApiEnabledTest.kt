@@ -20,7 +20,6 @@ import org.springframework.test.web.servlet.get
 @AutoConfigureMockMvc
 @ActiveProfiles("external-api", "internal-api")
 class InternalAndExternalApiEnabledTest {
-
     @Autowired
     lateinit var mockMvc: MockMvc
 
@@ -40,22 +39,23 @@ class InternalAndExternalApiEnabledTest {
         tokenContainsClientId(jwtDecoder, jwtString, clientId)
         clientIsAuthorized(clientAuthorizationRequestService, clientId, "1")
 
-        mockMvc.get(externalApiUrl) {
-            header("Authorization", "Bearer $jwtString")
-        }.andExpect {
-            status { isOk() }
-        }
+        mockMvc
+            .get(externalApiUrl) {
+                header("Authorization", "Bearer $jwtString")
+            }.andExpect {
+                status { isOk() }
+            }
     }
 
     @Test
     fun givenTokenWithOrgIdAndRoleThatIsAuthorizedTheRequestShouldReturnOk() {
         tokenContainsOrgIdAndRoles(jwtDecoder, jwtString, "example.no", listOf("admin"))
 
-        mockMvc.get(internalApiUrl) {
-            header("Authorization", "Bearer $jwtString")
-        }.andExpect {
-            status { isOk() }
-        }
+        mockMvc
+            .get(internalApiUrl) {
+                header("Authorization", "Bearer $jwtString")
+            }.andExpect {
+                status { isOk() }
+            }
     }
-
 }

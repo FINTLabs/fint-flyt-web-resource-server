@@ -8,6 +8,7 @@ plugins {
     id("maven-publish")
     kotlin("jvm") version "2.1.10"
     kotlin("plugin.spring") version "2.1.10"
+    id("org.jlleitschuh.gradle.ktlint") version "13.0.0"
 }
 
 group = "no.fintlabs"
@@ -24,22 +25,10 @@ repositories {
 dependencyManagement {
     imports {
         mavenBom(SpringBootPlugin.BOM_COORDINATES)
-//        mavenBom("org.springframework.boot:spring-boot-dependencies:3.4.3")
-//        mavenBom("org.jetbrains.kotlin:kotlin-bom:2.1.10")
     }
 }
 
-//configurations.configureEach {
-//    resolutionStrategy.eachDependency {
-//        if (requested.group == "org.jetbrains.kotlin") {
-//            useVersion("2.1.10")
-//        }
-//    }
-//}
-
 dependencies {
-//    implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:2.1.10")
-
     implementation("org.springframework.boot:spring-boot-starter")
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-security")
@@ -76,6 +65,19 @@ tasks.named<Jar>("jar") {
 
 java {
     withSourcesJar()
+}
+
+ktlint {
+    version.set("1.7.1")
+    ignoreFailures.set(false)
+    outputToConsole.set(true)
+    filter {
+        exclude("**/generated/**")
+    }
+}
+
+tasks.named("check") {
+    dependsOn("ktlintCheck")
 }
 
 apply(from = "https://raw.githubusercontent.com/FINTLabs/fint-buildscripts/master/reposilite.ga.gradle")

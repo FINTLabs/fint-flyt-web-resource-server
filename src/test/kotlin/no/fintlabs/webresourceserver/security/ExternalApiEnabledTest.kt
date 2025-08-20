@@ -15,13 +15,12 @@ import org.springframework.security.oauth2.jwt.JwtDecoder
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.get
-import java.util.*
+import java.util.Optional
 
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("external-api")
 class ExternalApiEnabledTest {
-
     @Autowired
     lateinit var mockMvc: MockMvc
 
@@ -36,7 +35,8 @@ class ExternalApiEnabledTest {
 
     @Test
     fun givenNoTokenShouldReturnUnauthorized() {
-        mockMvc.get(externalApiUrl)
+        mockMvc
+            .get(externalApiUrl)
             .andExpect {
                 status { isUnauthorized() }
             }
@@ -44,7 +44,8 @@ class ExternalApiEnabledTest {
 
     @Test
     fun givenNoTokenShouldNotCallClientAuthorizationRequestService() {
-        mockMvc.get(externalApiUrl)
+        mockMvc
+            .get(externalApiUrl)
             .andExpect {
                 status { isUnauthorized() }
             }
@@ -56,22 +57,24 @@ class ExternalApiEnabledTest {
     fun givenTokenWithoutClientIdShouldReturnForbidden() {
         SecurityTestUtils.tokenDoesNotContainClientId(jwtDecoder, jwtString)
 
-        mockMvc.get(externalApiUrl) {
-            header("Authorization", "Bearer $jwtString")
-        }.andExpect {
-            status { isForbidden() }
-        }
+        mockMvc
+            .get(externalApiUrl) {
+                header("Authorization", "Bearer $jwtString")
+            }.andExpect {
+                status { isForbidden() }
+            }
     }
 
     @Test
     fun givenNoClientIdShouldNotCallClientAuthorizationRequestService() {
         SecurityTestUtils.tokenDoesNotContainClientId(jwtDecoder, jwtString)
 
-        mockMvc.get(externalApiUrl) {
-            header("Authorization", "Bearer $jwtString")
-        }.andExpect {
-            status { isForbidden() }
-        }
+        mockMvc
+            .get(externalApiUrl) {
+                header("Authorization", "Bearer $jwtString")
+            }.andExpect {
+                status { isForbidden() }
+            }
 
         verify { clientAuthorizationRequestService.getClientAuthorization(any()) wasNot Called }
     }
@@ -83,11 +86,12 @@ class ExternalApiEnabledTest {
 
         every { clientAuthorizationRequestService.getClientAuthorization(clientId) } returns Optional.empty()
 
-        mockMvc.get(externalApiUrl) {
-            header("Authorization", "Bearer $jwtString")
-        }.andExpect {
-            status { isForbidden() }
-        }
+        mockMvc
+            .get(externalApiUrl) {
+                header("Authorization", "Bearer $jwtString")
+            }.andExpect {
+                status { isForbidden() }
+            }
 
         verify(exactly = 1) { clientAuthorizationRequestService.getClientAuthorization(clientId) }
     }
@@ -98,11 +102,12 @@ class ExternalApiEnabledTest {
         SecurityTestUtils.tokenContainsClientId(jwtDecoder, jwtString, clientId)
         SecurityTestUtils.clientIsNotAuthorized(clientAuthorizationRequestService, clientId)
 
-        mockMvc.get(externalApiUrl) {
-            header("Authorization", "Bearer $jwtString")
-        }.andExpect {
-            status { isForbidden() }
-        }
+        mockMvc
+            .get(externalApiUrl) {
+                header("Authorization", "Bearer $jwtString")
+            }.andExpect {
+                status { isForbidden() }
+            }
     }
 
     @Test
@@ -111,11 +116,12 @@ class ExternalApiEnabledTest {
         SecurityTestUtils.tokenContainsClientId(jwtDecoder, jwtString, clientId)
         SecurityTestUtils.clientIsAuthorized(clientAuthorizationRequestService, clientId, "1")
 
-        mockMvc.get(externalApiUrl) {
-            header("Authorization", "Bearer $jwtString")
-        }.andExpect {
-            status { isOk() }
-        }
+        mockMvc
+            .get(externalApiUrl) {
+                header("Authorization", "Bearer $jwtString")
+            }.andExpect {
+                status { isOk() }
+            }
     }
 
     @Test
@@ -124,10 +130,11 @@ class ExternalApiEnabledTest {
         SecurityTestUtils.tokenContainsClientId(jwtDecoder, jwtString, clientId)
         SecurityTestUtils.authorizationRequestReturnsEmpty(clientAuthorizationRequestService, clientId)
 
-        mockMvc.get(externalApiUrl) {
-            header("Authorization", "Bearer $jwtString")
-        }.andExpect {
-            status { isForbidden() }
-        }
+        mockMvc
+            .get(externalApiUrl) {
+                header("Authorization", "Bearer $jwtString")
+            }.andExpect {
+                status { isForbidden() }
+            }
     }
 }

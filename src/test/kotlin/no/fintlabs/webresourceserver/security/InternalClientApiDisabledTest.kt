@@ -17,7 +17,6 @@ import org.springframework.test.web.servlet.get
 @AutoConfigureMockMvc
 @ActiveProfiles("internal-api")
 class InternalClientApiDisabledTest {
-
     @Autowired
     lateinit var mockMvc: MockMvc
 
@@ -34,11 +33,11 @@ class InternalClientApiDisabledTest {
     fun givenTokenWithClientIdTheRequestShouldReturnForbidden() {
         SecurityTestUtils.tokenContainsClientId(jwtDecoder, jwtString, "1234")
 
-        mockMvc.get(internalClientApiUrl) {
-            header("Authorization", "Bearer $jwtString")
-        }.andExpect {
-            status { isForbidden() }
-        }
+        mockMvc
+            .get(internalClientApiUrl) {
+                header("Authorization", "Bearer $jwtString")
+            }.andExpect {
+                status { isForbidden() }
+            }
     }
-
 }
