@@ -11,20 +11,20 @@ class SourceApplicationJwtConverter(
     private val sourceApplicationAuthorizationService: SourceApplicationAuthorizationService,
     private val sourceApplicationAuthorizationRequestService: SourceApplicationAuthorizationRequestService,
 ) : Converter<Jwt, AbstractAuthenticationToken> {
+    companion object {
+        private const val CLAIM_SUB = "sub"
+    }
+
     override fun convert(source: Jwt): AbstractAuthenticationToken {
-        val sub = source.getClaim<String>("sub") ?: return JwtAuthenticationToken(source)
+        val sub = source.getClaimAsString(CLAIM_SUB) ?: return JwtAuthenticationToken(source)
 
         val maybeAuthorization = sourceApplicationAuthorizationRequestService.getClientAuthorization(sub)
 
         val authority =
-            maybeAuthorization
-                .map { auth -> sourceApplicationAuthorizationService.getAuthority(auth) }
-                .orElse(null)
+            maybeAuthorization?.let { auth ->
+                sourceApplicationAuthorizationService.getAuthority(auth)
+            }
 
-        return if (authority != null) {
-            JwtAuthenticationToken(source, listOf(authority))
-        } else {
-            JwtAuthenticationToken(source)
-        }
+        return authority?.let { JwtAuthenticationToken(source, listOf(it)) } ?: JwtAuthenticationToken(source)
     }
 }

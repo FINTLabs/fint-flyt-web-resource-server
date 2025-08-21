@@ -11,7 +11,6 @@ import no.fintlabs.webresourceserver.security.user.userpermission.UserPermission
 import no.fintlabs.webresourceserver.testutils.JwtFactory
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
-import org.springframework.security.oauth2.jwt.Jwt
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken
 
 class UserJwtConverterTest {
@@ -27,8 +26,8 @@ class UserJwtConverterTest {
     private val converter = UserJwtConverter(properties, userClaimFormattingService)
 
     @Test
-    fun convertingFintUserJwtShouldResultInThreeAuthorities() {
-        val jwt: Jwt = JwtFactory.createEndUserJwt()
+    fun `converting FINT user jwt results in 3 authorities`() {
+        val jwt = JwtFactory.createEndUserJwt()
 
         val authenticationToken = converter.convert(jwt) as JwtAuthenticationToken
 
@@ -36,11 +35,10 @@ class UserJwtConverterTest {
     }
 
     @Test
-    fun convertingFintFlytUserJwtShouldRemoveIllegalCharactersFromClaims() {
+    fun `converting FINT Flyt user jwt strips illegal characters from claims`() {
         val jwt = JwtFactory.createEndUserJwt()
 
-        val authToken = converter.convert(jwt) as JwtAuthenticationToken
-        val modifiedJwt = authToken.token
+        val modifiedJwt = (converter.convert(jwt) as JwtAuthenticationToken).token
 
         val orgId = modifiedJwt.getClaimAsString("organizationid")
         val orgNumber = modifiedJwt.getClaimAsString("organizationnumber")

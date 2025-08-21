@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.http.HttpHeaders
 import org.springframework.security.oauth2.jwt.JwtDecoder
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.servlet.MockMvc
@@ -34,26 +35,26 @@ class InternalAndExternalApiEnabledTest {
     private val jwtString = "jwtString"
 
     @Test
-    fun givenTokenClientIdThatIsAuthorizedTheRequestShouldReturnOk() {
+    fun `token with authorized client id returns 200 OK`() {
         val clientId = "clientId1234"
         tokenContainsClientId(jwtDecoder, jwtString, clientId)
         clientIsAuthorized(clientAuthorizationRequestService, clientId, "1")
 
         mockMvc
             .get(externalApiUrl) {
-                header("Authorization", "Bearer $jwtString")
+                header(HttpHeaders.AUTHORIZATION, "Bearer $jwtString")
             }.andExpect {
                 status { isOk() }
             }
     }
 
     @Test
-    fun givenTokenWithOrgIdAndRoleThatIsAuthorizedTheRequestShouldReturnOk() {
+    fun `token with authorized org id and role returns 200 OK`() {
         tokenContainsOrgIdAndRoles(jwtDecoder, jwtString, "example.no", listOf("admin"))
 
         mockMvc
             .get(internalApiUrl) {
-                header("Authorization", "Bearer $jwtString")
+                header(HttpHeaders.AUTHORIZATION, "Bearer $jwtString")
             }.andExpect {
                 status { isOk() }
             }

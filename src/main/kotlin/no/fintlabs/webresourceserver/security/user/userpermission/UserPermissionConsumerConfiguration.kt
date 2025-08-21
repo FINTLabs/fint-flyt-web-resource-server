@@ -19,11 +19,15 @@ class UserPermissionConsumerConfiguration(
     private val entityConsumerFactoryService: EntityConsumerFactoryService,
     private val userPermissionCache: FintCache<String, UserPermission>,
 ) {
-    private val log = LoggerFactory.getLogger(UserPermissionConsumerConfiguration::class.java)
+    companion object {
+        private val log = LoggerFactory.getLogger(UserPermissionConsumerConfiguration::class.java)
+        private const val PROP_ENABLED = "fint.flyt.webresourceserver.user-permissions-consumer.enabled"
+        private const val RESOURCE_USER_PERMISSION = "userpermission"
+    }
 
     @Bean
     @ConditionalOnProperty(
-        value = ["fint.flyt.webresourceserver.user-permissions-consumer.enabled"],
+        value = [PROP_ENABLED],
         havingValue = "true",
     )
     fun createCacheConsumer(): ConcurrentMessageListenerContainer<String, UserPermission> {
@@ -31,18 +35,12 @@ class UserPermissionConsumerConfiguration(
             .createBatchConsumerFactory(
                 UserPermission::class.java,
             ) { consumerRecords ->
-                consumerRecords.forEach { consumerRecord ->
-                    log.info(
-                        "Consuming userpermission: {} {}",
-                        consumerRecord.key(),
-                        consumerRecord.value().sourceApplicationIds,
-                    )
-
-                    userPermissionCache.put(
-                        consumerRecord.key(),
-                        consumerRecord.value(),
-                    )
+                for (record in consumerRecords) {
+                    with(record) {
+                        log.info("Consuming userpermission: {} {}", key(), value().sourceApplicationIds)
+                        userPermissionCache.put(key(), value())
+                    }
                 }
-            }.createContainer(EntityTopicNameParameters.builder().resource("userpermission").build())
+            }.createContainer(EntityTopicNameParameters.builder().resource(RESOURCE_USER_PERMISSION).build())
     }
 }

@@ -8,13 +8,13 @@ import org.springframework.stereotype.Service
 
 @Service
 class ClientJwtConverter : Converter<Jwt, AbstractAuthenticationToken> {
+    companion object {
+        private const val CLAIM_SUB = "sub"
+    }
+
     override fun convert(source: Jwt): AbstractAuthenticationToken {
-        val sub = source.getClaim("sub") as? String
-        return if (sub != null) {
-            val authority = ClientAuthorizationUtil.getAuthority(sub)
-            JwtAuthenticationToken(source, listOf(authority))
-        } else {
-            JwtAuthenticationToken(source)
-        }
+        val sub = source.getClaimAsString(CLAIM_SUB) ?: return JwtAuthenticationToken(source)
+        val authority = ClientAuthorizationUtil.getAuthority(sub)
+        return JwtAuthenticationToken(source, listOf(authority))
     }
 }

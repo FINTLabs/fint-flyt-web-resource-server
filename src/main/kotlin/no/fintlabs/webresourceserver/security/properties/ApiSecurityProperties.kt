@@ -10,6 +10,6 @@ abstract class ApiSecurityProperties(
         prefix: String,
         values: List<String>,
     ): Array<String> {
-        return values.map { prefix + it }.toTypedArray()
+        return values.map { "${prefix}$it" }.toTypedArray()
     }
 }

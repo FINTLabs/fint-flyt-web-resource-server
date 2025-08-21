@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.http.HttpHeaders
 import org.springframework.security.oauth2.jwt.JwtDecoder
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.servlet.MockMvc
@@ -30,7 +31,7 @@ class InternalClientApiEnabledTest {
     private val jwtString = "jwtString"
 
     @Test
-    fun givenNoTokenShouldReturnUnauthorized() {
+    fun `no token returns 401 Unauthorized`() {
         mockMvc
             .get(internalClientApiUrl)
             .andExpect {
@@ -39,36 +40,36 @@ class InternalClientApiEnabledTest {
     }
 
     @Test
-    fun givenTokenWithoutClientIdShouldReturnForbidden() {
+    fun `token without client id returns 403 Forbidden`() {
         SecurityTestUtils.tokenDoesNotContainClientId(jwtDecoder, jwtString)
 
         mockMvc
             .get(internalClientApiUrl) {
-                header("Authorization", "Bearer $jwtString")
+                header(HttpHeaders.AUTHORIZATION, "Bearer $jwtString")
             }.andExpect {
                 status { isForbidden() }
             }
     }
 
     @Test
-    fun givenTokenWithClientIdThatIsAuthorizedTheRequestShouldReturnOk() {
+    fun `token with authorized client id returns 200 OK`() {
         SecurityTestUtils.tokenContainsClientId(jwtDecoder, jwtString, "1234")
 
         mockMvc
             .get(internalClientApiUrl) {
-                header("Authorization", "Bearer $jwtString")
+                header(HttpHeaders.AUTHORIZATION, "Bearer $jwtString")
             }.andExpect {
                 status { isOk() }
             }
     }
 
     @Test
-    fun givenTokenWithClientIdThatIsNotAuthorizedTheRequestShouldReturnForbidden() {
+    fun `token with client id not authorized returns 403 Forbidden`() {
         SecurityTestUtils.tokenContainsClientId(jwtDecoder, jwtString, "abcd")
 
         mockMvc
             .get(internalClientApiUrl) {
-                header("Authorization", "Bearer $jwtString")
+                header(HttpHeaders.AUTHORIZATION, "Bearer $jwtString")
             }.andExpect {
                 status { isForbidden() }
             }

@@ -14,16 +14,22 @@ import java.time.Duration
 class UserPermissionCacheConfiguration(
     private val fintCacheManager: FintCacheManager,
 ) {
+    companion object {
+        private const val CACHE_NAME = "userpermission"
+        private const val HEAP_SIZE = 1_000_000L
+        private val TTL: java.time.Duration = java.time.Duration.ofMillis(Long.MAX_VALUE)
+    }
+
     @Bean
     fun userPermissionCache(): FintCache<String, UserPermission> {
         return fintCacheManager.createCache(
-            "userpermission",
+            CACHE_NAME,
             String::class.java,
             UserPermission::class.java,
             FintCacheOptions
                 .builder()
-                .timeToLive(Duration.ofMillis(9223372036854775807L))
-                .heapSize(1000000L)
+                .timeToLive(TTL)
+                .heapSize(HEAP_SIZE)
                 .build(),
         )
     }
