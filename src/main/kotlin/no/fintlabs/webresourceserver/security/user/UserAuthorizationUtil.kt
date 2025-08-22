@@ -6,15 +6,15 @@ import org.springframework.security.oauth2.jwt.Jwt
 import org.springframework.web.server.ResponseStatusException
 
 class UserAuthorizationUtil {
+    companion object {
+        private const val CLAIM_SOURCE_APPLICATION_IDS = "sourceApplicationIds"
+    }
+
     fun convertSourceApplicationIdsStringToList(authentication: Authentication): List<Long> {
-        val jwt = authentication.principal as Jwt
-        val sourceApplicationIds = jwt.getClaimAsString("sourceApplicationIds")
-
-        if (sourceApplicationIds.isNullOrEmpty() || sourceApplicationIds.isBlank()) {
-            return emptyList()
-        }
-
-        return sourceApplicationIds.split(",").map { it.toLong() }
+        val jwt = authentication.principal as? Jwt ?: return emptyList()
+        val sourceApplicationIds = jwt.getClaimAsString(CLAIM_SOURCE_APPLICATION_IDS)
+        if (sourceApplicationIds.isNullOrBlank()) return emptyList()
+        return sourceApplicationIds.split(',').map { it.trim().toLong() }
     }
 
     fun checkIfUserHasAccessToSourceApplication(
@@ -22,7 +22,7 @@ class UserAuthorizationUtil {
         sourceApplicationId: Long,
     ) {
         val allowedSourceApplicationIds = convertSourceApplicationIdsStringToList(authentication)
-        if (allowedSourceApplicationIds.contains(sourceApplicationId)) {
+        if (sourceApplicationId !in allowedSourceApplicationIds) {
             throw ResponseStatusException(
                 HttpStatus.FORBIDDEN,
                 "You do not have permission to access or modify data that is related to source application with id=$sourceApplicationId",

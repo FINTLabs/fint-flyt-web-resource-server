@@ -10,7 +10,7 @@ import no.fintlabs.kafka.requestreply.topic.RequestTopicNameParameters
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
-import java.util.Optional
+import kotlin.jvm.optionals.getOrNull
 
 @Service
 class SourceApplicationAuthorizationRequestService(
@@ -18,11 +18,16 @@ class SourceApplicationAuthorizationRequestService(
     requestProducerFactory: RequestProducerFactory,
     replyTopicService: ReplyTopicService,
 ) {
+    companion object {
+        private const val RESOURCE_AUTHORIZATION = "authorization"
+        private const val PARAM_CLIENT_ID = "client-id"
+    }
+
     private val requestTopicNameParameters: RequestTopicNameParameters =
         RequestTopicNameParameters
             .builder()
-            .resource("authorization")
-            .parameterName("client-id")
+            .resource(RESOURCE_AUTHORIZATION)
+            .parameterName(PARAM_CLIENT_ID)
             .build()
 
     private lateinit var requestProducer: RequestProducer<String, SourceApplicationAuthorization>
@@ -32,7 +37,7 @@ class SourceApplicationAuthorizationRequestService(
             ReplyTopicNameParameters
                 .builder()
                 .applicationId(applicationId)
-                .resource("authorization")
+                .resource(RESOURCE_AUTHORIZATION)
                 .build()
         replyTopicService.ensureTopic(
             replyTopicNameParameters,
@@ -47,7 +52,7 @@ class SourceApplicationAuthorizationRequestService(
             )
     }
 
-    fun getClientAuthorization(clientId: String): Optional<SourceApplicationAuthorization> {
+    fun getClientAuthorization(clientId: String): SourceApplicationAuthorization? {
         return requestProducer
             .requestAndReceive(
                 RequestProducerRecord
@@ -56,5 +61,6 @@ class SourceApplicationAuthorizationRequestService(
                     .value(clientId)
                     .build(),
             ).map(ConsumerRecord<String, SourceApplicationAuthorization>::value)
+            .getOrNull()
     }
 }

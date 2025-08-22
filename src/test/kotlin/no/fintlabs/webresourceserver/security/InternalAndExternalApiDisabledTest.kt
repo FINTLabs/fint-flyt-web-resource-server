@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.http.HttpHeaders
 import org.springframework.security.oauth2.jwt.JwtDecoder
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.get
@@ -37,24 +38,24 @@ class InternalAndExternalApiDisabledTest {
     private val jwtString = "jwtString"
 
     @Test
-    fun givenTokenWithClientIdThatIsAuthorizedTheRequestShouldReturnForbidden() {
+    fun `token with authorized client id returns 403 Forbidden`() {
         val clientId = "clientId1234"
         SecurityTestUtils.tokenContainsClientId(jwtDecoder, jwtString, clientId)
         SecurityTestUtils.clientIsAuthorized(clientAuthorizationRequestService, clientId, "1")
 
         mockMvc
             .get(externalApiUrl) {
-                header("Authorization", "Bearer $jwtString")
+                header(HttpHeaders.AUTHORIZATION, "Bearer $jwtString")
             }.andExpect { status { isForbidden() } }
     }
 
     @Test
-    fun givenTokenWithOrgIdThatIsAuthorizedTheRequestShouldReturnForbidden() {
+    fun `token with authorized org id returns 403 Forbidden`() {
         SecurityTestUtils.tokenContainsOrgId(jwtDecoder, jwtString, "example.no")
 
         mockMvc
             .get(internalApiUrl) {
-                header("Authorization", "Bearer $jwtString")
+                header(HttpHeaders.AUTHORIZATION, "Bearer $jwtString")
             }.andExpect { status { isForbidden() } }
     }
 }

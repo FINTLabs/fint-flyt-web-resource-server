@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RestController
 @RequestMapping("$INTERNAL_CLIENT_API/dummy")
 class InternalClientApiTestController {
     @GetMapping
-    fun getDummy(): ResponseEntity<Any> {
+    fun getDummy(): ResponseEntity<Void> {
         return ResponseEntity.ok().build()
     }
 }

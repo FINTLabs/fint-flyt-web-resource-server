@@ -33,7 +33,9 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher
 class SecurityConfiguration(
     private val userClaimFormattingService: UserClaimFormattingService,
 ) {
-    private val log = LoggerFactory.getLogger(SecurityConfiguration::class.java)
+    companion object {
+        private val log = LoggerFactory.getLogger(SecurityConfiguration::class.java)
+    }
 
     @Bean
     @ConfigurationProperties("fint.flyt.webresourceserver.security.api.internal")
@@ -117,35 +119,32 @@ class SecurityConfiguration(
             return denyAll(http)
         }
 
-        return if (apiSecurityProperties.permitAll) {
-            permitAll(http)
-        } else {
-            http.oauth2ResourceServer { resourceServer ->
-                resourceServer.jwt { jwt ->
-                    jwt.jwtAuthenticationConverter(converter)
-                }
-            }
-
-            http.authorizeHttpRequests { requests ->
-                requests
-                    .anyRequest()
-                    .hasAnyAuthority(*apiSecurityProperties.getPermittedAuthorities())
-            }
-            http.build()
+        if (apiSecurityProperties.permitAll) {
+            return permitAll(http)
         }
+
+        http.oauth2ResourceServer { resourceServer ->
+            resourceServer.jwt { jwt ->
+                jwt.jwtAuthenticationConverter(converter)
+            }
+        }
+
+        http.authorizeHttpRequests { requests ->
+            requests
+                .anyRequest()
+                .hasAnyAuthority(*apiSecurityProperties.getPermittedAuthorities())
+        }
+
+        return http.build()
     }
 
     private fun permitAll(http: HttpSecurity): SecurityFilterChain {
-        http.authorizeHttpRequests { requests ->
-            requests.anyRequest().permitAll()
-        }
+        http.authorizeHttpRequests { it.anyRequest().permitAll() }
         return http.build()
     }
 
     private fun denyAll(http: HttpSecurity): SecurityFilterChain {
-        http.authorizeHttpRequests { requests ->
-            requests.anyRequest().denyAll()
-        }
+        http.authorizeHttpRequests { it.anyRequest().denyAll() }
         return http.build()
     }
 }

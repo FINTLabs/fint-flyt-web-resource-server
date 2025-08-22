@@ -32,7 +32,7 @@ class ExternalApiDisabledTest {
     private val jwtString = "jwtString"
 
     @Test
-    fun givenTokenWithClientIdThatIsAuthorizedTheRequestShouldReturnForbidden() {
+    fun `given token with authorized client id returns 403 Forbidden`() {
         tokenContainsClientId(jwtDecoder, jwtString, "clientId1234")
         clientIsAuthorized(clientAuthorizationRequestService, "clientId1234", "1")
 
