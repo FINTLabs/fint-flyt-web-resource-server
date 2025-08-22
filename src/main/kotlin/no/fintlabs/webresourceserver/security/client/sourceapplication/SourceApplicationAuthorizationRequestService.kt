@@ -39,7 +39,7 @@ class SourceApplicationAuthorizationRequestService(
 //            )
 //    }
 
-    fun getClientAuthorization(clientId: String): Optional<SourceApplicationAuthorization> {
+    fun getClientAuthorization(clientId: String): SourceApplicationAuthorization? {
 //        return requestProducer
 //            .requestAndReceive(
 //                RequestProducerRecord

@@ -18,15 +18,10 @@ class UserClaimFormattingService(
     }
 
     fun convertSourceApplicationIdsIntoString(objectIdentifier: String?): String {
-        var sourceApplicationIdsString = ""
-        if (objectIdentifier != null) {
-            val userPermissionOptional = userPermissionCache.getOptional(objectIdentifier)
-            if (userPermissionOptional.isPresent) {
-                val sourceApplicationIds = userPermissionOptional.get().sourceApplicationIds
-                sourceApplicationIdsString = sourceApplicationIds.joinToString(",") { it.toString() }
-                log.debug("Fetched sourceApplicationIds from cache: $sourceApplicationIdsString")
-            }
-        }
+        val id = objectIdentifier ?: return ""
+        val userPermission = userPermissionCache.getOptional(id).orElse(null) ?: return ""
+        val sourceApplicationIdsString = userPermission.sourceApplicationIds.joinToString(",") { it.toString() }
+        log.debug("Fetched sourceApplicationIds from cache: {}", sourceApplicationIdsString)
         return sourceApplicationIdsString
     }
 }

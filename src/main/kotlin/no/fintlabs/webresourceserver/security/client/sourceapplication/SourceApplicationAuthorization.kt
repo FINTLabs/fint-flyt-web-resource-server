@@ -12,14 +12,16 @@ data class SourceApplicationAuthorization(
     ) {
         fun authorized(authorized: Boolean) = apply { this.authorized = authorized }
 
-        fun clientId(clientId: String) = apply { this.clientId = clientId }
+        fun clientId(clientId: String?) = apply { this.clientId = clientId }
 
         fun sourceApplicationId(sourceApplicationId: String?) = apply { this.sourceApplicationId = sourceApplicationId }
 
-        fun build() = SourceApplicationAuthorization(authorized, clientId, sourceApplicationId)
+        fun build(): SourceApplicationAuthorization =
+            SourceApplicationAuthorization(authorized, clientId, sourceApplicationId)
     }
 
     companion object {
+        @JvmStatic
         fun builder() = Builder()
     }
 }

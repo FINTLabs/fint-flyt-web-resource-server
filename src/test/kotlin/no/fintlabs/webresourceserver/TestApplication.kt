@@ -25,6 +25,6 @@ import org.springframework.context.annotation.FilterType
 )
 class TestApplication
 
-fun main(args: Array<String>) {
+fun main(vararg args: String) {
     runApplication<TestApplication>(*args)
 }

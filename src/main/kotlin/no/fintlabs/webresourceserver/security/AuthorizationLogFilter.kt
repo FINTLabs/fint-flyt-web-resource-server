@@ -7,10 +7,13 @@ import jakarta.servlet.ServletRequest
 import jakarta.servlet.ServletResponse
 import jakarta.servlet.http.HttpServletRequest
 import org.slf4j.LoggerFactory
+import org.springframework.http.HttpHeaders
 import java.io.IOException
 
 class AuthorizationLogFilter : Filter {
-    private val log = LoggerFactory.getLogger(AuthorizationLogFilter::class.java)
+    companion object {
+        private val log = LoggerFactory.getLogger(AuthorizationLogFilter::class.java)
+    }
 
     @Throws(IOException::class, ServletException::class)
     override fun doFilter(
@@ -18,8 +21,8 @@ class AuthorizationLogFilter : Filter {
         response: ServletResponse,
         chain: FilterChain,
     ) {
-        val httpRequest = request as HttpServletRequest
-        log.trace("Authorization Header: {}", httpRequest.getHeader("Authorization"))
+        val header = (request as? HttpServletRequest)?.getHeader(HttpHeaders.AUTHORIZATION)
+        log.trace("Authorization Header: {}", header)
         chain.doFilter(request, response)
     }
 }

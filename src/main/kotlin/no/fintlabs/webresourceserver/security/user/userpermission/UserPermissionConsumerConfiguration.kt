@@ -22,11 +22,15 @@ class UserPermissionConsumerConfiguration(
     private val factoryService: ParameterizedListenerContainerFactoryService,
     private val userPermissionCache: FintCache<String, UserPermission>,
 ) {
-    private val log = LoggerFactory.getLogger(UserPermissionConsumerConfiguration::class.java)
+    companion object {
+        private val log = LoggerFactory.getLogger(UserPermissionConsumerConfiguration::class.java)
+        private const val PROP_ENABLED = "fint.flyt.webresourceserver.user-permissions-consumer.enabled"
+        private const val RESOURCE_USER_PERMISSION = "userpermission"
+    }
 
     @Bean
     @ConditionalOnProperty(
-        value = ["fint.flyt.webresourceserver.user-permissions-consumer.enabled"],
+        value = [PROP_ENABLED],
         havingValue = "true",
     )
     fun createCacheConsumer(): ConcurrentMessageListenerContainer<String, UserPermission> {
@@ -67,7 +71,7 @@ class UserPermissionConsumerConfiguration(
             ).createContainer(
                 EntityTopicNameParameters
                     .builder()
-                    .resourceName("userpermission")
+                    .resourceName(RESOURCE_USER_PERMISSION)
                     .build(),
             )
     }
