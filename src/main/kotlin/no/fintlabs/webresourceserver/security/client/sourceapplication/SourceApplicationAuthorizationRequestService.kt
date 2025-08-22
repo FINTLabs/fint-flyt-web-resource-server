@@ -2,7 +2,7 @@ package no.fintlabs.webresourceserver.security.client.sourceapplication
 
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
-import java.util.*
+import java.util.Optional
 
 @Service
 class SourceApplicationAuthorizationRequestService(

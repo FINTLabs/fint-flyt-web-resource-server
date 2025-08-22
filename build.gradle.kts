@@ -38,7 +38,7 @@ dependencies {
 
     implementation("no.fintlabs:fint-flyt-cache:1.2.3")
     implementation("org.springframework.kafka:spring-kafka")
-    implementation("no.fintlabs:fint-kafka:5.0.0-rc-6")
+    implementation("no.fintlabs:fint-kafka:5.0.0-rc-7")
 
     testImplementation(kotlin("test"))
     testImplementation("org.springframework.boot:spring-boot-starter-test")

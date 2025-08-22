@@ -1,8 +1,11 @@
 package no.fintlabs.webresourceserver.security.user.userpermission
 
 import no.fintlabs.cache.FintCache
-import no.fintlabs.kafka.entity.EntityConsumerFactoryService
-import no.fintlabs.kafka.entity.topic.EntityTopicNameParameters
+import no.fintlabs.kafka.consuming.ErrorHandlerConfiguration
+import no.fintlabs.kafka.consuming.ListenerConfiguration
+import no.fintlabs.kafka.consuming.ParameterizedListenerContainerFactoryService
+import no.fintlabs.kafka.topic.name.EntityTopicNameParameters
+import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.slf4j.LoggerFactory
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.context.annotation.Bean
@@ -12,11 +15,11 @@ import org.springframework.kafka.listener.ConcurrentMessageListenerContainer
 
 @Configuration
 @Import(
-    EntityConsumerFactoryService::class,
+    ParameterizedListenerContainerFactoryService::class,
     UserPermissionCacheConfiguration::class,
 )
 class UserPermissionConsumerConfiguration(
-    private val entityConsumerFactoryService: EntityConsumerFactoryService,
+    private val factoryService: ParameterizedListenerContainerFactoryService,
     private val userPermissionCache: FintCache<String, UserPermission>,
 ) {
     private val log = LoggerFactory.getLogger(UserPermissionConsumerConfiguration::class.java)
@@ -27,22 +30,45 @@ class UserPermissionConsumerConfiguration(
         havingValue = "true",
     )
     fun createCacheConsumer(): ConcurrentMessageListenerContainer<String, UserPermission> {
-        return entityConsumerFactoryService
-            .createBatchConsumerFactory(
-                UserPermission::class.java,
-            ) { consumerRecords ->
-                consumerRecords.forEach { consumerRecord ->
-                    log.info(
-                        "Consuming userpermission: {} {}",
-                        consumerRecord.key(),
-                        consumerRecord.value().sourceApplicationIds,
-                    )
+        val errorHandler =
+            ErrorHandlerConfiguration
+                .builder(UserPermission::class.java)
+                .noRetries()
+                .skipFailedRecords()
+                .build()
 
-                    userPermissionCache.put(
-                        consumerRecord.key(),
-                        consumerRecord.value(),
-                    )
-                }
-            }.createContainer(EntityTopicNameParameters.builder().resource("userpermission").build())
+        val config =
+            ListenerConfiguration
+                .builder(UserPermission::class.java)
+                .groupIdApplicationDefault()
+                .maxPollRecordsKafkaDefault()
+                .maxPollIntervalKafkaDefault()
+                .errorHandler(errorHandler)
+                .seekToBeginningOnAssignment()
+                .build()
+
+        return factoryService
+            .createBatchListenerContainerFactory(
+                { records: List<ConsumerRecord<String, UserPermission>> ->
+                    records.forEach { record ->
+                        log.info(
+                            "Consuming userpermission: {} {}",
+                            record.key(),
+                            record.value().sourceApplicationIds,
+                        )
+
+                        userPermissionCache.put(
+                            record.key(),
+                            record.value(),
+                        )
+                    }
+                },
+                config,
+            ).createContainer(
+                EntityTopicNameParameters
+                    .builder()
+                    .resourceName("userpermission")
+                    .build(),
+            )
     }
 }
