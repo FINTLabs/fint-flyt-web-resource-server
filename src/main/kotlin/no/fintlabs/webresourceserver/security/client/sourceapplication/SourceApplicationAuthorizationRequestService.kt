@@ -24,8 +24,8 @@ class SourceApplicationAuthorizationRequestService(
     replyTopicService: ReplyTopicService,
 ) {
     companion object {
-        private const val RESOURCE_NAME: String = "authorization"
-        private const val PARAMETER_NAME: String = "client-id"
+        private const val RESOURCE_NAME = "authorization"
+        private const val PARAMETER_NAME = "client-id"
     }
 
     private val requestTopicNameParameters: RequestTopicNameParameters =
