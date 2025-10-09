@@ -8,7 +8,7 @@ plugins {
     id("maven-publish")
     kotlin("jvm") version "2.1.10"
     kotlin("plugin.spring") version "2.1.10"
-    id("org.jlleitschuh.gradle.ktlint") version "13.0.0"
+    id("org.jlleitschuh.gradle.ktlint") version "13.1.0"
 }
 
 group = "no.fintlabs"
@@ -65,15 +65,6 @@ tasks.named<Jar>("jar") {
 
 java {
     withSourcesJar()
-}
-
-ktlint {
-    version.set("1.7.1")
-    ignoreFailures.set(false)
-    outputToConsole.set(true)
-    filter {
-        exclude("**/generated/**")
-    }
 }
 
 tasks.named("check") {
