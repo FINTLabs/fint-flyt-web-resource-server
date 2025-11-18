@@ -1,1 +1,1 @@
-# fint-flyt-web-resource-server
+# FINT Flyt Resource Server

@@ -1,12 +1,10 @@
-fint:
-  org-id: fintlabs.no
-  application-id: fint-flyt-web-resource-server-test
+novari:
+  org-id: novari.no
+  application-id: flyt-resource-server-test
+
 spring:
   security:
     oauth2:
       resourceserver:
         jwt:
           issuer-uri: null
-  cache:
-    defaultCacheEntryTimeToLiveMillis: 9223372036854775807
-    defaultCacheHeapSize: 1000000

@@ -1,0 +1,8 @@
+novari:
+  flyt:
+    resource-server:
+      security:
+        api:
+          internal:
+            enabled: true
+            authorized-org-id-role-pairs-json: "{\"domain-with-admin-and-dev-access.no\":[\"ADMIN\", \"DEVELOPER\"],\"domain-with-all-user-access.no\":[\"USER\", \"ADMIN\", \"DEVELOPER\"]}"
