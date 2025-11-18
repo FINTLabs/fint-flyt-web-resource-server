@@ -29,7 +29,6 @@ import org.springframework.kafka.listener.ConcurrentMessageListenerContainer
     value = ["internal.enabled"],
     havingValue = "true"
 )
-@Import(FintCacheConfiguration::class)
 class InternalUserApiConfiguration {
 
     @Bean
@@ -48,7 +47,8 @@ class InternalUserApiConfiguration {
         "userpermission",
         UUID::class.java,
         UserPermission::class.java,
-        FintCacheOptions.builder()
+        FintCacheOptions
+            .builder()
             .timeToLive(Duration.ofMillis(Long.MAX_VALUE))
             .heapSize(1_000_000L)
             .build()

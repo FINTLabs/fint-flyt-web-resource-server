@@ -45,12 +45,14 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-reflect")
 
     implementation("org.springframework.boot:spring-boot-starter-actuator")
-    implementation("org.springframework.boot:spring-boot-starter-webflux")
+    implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server")
     implementation("org.springframework.boot:spring-boot-starter-cache")
     implementation("org.springframework.kafka:spring-kafka")
 
-    implementation("no.novari:kafka:5.0.0-rc-19")
+    implementation("no.novari:kafka:5.0.0-rc-19") {
+        exclude(group = "org.springframework.boot", module = "spring-boot-starter-webflux")
+    }
     implementation("no.novari:flyt-cache:2.0.0-rc-2")
 
     annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
@@ -58,7 +60,6 @@ dependencies {
 
     testImplementation("org.springframework.kafka:spring-kafka-test")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
-    testImplementation("io.projectreactor:reactor-test")
     testImplementation("org.springframework.security:spring-security-test")
 }
 

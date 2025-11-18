@@ -2,12 +2,13 @@ package no.novari.flyt.resourceserver.security.client.sourceapplication
 
 import java.util.Optional
 import org.assertj.core.api.Assertions.assertThat
+import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.mockito.Mockito
+import org.springframework.security.authentication.BadCredentialsException
 import org.springframework.security.core.GrantedAuthority
 import org.springframework.security.oauth2.jwt.Jwt
-import reactor.test.StepVerifier
 
 class SourceApplicationJwtConverterTest {
 
@@ -28,16 +29,12 @@ class SourceApplicationJwtConverterTest {
     }
 
     @Test
-    fun `token without subject should keep authorities empty`() {
+    fun `token without subject should throw`() {
         val jwt = Mockito.mock(Jwt::class.java)
         Mockito.`when`(jwt.subject).thenReturn(null)
 
-        StepVerifier.create(sourceApplicationJwtConverter.convert(jwt))
-            .assertNext { authentication ->
-                assertThat(authentication.authorities).isEmpty()
-            }
-            .expectComplete()
-            .verify()
+        assertThatThrownBy { sourceApplicationJwtConverter.convert(jwt) }
+            .isInstanceOf(BadCredentialsException::class.java)
 
         Mockito.verifyNoInteractions(
             sourceApplicationAuthorizationRequestService,
@@ -46,19 +43,15 @@ class SourceApplicationJwtConverterTest {
     }
 
     @Test
-    fun `token with subject but no authorization should keep authorities empty`() {
+    fun `token with subject but no authorization should throw`() {
         val jwt = Mockito.mock(Jwt::class.java)
         Mockito.`when`(jwt.subject).thenReturn("subjectValue")
         Mockito.`when`(
             sourceApplicationAuthorizationRequestService.getClientAuthorization("subjectValue")
         ).thenReturn(Optional.empty())
 
-        StepVerifier.create(sourceApplicationJwtConverter.convert(jwt))
-            .assertNext { authentication ->
-                assertThat(authentication.authorities).isEmpty()
-            }
-            .expectComplete()
-            .verify()
+        assertThatThrownBy { sourceApplicationJwtConverter.convert(jwt) }
+            .isInstanceOf(BadCredentialsException::class.java)
 
         Mockito.verify(sourceApplicationAuthorizationRequestService).getClientAuthorization("subjectValue")
         Mockito.verifyNoMoreInteractions(
@@ -73,6 +66,7 @@ class SourceApplicationJwtConverterTest {
         Mockito.`when`(jwt.subject).thenReturn("subjectValue")
 
         val sourceApplicationAuthorization = Mockito.mock(SourceApplicationAuthorization::class.java)
+        Mockito.`when`(sourceApplicationAuthorization.authorized).thenReturn(true)
         Mockito.`when`(sourceApplicationAuthorization.sourceApplicationId).thenReturn(3L)
         Mockito.`when`(
             sourceApplicationAuthorizationRequestService.getClientAuthorization("subjectValue")
@@ -82,12 +76,8 @@ class SourceApplicationJwtConverterTest {
         Mockito.`when`(sourceApplicationAuthorityMappingService.createSourceApplicationAuthority(3L))
             .thenReturn(grantedAuthority)
 
-        StepVerifier.create(sourceApplicationJwtConverter.convert(jwt))
-            .assertNext { authentication ->
-                assertThat(authentication.authorities).containsExactly(grantedAuthority)
-            }
-            .expectComplete()
-            .verify()
+        val authentication = sourceApplicationJwtConverter.convert(jwt)
+        assertThat(authentication.authorities).containsExactly(grantedAuthority)
 
         Mockito.verify(sourceApplicationAuthorizationRequestService).getClientAuthorization("subjectValue")
         Mockito.verify(sourceApplicationAuthorityMappingService).createSourceApplicationAuthority(3L)

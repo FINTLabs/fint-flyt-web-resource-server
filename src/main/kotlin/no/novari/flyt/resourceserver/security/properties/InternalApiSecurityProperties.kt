@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.ObjectMapper
 import jakarta.annotation.PostConstruct
 import no.novari.flyt.resourceserver.security.user.UserRole
+import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
 class InternalApiSecurityProperties {
@@ -28,6 +29,6 @@ class InternalApiSecurityProperties {
     }
 
     private companion object {
-        private val log = LoggerFactory.getLogger(InternalApiSecurityProperties::class.java)
+        private val log: Logger = LoggerFactory.getLogger(this::class.java)
     }
 }

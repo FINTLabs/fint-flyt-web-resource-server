@@ -22,9 +22,11 @@ class SourceApplicationAuthorizationRequestService(
 ) {
 
     private val requestTopicNameParameters: RequestTopicNameParameters =
-        RequestTopicNameParameters.builder()
+        RequestTopicNameParameters
+            .builder()
             .topicNamePrefixParameters(
-                TopicNamePrefixParameters.stepBuilder()
+                TopicNamePrefixParameters
+                    .stepBuilder()
                     .orgIdApplicationDefault()
                     .domainContextApplicationDefault()
                     .build()
@@ -36,9 +38,11 @@ class SourceApplicationAuthorizationRequestService(
     private val requestTemplate: RequestTemplate<String, SourceApplicationAuthorization>
 
     init {
-        val replyTopicNameParameters = ReplyTopicNameParameters.builder()
+        val replyTopicNameParameters = ReplyTopicNameParameters
+            .builder()
             .topicNamePrefixParameters(
-                TopicNamePrefixParameters.stepBuilder()
+                TopicNamePrefixParameters
+                    .stepBuilder()
                     .orgIdApplicationDefault()
                     .domainContextApplicationDefault()
                     .build()
@@ -49,7 +53,8 @@ class SourceApplicationAuthorizationRequestService(
 
         replyTopicService.createOrModifyTopic(
             replyTopicNameParameters,
-            ReplyTopicConfiguration.builder()
+            ReplyTopicConfiguration
+                .builder()
                 .retentionTime(Duration.ofMinutes(2))
                 .build()
         )
@@ -59,7 +64,8 @@ class SourceApplicationAuthorizationRequestService(
             String::class.java,
             SourceApplicationAuthorization::class.java,
             Duration.ofSeconds(5),
-            ListenerConfiguration.stepBuilder()
+            ListenerConfiguration
+                .stepBuilder()
                 .groupIdApplicationDefault()
                 .maxPollRecordsKafkaDefault()
                 .maxPollIntervalKafkaDefault()
@@ -70,7 +76,8 @@ class SourceApplicationAuthorizationRequestService(
 
     fun getClientAuthorization(clientId: String): Optional<SourceApplicationAuthorization> = Optional.ofNullable(
         requestTemplate.requestAndReceive(
-            RequestProducerRecord.builder<String>()
+            RequestProducerRecord
+                .builder<String>()
                 .topicNameParameters(requestTopicNameParameters)
                 .value(clientId)
                 .build()

@@ -8,6 +8,7 @@ import no.novari.kafka.consuming.ListenerConfiguration
 import no.novari.kafka.consuming.ParameterizedListenerContainerFactoryService
 import no.novari.kafka.topic.name.EntityTopicNameParameters
 import no.novari.kafka.topic.name.TopicNamePrefixParameters
+import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.kafka.listener.ConcurrentMessageListenerContainer
 
@@ -33,22 +34,26 @@ class UserPermissionCachingListenerFactory {
                     )
                 }
             },
-            ListenerConfiguration.stepBuilder()
+            ListenerConfiguration
+                .stepBuilder()
                 .groupIdApplicationDefault()
                 .maxPollRecordsKafkaDefault()
                 .maxPollIntervalKafkaDefault()
                 .seekToBeginningOnAssignment()
                 .build(),
             errorHandlerFactory.createErrorHandler(
-                ErrorHandlerConfiguration.stepBuilder<UserPermission>()
+                ErrorHandlerConfiguration
+                    .stepBuilder<UserPermission>()
                     .noRetries()
                     .skipFailedRecords()
                     .build()
             )
         ).createContainer(
-            EntityTopicNameParameters.builder()
+            EntityTopicNameParameters
+                .builder()
                 .topicNamePrefixParameters(
-                    TopicNamePrefixParameters.stepBuilder()
+                    TopicNamePrefixParameters
+                        .stepBuilder()
                         .orgIdApplicationDefault()
                         .domainContextApplicationDefault()
                         .build()
@@ -58,6 +63,6 @@ class UserPermissionCachingListenerFactory {
         )
 
     private companion object {
-        private val log = LoggerFactory.getLogger(UserPermissionCachingListenerFactory::class.java)
+        private val log: Logger = LoggerFactory.getLogger(this::class.java)
     }
 }

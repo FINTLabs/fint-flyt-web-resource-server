@@ -4,13 +4,14 @@ import java.util.UUID
 import no.novari.cache.FintCache
 import no.novari.flyt.resourceserver.security.client.sourceapplication.SourceApplicationAuthorityMappingService
 import no.novari.flyt.resourceserver.security.user.permission.UserPermission
+import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.core.convert.converter.Converter
 import org.springframework.security.authentication.AbstractAuthenticationToken
+import org.springframework.security.authentication.BadCredentialsException
 import org.springframework.security.core.GrantedAuthority
 import org.springframework.security.oauth2.jwt.Jwt
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken
-import reactor.core.publisher.Mono
 
 class UserJwtConverter(
     private val userPermissionCache: FintCache<UUID, UserPermission>,
@@ -18,9 +19,9 @@ class UserJwtConverter(
     private val sourceApplicationAuthorityMappingService: SourceApplicationAuthorityMappingService,
     private val userRoleHierarchyService: UserRoleHierarchyService,
     private val userRoleAuthorityMappingService: UserRoleAuthorityMappingService
-) : Converter<Jwt, Mono<AbstractAuthenticationToken>> {
+) : Converter<Jwt, AbstractAuthenticationToken> {
 
-    override fun convert(jwt: Jwt): Mono<AbstractAuthenticationToken> = Mono.fromCallable {
+    override fun convert(jwt: Jwt): AbstractAuthenticationToken {
         val organizationId = jwt.getClaimAsString(UserClaim.ORGANIZATION_ID.tokenClaimName)
         log.debug("Extracted organization ID from JWT: {}", organizationId)
 
@@ -28,7 +29,7 @@ class UserJwtConverter(
         log.debug("Extracted objectIdentifier from JWT: {}", objectIdentifierString)
 
         if (organizationId.isNullOrBlank() || objectIdentifierString.isNullOrBlank()) {
-            return@fromCallable JwtAuthenticationToken(jwt)
+            throw BadCredentialsException("Missing required claims for user authentication")
         }
 
         val objectIdentifier = UUID.fromString(objectIdentifierString)
@@ -50,10 +51,10 @@ class UserJwtConverter(
             authorities.addAll(userRoleAuthorityMappingService.createRoleAuthorities(providedAndImpliedRoles))
         }
 
-        JwtAuthenticationToken(jwt, authorities)
+        return JwtAuthenticationToken(jwt, authorities)
     }
 
     private companion object {
-        private val log = LoggerFactory.getLogger(UserJwtConverter::class.java)
+        private val log: Logger = LoggerFactory.getLogger(this::class.java)
     }
 }

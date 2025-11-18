@@ -1,6 +1,7 @@
 package no.novari.flyt.resourceserver.security.user
 
 import no.novari.flyt.resourceserver.security.properties.InternalApiSecurityProperties
+import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
 class UserRoleFilteringService(
@@ -35,6 +36,6 @@ class UserRoleFilteringService(
     }
 
     private companion object {
-        private val log = LoggerFactory.getLogger(UserRoleFilteringService::class.java)
+        private val log: Logger = LoggerFactory.getLogger(this::class.java)
     }
 }

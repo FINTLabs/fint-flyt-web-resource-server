@@ -15,35 +15,35 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnBean
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.context.annotation.Bean
 import org.springframework.core.annotation.Order
-import org.springframework.security.authorization.AuthorityReactiveAuthorizationManager
-import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity
-import org.springframework.security.config.web.server.ServerHttpSecurity
-import org.springframework.security.web.server.SecurityWebFilterChain
+import org.springframework.security.authorization.AuthorityAuthorizationManager
+import org.springframework.security.config.annotation.web.builders.HttpSecurity
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
+import org.springframework.security.web.SecurityFilterChain
 
-@EnableWebFluxSecurity
+@EnableWebSecurity
 @AutoConfiguration
 class SecurityConfiguration {
 
     @Order(0)
     @Bean
     fun actuatorSecurityFilterChain(
-        http: ServerHttpSecurity,
-        securityWebFilterChainFactoryService: SecurityWebFilterChainFactoryService
-    ): SecurityWebFilterChain = securityWebFilterChainFactoryService.permitAll(http, "/actuator")
+        http: HttpSecurity,
+        securityFilterChainFactoryService: SecurityFilterChainFactoryService
+    ): SecurityFilterChain = securityFilterChainFactoryService.permitAll(http, "/actuator")
 
     @Order(1)
     @Bean
     @ConditionalOnBean(InternalUserApiConfiguration::class)
     fun internalAdminApiFilterChain(
-        http: ServerHttpSecurity,
+        http: HttpSecurity,
         userJwtConverter: UserJwtConverter,
         userRoleAuthorityMappingService: UserRoleAuthorityMappingService,
-        securityWebFilterChainFactoryService: SecurityWebFilterChainFactoryService
-    ): SecurityWebFilterChain = securityWebFilterChainFactoryService.createFilterChain(
+        securityFilterChainFactoryService: SecurityFilterChainFactoryService
+    ): SecurityFilterChain = securityFilterChainFactoryService.createFilterChain(
         http,
         UrlPaths.INTERNAL_ADMIN_API,
         userJwtConverter,
-        AuthorityReactiveAuthorizationManager.hasAuthority(
+        AuthorityAuthorizationManager.hasAuthority(
             userRoleAuthorityMappingService.createRoleAuthorityString(UserRole.ADMIN)
         )
     )
@@ -52,15 +52,15 @@ class SecurityConfiguration {
     @Bean
     @ConditionalOnBean(InternalUserApiConfiguration::class)
     fun internalUserApiFilterChain(
-        http: ServerHttpSecurity,
+        http: HttpSecurity,
         userJwtConverter: UserJwtConverter,
         userRoleAuthorityMappingService: UserRoleAuthorityMappingService,
-        securityWebFilterChainFactoryService: SecurityWebFilterChainFactoryService
-    ): SecurityWebFilterChain = securityWebFilterChainFactoryService.createFilterChain(
+        securityFilterChainFactoryService: SecurityFilterChainFactoryService
+    ): SecurityFilterChain = securityFilterChainFactoryService.createFilterChain(
         http,
         UrlPaths.INTERNAL_API,
         userJwtConverter,
-        AuthorityReactiveAuthorizationManager.hasAuthority(
+        AuthorityAuthorizationManager.hasAuthority(
             userRoleAuthorityMappingService.createRoleAuthorityString(UserRole.USER)
         )
     )
@@ -69,24 +69,24 @@ class SecurityConfiguration {
     @Bean
     @ConditionalOnMissingBean(InternalUserApiConfiguration::class)
     fun internalApiDisabledFilterChain(
-        http: ServerHttpSecurity,
-        securityWebFilterChainFactoryService: SecurityWebFilterChainFactoryService
-    ): SecurityWebFilterChain = securityWebFilterChainFactoryService.denyAll(http, UrlPaths.INTERNAL_API)
+        http: HttpSecurity,
+        securityFilterChainFactoryService: SecurityFilterChainFactoryService
+    ): SecurityFilterChain = securityFilterChainFactoryService.denyAll(http, UrlPaths.INTERNAL_API)
 
     @Order(3)
     @Bean
     @ConditionalOnBean(InternalClientApiConfiguration::class)
     fun internalClientApiFilterChain(
-        http: ServerHttpSecurity,
+        http: HttpSecurity,
         internalClientApiSecurityProperties: InternalClientApiSecurityProperties,
         internalClientJwtConverter: InternalClientJwtConverter,
         internalClientAuthorityMappingService: InternalClientAuthorityMappingService,
-        securityWebFilterChainFactoryService: SecurityWebFilterChainFactoryService
-    ): SecurityWebFilterChain = securityWebFilterChainFactoryService.createFilterChain(
+        securityFilterChainFactoryService: SecurityFilterChainFactoryService
+    ): SecurityFilterChain = securityFilterChainFactoryService.createFilterChain(
         http,
         UrlPaths.INTERNAL_CLIENT_API,
         internalClientJwtConverter,
-        AuthorityReactiveAuthorizationManager.hasAnyAuthority(
+        AuthorityAuthorizationManager.hasAnyAuthority(
             *internalClientAuthorityMappingService.createInternalClientIdAuthorityStrings(
                 internalClientApiSecurityProperties.authorizedClientIds
             ).toTypedArray()
@@ -97,24 +97,24 @@ class SecurityConfiguration {
     @Bean
     @ConditionalOnMissingBean(InternalClientApiConfiguration::class)
     fun internalClientApiDisabledFilterChain(
-        http: ServerHttpSecurity,
-        securityWebFilterChainFactoryService: SecurityWebFilterChainFactoryService
-    ): SecurityWebFilterChain = securityWebFilterChainFactoryService.denyAll(http, UrlPaths.INTERNAL_CLIENT_API)
+        http: HttpSecurity,
+        securityFilterChainFactoryService: SecurityFilterChainFactoryService
+    ): SecurityFilterChain = securityFilterChainFactoryService.denyAll(http, UrlPaths.INTERNAL_CLIENT_API)
 
     @Order(4)
     @Bean
     @ConditionalOnBean(ExternalClientApiConfiguration::class)
     fun externalApiFilterChain(
-        http: ServerHttpSecurity,
+        http: HttpSecurity,
         externalApiSecurityProperties: ExternalApiSecurityProperties,
         sourceApplicationJwtConverter: SourceApplicationJwtConverter,
         sourceApplicationAuthorityMappingService: SourceApplicationAuthorityMappingService,
-        securityWebFilterChainFactoryService: SecurityWebFilterChainFactoryService
-    ): SecurityWebFilterChain = securityWebFilterChainFactoryService.createFilterChain(
+        securityFilterChainFactoryService: SecurityFilterChainFactoryService
+    ): SecurityFilterChain = securityFilterChainFactoryService.createFilterChain(
         http,
         UrlPaths.EXTERNAL_API,
         sourceApplicationJwtConverter,
-        AuthorityReactiveAuthorizationManager.hasAnyAuthority(
+        AuthorityAuthorizationManager.hasAnyAuthority(
             *sourceApplicationAuthorityMappingService.createSourceApplicationAuthorityStrings(
                 externalApiSecurityProperties.authorizedSourceApplicationIds
             ).toTypedArray()
@@ -124,7 +124,7 @@ class SecurityConfiguration {
     @Order(5)
     @Bean
     fun globalFilterChain(
-        http: ServerHttpSecurity,
-        securityWebFilterChainFactoryService: SecurityWebFilterChainFactoryService
-    ): SecurityWebFilterChain = securityWebFilterChainFactoryService.denyAll(http)
+        http: HttpSecurity,
+        securityFilterChainFactoryService: SecurityFilterChainFactoryService
+    ): SecurityFilterChain = securityFilterChainFactoryService.denyAll(http)
 }

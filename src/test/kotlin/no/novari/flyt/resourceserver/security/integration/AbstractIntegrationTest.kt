@@ -14,24 +14,24 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.mockito.Mockito
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.boot.test.web.client.TestRestTemplate
 import org.springframework.core.ParameterizedTypeReference
+import org.springframework.http.HttpEntity
+import org.springframework.http.HttpHeaders
+import org.springframework.http.HttpMethod
 import org.springframework.kafka.listener.ConcurrentMessageListenerContainer
-import org.springframework.security.oauth2.jwt.ReactiveJwtDecoder
+import org.springframework.security.oauth2.jwt.JwtDecoder
 import org.springframework.test.context.bean.override.mockito.MockitoBean
-import org.springframework.test.web.reactive.server.WebTestClient
-import reactor.core.publisher.Mono
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@AutoConfigureWebTestClient
 abstract class AbstractIntegrationTest {
 
     @MockitoBean
-    private lateinit var reactiveJwtDecoder: ReactiveJwtDecoder
+    private lateinit var jwtDecoder: JwtDecoder
 
     @Autowired
-    private lateinit var webTestClient: WebTestClient
+    private lateinit var testRestTemplate: TestRestTemplate
 
     @MockitoBean
     private var sourceApplicationAuthorizationRequestService: SourceApplicationAuthorizationRequestService? = null
@@ -105,22 +105,23 @@ abstract class AbstractIntegrationTest {
     protected fun performIntegrationTest(testParameters: TestParameters) {
         val token = testParameters.tokenWrapper.token
         token?.let {
-            Mockito.`when`(reactiveJwtDecoder.decode(it.tokenValue)).thenReturn(Mono.just(it))
+            Mockito.`when`(jwtDecoder.decode(it.tokenValue)).thenReturn(it)
         }
 
         val expectedResult: ExpectedResult = testParameters.expectedResult
 
-        val result = webTestClient
-            .get()
-            .uri(testParameters.path)
-            .headers { headers ->
-                token?.let { headers.setBearerAuth(it.tokenValue) }
-            }
-            .exchange()
-            .expectStatus().isEqualTo(expectedResult.status)
-            .returnResult(object : ParameterizedTypeReference<Set<String>>() {})
-            .responseBody
-            .blockFirst()
+        val headers = HttpHeaders()
+        token?.let { headers.setBearerAuth(it.tokenValue) }
+
+        val response = testRestTemplate.exchange(
+            testParameters.path,
+            HttpMethod.GET,
+            HttpEntity<Void>(headers),
+            object : ParameterizedTypeReference<Set<String>>() {}
+        )
+
+        assertThat(response.statusCode).isEqualTo(expectedResult.status)
+        val result = response.body
 
         expectedResult.authorities?.let { authorities ->
             assertThat(result).containsExactlyInAnyOrderElementsOf(authorities)

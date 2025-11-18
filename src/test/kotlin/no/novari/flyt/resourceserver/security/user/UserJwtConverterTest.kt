@@ -6,13 +6,14 @@ import no.novari.cache.FintCache
 import no.novari.flyt.resourceserver.security.client.sourceapplication.SourceApplicationAuthorityMappingService
 import no.novari.flyt.resourceserver.security.user.permission.UserPermission
 import org.assertj.core.api.Assertions.assertThat
+import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.mockito.Mockito
+import org.springframework.security.authentication.BadCredentialsException
 import org.springframework.security.core.GrantedAuthority
 import org.springframework.security.oauth2.jwt.Jwt
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken
-import reactor.test.StepVerifier
 
 @Suppress("UNCHECKED_CAST")
 class UserJwtConverterTest {
@@ -44,33 +45,21 @@ class UserJwtConverterTest {
     }
 
     @Test
-    fun `no organization id claim returns unauthenticated token`() {
+    fun `no organization id claim throws exception`() {
         Mockito.`when`(jwt.getClaimAsString(UserClaim.ORGANIZATION_ID.tokenClaimName))
             .thenReturn(null)
 
-        StepVerifier.create(converter.convert(jwt))
-            .assertNext { authentication ->
-                assertThat(authentication).isInstanceOf(JwtAuthenticationToken::class.java)
-                assertThat(authentication.authorities).isEmpty()
-                assertThat(authentication.isAuthenticated).isFalse()
-            }
-            .expectComplete()
-            .verify()
+        assertThatThrownBy { converter.convert(jwt) }
+            .isInstanceOf(BadCredentialsException::class.java)
     }
 
     @Test
-    fun `no object identifier returns unauthenticated token`() {
+    fun `no object identifier claim throws exception`() {
         Mockito.`when`(jwt.getClaimAsString(UserClaim.ORGANIZATION_ID.tokenClaimName))
             .thenReturn("testOrganizationId")
 
-        StepVerifier.create(converter.convert(jwt))
-            .assertNext { authentication ->
-                assertThat(authentication).isInstanceOf(JwtAuthenticationToken::class.java)
-                assertThat(authentication.authorities).isEmpty()
-                assertThat(authentication.isAuthenticated).isFalse()
-            }
-            .expectComplete()
-            .verify()
+        assertThatThrownBy { converter.convert(jwt) }
+            .isInstanceOf(BadCredentialsException::class.java)
     }
 
     @Test
@@ -85,14 +74,10 @@ class UserJwtConverterTest {
             .thenReturn(Optional.empty())
         Mockito.`when`(jwt.getClaimAsStringList(UserClaim.ROLES.tokenClaimName)).thenReturn(listOf())
 
-        StepVerifier.create(converter.convert(jwt))
-            .assertNext { authentication ->
-                assertThat(authentication).isInstanceOf(JwtAuthenticationToken::class.java)
-                assertThat(authentication.authorities).isEmpty()
-                assertThat(authentication.isAuthenticated).isTrue()
-            }
-            .expectComplete()
-            .verify()
+        val authentication = converter.convert(jwt)
+        assertThat(authentication).isInstanceOf(JwtAuthenticationToken::class.java)
+        assertThat(authentication.authorities).isEmpty()
+        assertThat(authentication.isAuthenticated).isTrue()
 
         Mockito.verify(jwt).getClaimAsString(UserClaim.ORGANIZATION_ID.tokenClaimName)
         Mockito.verify(jwt).getClaimAsString(UserClaim.OBJECT_IDENTIFIER.tokenClaimName)
@@ -141,18 +126,14 @@ class UserJwtConverterTest {
             userRoleAuthorityMappingService.createRoleAuthorities(setOf(UserRole.ADMIN, UserRole.USER))
         ).thenReturn(setOf(roleAuthority))
 
-        StepVerifier.create(converter.convert(jwt))
-            .assertNext { authentication ->
-                assertThat(authentication).isInstanceOf(JwtAuthenticationToken::class.java)
-                assertThat(authentication.authorities).containsExactlyInAnyOrder(
-                    grantedAuthority1,
-                    grantedAuthority2,
-                    roleAuthority
-                )
-                assertThat(authentication.isAuthenticated).isTrue()
-            }
-            .expectComplete()
-            .verify()
+        val authentication = converter.convert(jwt)
+        assertThat(authentication).isInstanceOf(JwtAuthenticationToken::class.java)
+        assertThat(authentication.authorities).containsExactlyInAnyOrder(
+            grantedAuthority1,
+            grantedAuthority2,
+            roleAuthority
+        )
+        assertThat(authentication.isAuthenticated).isTrue()
 
         Mockito.verify(jwt).getClaimAsString(UserClaim.ORGANIZATION_ID.tokenClaimName)
         Mockito.verify(jwt).getClaimAsString(UserClaim.OBJECT_IDENTIFIER.tokenClaimName)
