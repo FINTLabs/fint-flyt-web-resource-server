@@ -8,7 +8,6 @@ import org.mockito.Mockito
 import org.springframework.security.core.authority.SimpleGrantedAuthority
 
 class SourceApplicationAuthorityMappingServiceTest {
-
     private val authorityMappingService = Mockito.mock(AuthorityMappingService::class.java)
     private val service = SourceApplicationAuthorityMappingService(authorityMappingService)
 
@@ -17,8 +16,8 @@ class SourceApplicationAuthorityMappingServiceTest {
         Mockito.`when`(
             authorityMappingService.toAuthority(
                 AuthorityPrefix.SOURCE_APPLICATION_ID,
-                "2"
-            )
+                "2",
+            ),
         ).thenReturn("SOURCE_APPLICATION_ID_2")
 
         val authority = service.createSourceApplicationAuthority(2L)

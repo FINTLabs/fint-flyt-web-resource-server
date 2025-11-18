@@ -10,5 +10,5 @@ enum class TestParametersCategory {
     EXTERNAL_CLIENT_API_IF_ENABLED,
     EXTERNAL_CLIENT_API_IF_DISABLED,
     ACTUATOR,
-    GLOBAL
+    GLOBAL,
 }

@@ -1,9 +1,6 @@
 package no.novari.flyt.resourceserver.security
 
-import java.time.Duration
-import java.util.UUID
 import no.novari.cache.FintCache
-import no.novari.cache.FintCacheConfiguration
 import no.novari.cache.FintCacheManager
 import no.novari.cache.FintCacheOptions
 import no.novari.flyt.resourceserver.security.client.sourceapplication.SourceApplicationAuthorityMappingService
@@ -20,47 +17,55 @@ import org.springframework.boot.autoconfigure.AutoConfiguration
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.boot.context.properties.ConfigurationProperties
 import org.springframework.context.annotation.Bean
-import org.springframework.context.annotation.Import
 import org.springframework.kafka.listener.ConcurrentMessageListenerContainer
+import java.time.Duration
+import java.util.UUID
 
 @AutoConfiguration
 @ConditionalOnProperty(
     prefix = "novari.flyt.resource-server.security.api",
     value = ["internal.enabled"],
-    havingValue = "true"
+    havingValue = "true",
 )
 class InternalUserApiConfiguration {
-
     @Bean
     @ConfigurationProperties("novari.flyt.resource-server.security.api.internal")
-    fun internalApiSecurityProperties() = InternalApiSecurityProperties()
+    fun internalApiSecurityProperties(): InternalApiSecurityProperties {
+        return InternalApiSecurityProperties()
+    }
 
     @Bean
     fun userRoleFilteringService(
-        internalApiSecurityProperties: InternalApiSecurityProperties
-    ) = UserRoleFilteringService(internalApiSecurityProperties)
+        internalApiSecurityProperties: InternalApiSecurityProperties,
+    ): UserRoleFilteringService {
+        return UserRoleFilteringService(internalApiSecurityProperties)
+    }
 
     @Bean
-    fun userPermissionCache(
-        fintCacheManager: FintCacheManager
-    ): FintCache<UUID, UserPermission> = fintCacheManager.createCache(
-        "userpermission",
-        UUID::class.java,
-        UserPermission::class.java,
-        FintCacheOptions
-            .builder()
-            .timeToLive(Duration.ofMillis(Long.MAX_VALUE))
-            .heapSize(1_000_000L)
-            .build()
-    )
+    fun userPermissionCache(fintCacheManager: FintCacheManager): FintCache<UUID, UserPermission> {
+        return fintCacheManager.createCache(
+            "userpermission",
+            UUID::class.java,
+            UserPermission::class.java,
+            FintCacheOptions
+                .builder()
+                .timeToLive(Duration.ofMillis(Long.MAX_VALUE))
+                .heapSize(1_000_000L)
+                .build(),
+        )
+    }
 
     @Bean
     fun userRoleAuthorityMappingService(
-        authorityMappingService: AuthorityMappingService
-    ) = UserRoleAuthorityMappingService(authorityMappingService)
+        authorityMappingService: AuthorityMappingService,
+    ): UserRoleAuthorityMappingService {
+        return UserRoleAuthorityMappingService(authorityMappingService)
+    }
 
     @Bean
-    fun userRoleHierarchyService() = UserRoleHierarchyService()
+    fun userRoleHierarchyService(): UserRoleHierarchyService {
+        return UserRoleHierarchyService()
+    }
 
     @Bean
     fun userJwtConverter(
@@ -68,24 +73,24 @@ class InternalUserApiConfiguration {
         userRoleFilteringService: UserRoleFilteringService,
         sourceApplicationAuthorityMappingService: SourceApplicationAuthorityMappingService,
         userRoleHierarchyService: UserRoleHierarchyService,
-        userRoleAuthorityMappingService: UserRoleAuthorityMappingService
+        userRoleAuthorityMappingService: UserRoleAuthorityMappingService,
     ) = UserJwtConverter(
         userPermissionCache,
         userRoleFilteringService,
         sourceApplicationAuthorityMappingService,
         userRoleHierarchyService,
-        userRoleAuthorityMappingService
+        userRoleAuthorityMappingService,
     )
 
     @Bean("userPermissionCachingListener")
     fun userPermissionCachingListener(
         containerFactoryService: ParameterizedListenerContainerFactoryService,
         userPermissionCache: FintCache<UUID, UserPermission>,
-        errorHandlerFactory: ErrorHandlerFactory
+        errorHandlerFactory: ErrorHandlerFactory,
     ): ConcurrentMessageListenerContainer<String, UserPermission> =
         UserPermissionCachingListenerFactory().create(
             containerFactoryService,
             userPermissionCache,
-            errorHandlerFactory
+            errorHandlerFactory,
         )
 }

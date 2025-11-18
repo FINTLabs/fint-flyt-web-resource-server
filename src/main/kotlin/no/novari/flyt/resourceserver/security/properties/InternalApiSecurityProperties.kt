@@ -17,10 +17,11 @@ class InternalApiSecurityProperties {
     fun parseAndSetAuthorizedOrgIdRolePairs() {
         val json = authorizedOrgIdRolePairsJson ?: return
         try {
-            userRoleFilterPerOrgId = ObjectMapper().readValue(
-                json,
-                object : TypeReference<Map<String, Set<UserRole>>>() {}
-            )
+            userRoleFilterPerOrgId =
+                ObjectMapper().readValue(
+                    json,
+                    object : TypeReference<Map<String, Set<UserRole>>>() {},
+                )
             log.info("Parsed authorizedOrgIdRolePairs: {}", userRoleFilterPerOrgId)
         } catch (e: Exception) {
             log.error("Error parsing authorizedOrgIdRolePairsJson: {}", e.message, e)

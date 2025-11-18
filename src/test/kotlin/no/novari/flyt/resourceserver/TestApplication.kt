@@ -11,9 +11,9 @@ import org.springframework.kafka.listener.ConcurrentMessageListenerContainer
     excludeFilters = [
         ComponentScan.Filter(
             type = FilterType.ASSIGNABLE_TYPE,
-            classes = [ConcurrentMessageListenerContainer::class]
-        )
-    ]
+            classes = [ConcurrentMessageListenerContainer::class],
+        ),
+    ],
 )
 class TestApplication
 

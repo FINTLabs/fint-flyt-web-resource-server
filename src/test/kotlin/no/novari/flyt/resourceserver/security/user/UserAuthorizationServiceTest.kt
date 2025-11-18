@@ -12,7 +12,6 @@ import org.springframework.security.core.GrantedAuthority
 import org.springframework.web.server.ResponseStatusException
 
 class UserAuthorizationServiceTest {
-
     private lateinit var authorityMappingService: AuthorityMappingService
     private lateinit var service: UserAuthorizationService
 
@@ -30,18 +29,19 @@ class UserAuthorizationServiceTest {
         Mockito.`when`(
             authorityMappingService.extractLongValues(
                 AuthorityPrefix.SOURCE_APPLICATION_ID,
-                authorities
-            )
+                authorities,
+            ),
         ).thenReturn(emptySet())
 
-        val exception = org.junit.jupiter.api.Assertions.assertThrows(ResponseStatusException::class.java) {
-            service.checkIfUserHasAccessToSourceApplication(authentication, 1L)
-        }
+        val exception =
+            org.junit.jupiter.api.Assertions.assertThrows(ResponseStatusException::class.java) {
+                service.checkIfUserHasAccessToSourceApplication(authentication, 1L)
+            }
         assertThat(exception.statusCode).isEqualTo(HttpStatus.FORBIDDEN)
 
         Mockito.verify(authorityMappingService).extractLongValues(
             AuthorityPrefix.SOURCE_APPLICATION_ID,
-            authorities
+            authorities,
         )
         Mockito.verifyNoMoreInteractions(authorityMappingService)
     }
@@ -54,18 +54,19 @@ class UserAuthorizationServiceTest {
         Mockito.`when`(
             authorityMappingService.extractLongValues(
                 AuthorityPrefix.SOURCE_APPLICATION_ID,
-                authorities
-            )
+                authorities,
+            ),
         ).thenReturn(setOf(2L, 3L))
 
-        val exception = org.junit.jupiter.api.Assertions.assertThrows(ResponseStatusException::class.java) {
-            service.checkIfUserHasAccessToSourceApplication(authentication, 1L)
-        }
+        val exception =
+            org.junit.jupiter.api.Assertions.assertThrows(ResponseStatusException::class.java) {
+                service.checkIfUserHasAccessToSourceApplication(authentication, 1L)
+            }
         assertThat(exception.statusCode).isEqualTo(HttpStatus.FORBIDDEN)
 
         Mockito.verify(authorityMappingService).extractLongValues(
             AuthorityPrefix.SOURCE_APPLICATION_ID,
-            authorities
+            authorities,
         )
         Mockito.verifyNoMoreInteractions(authorityMappingService)
     }
@@ -78,8 +79,8 @@ class UserAuthorizationServiceTest {
         Mockito.`when`(
             authorityMappingService.extractLongValues(
                 AuthorityPrefix.SOURCE_APPLICATION_ID,
-                authorities
-            )
+                authorities,
+            ),
         ).thenReturn(setOf(2L, 3L))
 
         org.junit.jupiter.api.Assertions.assertDoesNotThrow {
@@ -88,7 +89,7 @@ class UserAuthorizationServiceTest {
 
         Mockito.verify(authorityMappingService).extractLongValues(
             AuthorityPrefix.SOURCE_APPLICATION_ID,
-            authorities
+            authorities,
         )
         Mockito.verifyNoMoreInteractions(authorityMappingService)
     }
@@ -102,15 +103,15 @@ class UserAuthorizationServiceTest {
         Mockito.`when`(
             authorityMappingService.extractStringValues(
                 AuthorityPrefix.ROLE,
-                authorities
-            )
+                authorities,
+            ),
         ).thenReturn(emptySet())
 
         assertThat(service.userHasRole(authentication, UserRole.USER)).isFalse()
 
         Mockito.verify(authorityMappingService).extractStringValues(
             AuthorityPrefix.ROLE,
-            authorities
+            authorities,
         )
         Mockito.verifyNoMoreInteractions(authorityMappingService)
     }
@@ -124,15 +125,15 @@ class UserAuthorizationServiceTest {
         Mockito.`when`(
             authorityMappingService.extractStringValues(
                 AuthorityPrefix.ROLE,
-                authorities
-            )
+                authorities,
+            ),
         ).thenReturn(setOf("roleAuthorityValue1", "roleAuthorityValue2"))
 
         assertThat(service.userHasRole(authentication, UserRole.DEVELOPER)).isFalse()
 
         Mockito.verify(authorityMappingService).extractStringValues(
             AuthorityPrefix.ROLE,
-            authorities
+            authorities,
         )
         Mockito.verifyNoMoreInteractions(authorityMappingService)
     }
@@ -146,15 +147,15 @@ class UserAuthorizationServiceTest {
         Mockito.`when`(
             authorityMappingService.extractStringValues(
                 AuthorityPrefix.ROLE,
-                authorities
-            )
+                authorities,
+            ),
         ).thenReturn(setOf("roleAuthorityValue1", UserRole.DEVELOPER.name))
 
         assertThat(service.userHasRole(authentication, UserRole.DEVELOPER)).isTrue()
 
         Mockito.verify(authorityMappingService).extractStringValues(
             AuthorityPrefix.ROLE,
-            authorities
+            authorities,
         )
         Mockito.verifyNoMoreInteractions(authorityMappingService)
     }

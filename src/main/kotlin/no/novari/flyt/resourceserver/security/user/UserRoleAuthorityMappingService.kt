@@ -6,20 +6,24 @@ import org.springframework.security.core.GrantedAuthority
 import org.springframework.security.core.authority.SimpleGrantedAuthority
 
 class UserRoleAuthorityMappingService(
-    private val authorityMappingService: AuthorityMappingService
+    private val authorityMappingService: AuthorityMappingService,
 ) {
+    fun createRoleAuthorities(roles: Collection<UserRole>): Set<GrantedAuthority> {
+        return roles.mapTo(mutableSetOf(), ::createRoleAuthority)
+    }
 
-    fun createRoleAuthorities(roles: Collection<UserRole>): Set<GrantedAuthority> =
-        roles.mapTo(mutableSetOf(), ::createRoleAuthority)
+    fun createRoleAuthority(role: UserRole): GrantedAuthority {
+        return SimpleGrantedAuthority(createRoleAuthorityString(role))
+    }
 
-    fun createRoleAuthority(role: UserRole): GrantedAuthority =
-        SimpleGrantedAuthority(createRoleAuthorityString(role))
+    fun createRoleAuthorityStrings(roles: Collection<UserRole>): Set<String> {
+        return roles.mapTo(mutableSetOf(), ::createRoleAuthorityString)
+    }
 
-    fun createRoleAuthorityStrings(roles: Collection<UserRole>): Set<String> =
-        roles.mapTo(mutableSetOf(), ::createRoleAuthorityString)
-
-    fun createRoleAuthorityString(role: UserRole): String = authorityMappingService.toAuthority(
-        AuthorityPrefix.ROLE,
-        role.name
-    )
+    fun createRoleAuthorityString(role: UserRole): String {
+        return authorityMappingService.toAuthority(
+            AuthorityPrefix.ROLE,
+            role.name,
+        )
+    }
 }

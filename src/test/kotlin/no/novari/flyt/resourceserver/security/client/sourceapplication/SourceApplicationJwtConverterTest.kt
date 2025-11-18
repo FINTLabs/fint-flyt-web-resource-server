@@ -1,6 +1,5 @@
 package no.novari.flyt.resourceserver.security.client.sourceapplication
 
-import java.util.Optional
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.BeforeEach
@@ -9,9 +8,9 @@ import org.mockito.Mockito
 import org.springframework.security.authentication.BadCredentialsException
 import org.springframework.security.core.GrantedAuthority
 import org.springframework.security.oauth2.jwt.Jwt
+import java.util.Optional
 
 class SourceApplicationJwtConverterTest {
-
     private lateinit var sourceApplicationAuthorizationRequestService: SourceApplicationAuthorizationRequestService
     private lateinit var sourceApplicationAuthorityMappingService: SourceApplicationAuthorityMappingService
     private lateinit var sourceApplicationJwtConverter: SourceApplicationJwtConverter
@@ -22,10 +21,11 @@ class SourceApplicationJwtConverterTest {
             Mockito.mock(SourceApplicationAuthorizationRequestService::class.java)
         sourceApplicationAuthorityMappingService =
             Mockito.mock(SourceApplicationAuthorityMappingService::class.java)
-        sourceApplicationJwtConverter = SourceApplicationJwtConverter(
-            sourceApplicationAuthorizationRequestService,
-            sourceApplicationAuthorityMappingService
-        )
+        sourceApplicationJwtConverter =
+            SourceApplicationJwtConverter(
+                sourceApplicationAuthorizationRequestService,
+                sourceApplicationAuthorityMappingService,
+            )
     }
 
     @Test
@@ -38,7 +38,7 @@ class SourceApplicationJwtConverterTest {
 
         Mockito.verifyNoInteractions(
             sourceApplicationAuthorizationRequestService,
-            sourceApplicationAuthorityMappingService
+            sourceApplicationAuthorityMappingService,
         )
     }
 
@@ -47,7 +47,7 @@ class SourceApplicationJwtConverterTest {
         val jwt = Mockito.mock(Jwt::class.java)
         Mockito.`when`(jwt.subject).thenReturn("subjectValue")
         Mockito.`when`(
-            sourceApplicationAuthorizationRequestService.getClientAuthorization("subjectValue")
+            sourceApplicationAuthorizationRequestService.getClientAuthorization("subjectValue"),
         ).thenReturn(Optional.empty())
 
         assertThatThrownBy { sourceApplicationJwtConverter.convert(jwt) }
@@ -56,7 +56,7 @@ class SourceApplicationJwtConverterTest {
         Mockito.verify(sourceApplicationAuthorizationRequestService).getClientAuthorization("subjectValue")
         Mockito.verifyNoMoreInteractions(
             sourceApplicationAuthorizationRequestService,
-            sourceApplicationAuthorityMappingService
+            sourceApplicationAuthorityMappingService,
         )
     }
 
@@ -69,7 +69,7 @@ class SourceApplicationJwtConverterTest {
         Mockito.`when`(sourceApplicationAuthorization.authorized).thenReturn(true)
         Mockito.`when`(sourceApplicationAuthorization.sourceApplicationId).thenReturn(3L)
         Mockito.`when`(
-            sourceApplicationAuthorizationRequestService.getClientAuthorization("subjectValue")
+            sourceApplicationAuthorizationRequestService.getClientAuthorization("subjectValue"),
         ).thenReturn(Optional.of(sourceApplicationAuthorization))
 
         val grantedAuthority = Mockito.mock(GrantedAuthority::class.java)
@@ -83,7 +83,7 @@ class SourceApplicationJwtConverterTest {
         Mockito.verify(sourceApplicationAuthorityMappingService).createSourceApplicationAuthority(3L)
         Mockito.verifyNoMoreInteractions(
             sourceApplicationAuthorizationRequestService,
-            sourceApplicationAuthorityMappingService
+            sourceApplicationAuthorityMappingService,
         )
     }
 }

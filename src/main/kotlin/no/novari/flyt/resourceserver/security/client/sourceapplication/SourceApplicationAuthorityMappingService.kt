@@ -8,20 +8,24 @@ import org.springframework.stereotype.Service
 
 @Service
 class SourceApplicationAuthorityMappingService(
-    private val authorityMappingService: AuthorityMappingService
+    private val authorityMappingService: AuthorityMappingService,
 ) {
+    fun createSourceApplicationAuthorities(sourceApplicationIds: Collection<Long>): Set<GrantedAuthority> {
+        return sourceApplicationIds.mapTo(mutableSetOf(), ::createSourceApplicationAuthority)
+    }
 
-    fun createSourceApplicationAuthorities(sourceApplicationIds: Collection<Long>): Set<GrantedAuthority> =
-        sourceApplicationIds.mapTo(mutableSetOf(), ::createSourceApplicationAuthority)
+    fun createSourceApplicationAuthority(sourceApplicationId: Long): GrantedAuthority {
+        return SimpleGrantedAuthority(createSourceApplicationAuthorityString(sourceApplicationId))
+    }
 
-    fun createSourceApplicationAuthority(sourceApplicationId: Long): GrantedAuthority =
-        SimpleGrantedAuthority(createSourceApplicationAuthorityString(sourceApplicationId))
+    fun createSourceApplicationAuthorityStrings(sourceApplicationIds: Collection<Long>): Set<String> {
+        return sourceApplicationIds.mapTo(mutableSetOf(), ::createSourceApplicationAuthorityString)
+    }
 
-    fun createSourceApplicationAuthorityStrings(sourceApplicationIds: Collection<Long>): Set<String> =
-        sourceApplicationIds.mapTo(mutableSetOf(), ::createSourceApplicationAuthorityString)
-
-    fun createSourceApplicationAuthorityString(sourceApplicationId: Long): String = authorityMappingService.toAuthority(
-        AuthorityPrefix.SOURCE_APPLICATION_ID,
-        sourceApplicationId.toString()
-    )
+    fun createSourceApplicationAuthorityString(sourceApplicationId: Long): String {
+        return authorityMappingService.toAuthority(
+            AuthorityPrefix.SOURCE_APPLICATION_ID,
+            sourceApplicationId.toString(),
+        )
+    }
 }

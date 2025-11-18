@@ -7,6 +7,7 @@ plugins {
     id("maven-publish")
     id("java-library")
     id("com.github.ben-manes.versions") version "0.53.0"
+    id("org.jlleitschuh.gradle.ktlint") version "12.1.1"
     kotlin("jvm") version "2.0.20"
     kotlin("plugin.spring") version "2.0.20"
     kotlin("kapt") version "2.0.20"
@@ -65,6 +66,18 @@ dependencies {
 
 tasks.test {
     useJUnitPlatform()
+}
+
+ktlint {
+    ignoreFailures.set(false)
+    outputToConsole.set(true)
+    filter {
+        exclude("**/generated/**")
+    }
+}
+
+tasks.named("check") {
+    dependsOn("ktlintCheck")
 }
 
 publishing {

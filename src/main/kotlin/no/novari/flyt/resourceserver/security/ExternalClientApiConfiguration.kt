@@ -10,10 +10,9 @@ import org.springframework.context.annotation.Bean
 @ConditionalOnProperty(
     prefix = "novari.flyt.resource-server.security.api",
     value = ["external.enabled"],
-    havingValue = "true"
+    havingValue = "true",
 )
 class ExternalClientApiConfiguration {
-
     @Bean
     @ConfigurationProperties("novari.flyt.resource-server.security.api.external")
     fun externalApiSecurityProperties() = ExternalApiSecurityProperties()

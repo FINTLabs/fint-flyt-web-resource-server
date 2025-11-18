@@ -5,7 +5,6 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
 class UserRoleHierarchyServiceTest {
-
     private lateinit var userRoleHierarchyService: UserRoleHierarchyService
 
     @BeforeEach

@@ -17,49 +17,60 @@ import org.springframework.web.util.pattern.PathPatternParser
 
 @Service
 class SecurityFilterChainFactoryService {
-
     private val pathPatternParser = PathPatternParser()
 
     fun createFilterChain(
         http: HttpSecurity,
         path: String,
         converter: Converter<Jwt, out AbstractAuthenticationToken>,
-        manager: AuthorizationManager<RequestAuthorizationContext>
-    ): SecurityFilterChain = addCommonConfig(http)
-        .securityMatcher(matcher(path))
-        .oauth2ResourceServer { resourceServer ->
-            resourceServer.jwt { jwt ->
-                jwt.jwtAuthenticationConverter(converter)
-            }
-        }
-        .authorizeHttpRequests { requests ->
-            requests.anyRequest().access(manager)
-        }
-        .build()
+        manager: AuthorizationManager<RequestAuthorizationContext>,
+    ): SecurityFilterChain {
+        return addCommonConfig(http)
+            .securityMatcher(matcher(path))
+            .oauth2ResourceServer { resourceServer ->
+                resourceServer.jwt { jwt ->
+                    jwt.jwtAuthenticationConverter(converter)
+                }
+            }.authorizeHttpRequests { requests ->
+                requests.anyRequest().access(manager)
+            }.build()
+    }
 
-    fun permitAll(http: HttpSecurity, path: String): SecurityFilterChain = addCommonConfig(http)
-        .securityMatcher(matcher(path))
-        .authorizeHttpRequests { requests ->
-            requests.anyRequest().permitAll()
-        }
-        .build()
+    fun permitAll(
+        http: HttpSecurity,
+        path: String,
+    ): SecurityFilterChain {
+        return addCommonConfig(http)
+            .securityMatcher(matcher(path))
+            .authorizeHttpRequests { requests ->
+                requests.anyRequest().permitAll()
+            }.build()
+    }
 
-    fun denyAll(http: HttpSecurity, path: String): SecurityFilterChain =
-        denyAll(http.securityMatcher(matcher(path)))
+    fun denyAll(
+        http: HttpSecurity,
+        path: String,
+    ): SecurityFilterChain {
+        return denyAll(http.securityMatcher(matcher(path)))
+    }
 
-    fun denyAll(http: HttpSecurity): SecurityFilterChain = addCommonConfig(http)
-        .exceptionHandling { exceptions ->
-            exceptions.authenticationEntryPoint(HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED))
-            exceptions.accessDeniedHandler(HttpStatusAccessDeniedHandler(HttpStatus.UNAUTHORIZED))
-        }
-        .authorizeHttpRequests { requests -> requests.anyRequest().denyAll() }
-        .build()
+    fun denyAll(http: HttpSecurity): SecurityFilterChain {
+        return addCommonConfig(http)
+            .exceptionHandling { exceptions ->
+                exceptions.authenticationEntryPoint(HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED))
+                exceptions.accessDeniedHandler(HttpStatusAccessDeniedHandler(HttpStatus.UNAUTHORIZED))
+            }.authorizeHttpRequests { requests -> requests.anyRequest().denyAll() }
+            .build()
+    }
 
-    private fun addCommonConfig(http: HttpSecurity): HttpSecurity = http
-        .addFilterBefore(AuthorizationLogFilter(), BearerTokenAuthenticationFilter::class.java)
-        .csrf { it.disable() }
-        .httpBasic { it.disable() }
+    private fun addCommonConfig(http: HttpSecurity): HttpSecurity {
+        return http
+            .addFilterBefore(AuthorizationLogFilter(), BearerTokenAuthenticationFilter::class.java)
+            .csrf { it.disable() }
+            .httpBasic { it.disable() }
+    }
 
-    private fun matcher(path: String): PathPatternRequestMatcher =
-        PathPatternRequestMatcher.withPathPatternParser(pathPatternParser).matcher("$path/**")
+    private fun matcher(path: String): PathPatternRequestMatcher {
+        return PathPatternRequestMatcher.withPathPatternParser(pathPatternParser).matcher("$path/**")
+    }
 }

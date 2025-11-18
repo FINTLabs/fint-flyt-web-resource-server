@@ -10,15 +10,15 @@ import org.springframework.web.bind.annotation.RestController
 @RestController
 @RequestMapping("/**")
 class TestController {
-
     @GetMapping
     fun getDummy(authentication: Authentication?): ResponseEntity<Set<String>> {
         if (authentication == null) {
             return ResponseEntity.ok(emptySet())
         }
-        val authorities = authentication.authorities
-            .map(GrantedAuthority::getAuthority)
-            .toSet()
+        val authorities =
+            authentication.authorities
+                .map(GrantedAuthority::getAuthority)
+                .toSet()
         return ResponseEntity.ok(authorities)
     }
 }

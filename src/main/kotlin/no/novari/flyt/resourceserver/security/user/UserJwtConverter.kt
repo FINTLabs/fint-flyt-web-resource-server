@@ -1,6 +1,5 @@
 package no.novari.flyt.resourceserver.security.user
 
-import java.util.UUID
 import no.novari.cache.FintCache
 import no.novari.flyt.resourceserver.security.client.sourceapplication.SourceApplicationAuthorityMappingService
 import no.novari.flyt.resourceserver.security.user.permission.UserPermission
@@ -12,15 +11,15 @@ import org.springframework.security.authentication.BadCredentialsException
 import org.springframework.security.core.GrantedAuthority
 import org.springframework.security.oauth2.jwt.Jwt
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken
+import java.util.UUID
 
 class UserJwtConverter(
     private val userPermissionCache: FintCache<UUID, UserPermission>,
     private val userRoleFilteringService: UserRoleFilteringService,
     private val sourceApplicationAuthorityMappingService: SourceApplicationAuthorityMappingService,
     private val userRoleHierarchyService: UserRoleHierarchyService,
-    private val userRoleAuthorityMappingService: UserRoleAuthorityMappingService
+    private val userRoleAuthorityMappingService: UserRoleAuthorityMappingService,
 ) : Converter<Jwt, AbstractAuthenticationToken> {
-
     override fun convert(jwt: Jwt): AbstractAuthenticationToken {
         val organizationId = jwt.getClaimAsString(UserClaim.ORGANIZATION_ID.tokenClaimName)
         log.debug("Extracted organization ID from JWT: {}", organizationId)
@@ -40,9 +39,10 @@ class UserJwtConverter(
             .map(sourceApplicationAuthorityMappingService::createSourceApplicationAuthorities)
             .ifPresent(authorities::addAll)
 
-        val roleValues = jwt.getClaimAsStringList(UserClaim.ROLES.tokenClaimName)
-            ?.toSet()
-            .orEmpty()
+        val roleValues =
+            jwt.getClaimAsStringList(UserClaim.ROLES.tokenClaimName)
+                ?.toSet()
+                .orEmpty()
         log.debug("Extracted roles from JWT: {}", roleValues)
 
         if (roleValues.isNotEmpty()) {

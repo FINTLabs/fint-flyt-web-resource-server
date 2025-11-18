@@ -7,14 +7,15 @@ import org.springframework.context.annotation.Bean
 
 @AutoConfiguration
 class AuthorizationServiceConfiguration {
-
     @Bean
     fun sourceApplicationAuthorizationService(
-        authorityMappingService: AuthorityMappingService
-    ) = SourceApplicationAuthorizationService(authorityMappingService)
+        authorityMappingService: AuthorityMappingService,
+    ): SourceApplicationAuthorizationService {
+        return SourceApplicationAuthorizationService(authorityMappingService)
+    }
 
     @Bean
-    fun userAuthorizationService(
-        authorityMappingService: AuthorityMappingService
-    ) = UserAuthorizationService(authorityMappingService)
+    fun userAuthorizationService(authorityMappingService: AuthorityMappingService): UserAuthorizationService {
+        return UserAuthorizationService(authorityMappingService)
+    }
 }

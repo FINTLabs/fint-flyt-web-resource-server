@@ -1,7 +1,5 @@
 package no.novari.flyt.resourceserver.security.user
 
-import java.util.Optional
-import java.util.UUID
 import no.novari.cache.FintCache
 import no.novari.flyt.resourceserver.security.client.sourceapplication.SourceApplicationAuthorityMappingService
 import no.novari.flyt.resourceserver.security.user.permission.UserPermission
@@ -14,10 +12,11 @@ import org.springframework.security.authentication.BadCredentialsException
 import org.springframework.security.core.GrantedAuthority
 import org.springframework.security.oauth2.jwt.Jwt
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken
+import java.util.Optional
+import java.util.UUID
 
 @Suppress("UNCHECKED_CAST")
 class UserJwtConverterTest {
-
     private lateinit var userPermissionCache: FintCache<UUID, UserPermission>
     private lateinit var sourceApplicationAuthorityMappingService: SourceApplicationAuthorityMappingService
     private lateinit var userRoleAuthorityMappingService: UserRoleAuthorityMappingService
@@ -34,13 +33,14 @@ class UserJwtConverterTest {
         userRoleAuthorityMappingService = Mockito.mock(UserRoleAuthorityMappingService::class.java)
         userRoleFilteringService = Mockito.mock(UserRoleFilteringService::class.java)
         userRoleHierarchyService = Mockito.mock(UserRoleHierarchyService::class.java)
-        converter = UserJwtConverter(
-            userPermissionCache,
-            userRoleFilteringService,
-            sourceApplicationAuthorityMappingService,
-            userRoleHierarchyService,
-            userRoleAuthorityMappingService
-        )
+        converter =
+            UserJwtConverter(
+                userPermissionCache,
+                userRoleFilteringService,
+                sourceApplicationAuthorityMappingService,
+                userRoleHierarchyService,
+                userRoleAuthorityMappingService,
+            )
         jwt = Mockito.mock(Jwt::class.java)
     }
 
@@ -87,7 +87,7 @@ class UserJwtConverterTest {
             userRoleAuthorityMappingService,
             sourceApplicationAuthorityMappingService,
             userPermissionCache,
-            userRoleFilteringService
+            userRoleFilteringService,
         )
     }
 
@@ -106,7 +106,7 @@ class UserJwtConverterTest {
         val grantedAuthority1 = Mockito.mock(GrantedAuthority::class.java)
         val grantedAuthority2 = Mockito.mock(GrantedAuthority::class.java)
         Mockito.`when`(
-            sourceApplicationAuthorityMappingService.createSourceApplicationAuthorities(sourceApplicationIds)
+            sourceApplicationAuthorityMappingService.createSourceApplicationAuthorities(sourceApplicationIds),
         ).thenReturn(setOf(grantedAuthority1, grantedAuthority2))
 
         Mockito.`when`(userPermissionCache.getOptional(objectIdentifier))
@@ -123,7 +123,7 @@ class UserJwtConverterTest {
 
         val roleAuthority = Mockito.mock(GrantedAuthority::class.java)
         Mockito.`when`(
-            userRoleAuthorityMappingService.createRoleAuthorities(setOf(UserRole.ADMIN, UserRole.USER))
+            userRoleAuthorityMappingService.createRoleAuthorities(setOf(UserRole.ADMIN, UserRole.USER)),
         ).thenReturn(setOf(roleAuthority))
 
         val authentication = converter.convert(jwt)
@@ -131,7 +131,7 @@ class UserJwtConverterTest {
         assertThat(authentication.authorities).containsExactlyInAnyOrder(
             grantedAuthority1,
             grantedAuthority2,
-            roleAuthority
+            roleAuthority,
         )
         assertThat(authentication.isAuthenticated).isTrue()
 
@@ -152,7 +152,7 @@ class UserJwtConverterTest {
             sourceApplicationAuthorityMappingService,
             userPermissionCache,
             userRoleFilteringService,
-            userRoleHierarchyService
+            userRoleHierarchyService,
         )
     }
 }

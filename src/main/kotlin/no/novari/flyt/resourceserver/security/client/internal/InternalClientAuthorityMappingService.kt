@@ -6,17 +6,20 @@ import org.springframework.security.core.GrantedAuthority
 import org.springframework.security.core.authority.SimpleGrantedAuthority
 
 class InternalClientAuthorityMappingService(
-    private val authorityMappingService: AuthorityMappingService
+    private val authorityMappingService: AuthorityMappingService,
 ) {
+    fun createInternalClientIdAuthority(clientId: String): GrantedAuthority {
+        return SimpleGrantedAuthority(createInternalClientIdAuthorityString(clientId))
+    }
 
-    fun createInternalClientIdAuthority(clientId: String): GrantedAuthority =
-        SimpleGrantedAuthority(createInternalClientIdAuthorityString(clientId))
+    fun createInternalClientIdAuthorityStrings(clientIds: Collection<String>): Set<String> {
+        return clientIds.mapTo(mutableSetOf(), ::createInternalClientIdAuthorityString)
+    }
 
-    fun createInternalClientIdAuthorityStrings(clientIds: Collection<String>): Set<String> =
-        clientIds.mapTo(mutableSetOf(), ::createInternalClientIdAuthorityString)
-
-    fun createInternalClientIdAuthorityString(clientId: String): String = authorityMappingService.toAuthority(
-        AuthorityPrefix.CLIENT_ID,
-        clientId
-    )
+    fun createInternalClientIdAuthorityString(clientId: String): String {
+        return authorityMappingService.toAuthority(
+            AuthorityPrefix.CLIENT_ID,
+            clientId,
+        )
+    }
 }

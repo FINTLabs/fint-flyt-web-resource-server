@@ -8,11 +8,10 @@ import org.slf4j.LoggerFactory
 import org.springframework.web.filter.OncePerRequestFilter
 
 class AuthorizationLogFilter : OncePerRequestFilter() {
-
     override fun doFilterInternal(
         request: HttpServletRequest,
         response: HttpServletResponse,
-        filterChain: FilterChain
+        filterChain: FilterChain,
     ) {
         request.getHeader("Authorization")?.let { log.trace(it) }
         filterChain.doFilter(request, response)

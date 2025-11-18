@@ -12,7 +12,6 @@ import org.springframework.security.core.Authentication
 import org.springframework.security.core.GrantedAuthority
 
 class SourceApplicationAuthorizationServiceTest {
-
     private lateinit var authorityMappingService: AuthorityMappingService
     private lateinit var service: SourceApplicationAuthorizationService
 
@@ -31,8 +30,8 @@ class SourceApplicationAuthorizationServiceTest {
         Mockito.`when`(
             authorityMappingService.extractLongValues(
                 AuthorityPrefix.SOURCE_APPLICATION_ID,
-                authorities
-            )
+                authorities,
+            ),
         ).thenReturn(setOf(1L))
 
         assertThat(service.getSourceApplicationId(authentication)).isEqualTo(1L)
@@ -40,7 +39,7 @@ class SourceApplicationAuthorizationServiceTest {
         Mockito.verify(authentication).authorities
         Mockito.verify(authorityMappingService).extractLongValues(
             AuthorityPrefix.SOURCE_APPLICATION_ID,
-            authorities
+            authorities,
         )
         Mockito.verifyNoMoreInteractions(authentication, authorityMappingService)
     }
@@ -54,8 +53,8 @@ class SourceApplicationAuthorizationServiceTest {
         Mockito.`when`(
             authorityMappingService.extractLongValues(
                 AuthorityPrefix.SOURCE_APPLICATION_ID,
-                authorities
-            )
+                authorities,
+            ),
         ).thenReturn(emptySet())
 
         org.junit.jupiter.api.Assertions.assertThrows(NoSourceApplicationIdException::class.java) {
@@ -65,7 +64,7 @@ class SourceApplicationAuthorizationServiceTest {
         Mockito.verify(authentication).authorities
         Mockito.verify(authorityMappingService).extractLongValues(
             AuthorityPrefix.SOURCE_APPLICATION_ID,
-            authorities
+            authorities,
         )
         Mockito.verifyNoMoreInteractions(authentication, authorityMappingService)
     }
@@ -79,8 +78,8 @@ class SourceApplicationAuthorizationServiceTest {
         Mockito.`when`(
             authorityMappingService.extractLongValues(
                 AuthorityPrefix.SOURCE_APPLICATION_ID,
-                authorities
-            )
+                authorities,
+            ),
         ).thenReturn(setOf(1L, 2L))
 
         org.junit.jupiter.api.Assertions.assertThrows(MultipleSourceApplicationIdsException::class.java) {
@@ -90,7 +89,7 @@ class SourceApplicationAuthorizationServiceTest {
         Mockito.verify(authentication).authorities
         Mockito.verify(authorityMappingService).extractLongValues(
             AuthorityPrefix.SOURCE_APPLICATION_ID,
-            authorities
+            authorities,
         )
         Mockito.verifyNoMoreInteractions(authentication, authorityMappingService)
     }

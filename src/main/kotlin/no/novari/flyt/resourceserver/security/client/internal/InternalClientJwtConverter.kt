@@ -7,11 +7,11 @@ import org.springframework.security.oauth2.jwt.Jwt
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken
 
 class InternalClientJwtConverter(
-    private val internalClientAuthorityMappingService: InternalClientAuthorityMappingService
+    private val internalClientAuthorityMappingService: InternalClientAuthorityMappingService,
 ) : Converter<Jwt, AbstractAuthenticationToken> {
-
     override fun convert(source: Jwt): AbstractAuthenticationToken {
-        val subject = source.subject ?: throw BadCredentialsException("Missing subject for internal client authentication")
+        val subject =
+            source.subject ?: throw BadCredentialsException("Missing subject for internal client authentication")
         val authority = internalClientAuthorityMappingService.createInternalClientIdAuthority(subject)
         return JwtAuthenticationToken(source, listOf(authority))
     }

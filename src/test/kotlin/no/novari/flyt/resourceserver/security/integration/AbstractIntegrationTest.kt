@@ -1,7 +1,5 @@
 package no.novari.flyt.resourceserver.security.integration
 
-import java.util.Optional
-import java.util.UUID
 import no.novari.cache.FintCache
 import no.novari.flyt.resourceserver.security.client.sourceapplication.SourceApplicationAuthorization
 import no.novari.flyt.resourceserver.security.client.sourceapplication.SourceApplicationAuthorizationRequestService
@@ -23,10 +21,11 @@ import org.springframework.http.HttpMethod
 import org.springframework.kafka.listener.ConcurrentMessageListenerContainer
 import org.springframework.security.oauth2.jwt.JwtDecoder
 import org.springframework.test.context.bean.override.mockito.MockitoBean
+import java.util.Optional
+import java.util.UUID
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 abstract class AbstractIntegrationTest {
-
     @MockitoBean
     private lateinit var jwtDecoder: JwtDecoder
 
@@ -47,11 +46,11 @@ abstract class AbstractIntegrationTest {
         userPermissionCache?.let {
             mockUserPermission(
                 PersonalTokenObjectIdentifier.WITH_SA_1_2_AUTHORIZATIONS,
-                setOf(1L, 2L)
+                setOf(1L, 2L),
             )
             mockUserPermission(
                 PersonalTokenObjectIdentifier.WITH_NO_SA_AUTHORIZATIONS,
-                emptySet()
+                emptySet(),
             )
         }
 
@@ -59,46 +58,46 @@ abstract class AbstractIntegrationTest {
             mockExternalClientSourceApplicationAuthorizations(
                 ClientId.WITH_EXTERNAL_CLIENT_SA_AUTHORIZATION_ID_1,
                 authorized = true,
-                sourceApplicationId = 1L
+                sourceApplicationId = 1L,
             )
             mockExternalClientSourceApplicationAuthorizations(
                 ClientId.WITH_NO_EXTERNAL_CLIENT_SA_AUTHORIZATION,
                 authorized = false,
-                sourceApplicationId = null
+                sourceApplicationId = null,
             )
         }
     }
 
     private fun mockUserPermission(
         objectIdentifier: PersonalTokenObjectIdentifier,
-        sourceApplicationIds: Set<Long>
+        sourceApplicationIds: Set<Long>,
     ) {
         Mockito.`when`(userPermissionCache!!.getOptional(objectIdentifier.uuid))
             .thenReturn(
                 Optional.of(
                     UserPermission(
                         objectIdentifier.uuid,
-                        sourceApplicationIds
-                    )
-                )
+                        sourceApplicationIds,
+                    ),
+                ),
             )
     }
 
     private fun mockExternalClientSourceApplicationAuthorizations(
         clientId: ClientId,
         authorized: Boolean,
-        sourceApplicationId: Long?
+        sourceApplicationId: Long?,
     ) {
         Mockito.`when`(
-            sourceApplicationAuthorizationRequestService!!.getClientAuthorization(clientId.claimValue)
+            sourceApplicationAuthorizationRequestService!!.getClientAuthorization(clientId.claimValue),
         ).thenReturn(
             Optional.of(
                 SourceApplicationAuthorization(
                     authorized = authorized,
                     clientId = clientId.claimValue,
-                    sourceApplicationId = sourceApplicationId
-                )
-            )
+                    sourceApplicationId = sourceApplicationId,
+                ),
+            ),
         )
     }
 
@@ -113,12 +112,13 @@ abstract class AbstractIntegrationTest {
         val headers = HttpHeaders()
         token?.let { headers.setBearerAuth(it.tokenValue) }
 
-        val response = testRestTemplate.exchange(
-            testParameters.path,
-            HttpMethod.GET,
-            HttpEntity<Void>(headers),
-            object : ParameterizedTypeReference<Set<String>>() {}
-        )
+        val response =
+            testRestTemplate.exchange(
+                testParameters.path,
+                HttpMethod.GET,
+                HttpEntity<Void>(headers),
+                object : ParameterizedTypeReference<Set<String>>() {},
+            )
 
         assertThat(response.statusCode).isEqualTo(expectedResult.status)
         val result = response.body

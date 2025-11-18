@@ -6,7 +6,6 @@ import org.junit.jupiter.api.Test
 import org.mockito.Mockito
 
 class UserRoleFilteringServiceTest {
-
     private val internalApiSecurityProperties = Mockito.mock(InternalApiSecurityProperties::class.java)
     private val service = UserRoleFilteringService(internalApiSecurityProperties)
 
@@ -65,14 +64,15 @@ class UserRoleFilteringServiceTest {
             .thenReturn(
                 mapOf(
                     organizationId to setOf(UserRole.ADMIN),
-                    "testOrganizationId2" to setOf(UserRole.ADMIN, UserRole.USER)
-                )
+                    "testOrganizationId2" to setOf(UserRole.ADMIN, UserRole.USER),
+                ),
             )
 
-        val filter = service.filter(
-            setOf(UserRole.ADMIN.claimValue, UserRole.USER.claimValue, "unknownRole1"),
-            organizationId
-        )
+        val filter =
+            service.filter(
+                setOf(UserRole.ADMIN.claimValue, UserRole.USER.claimValue, "unknownRole1"),
+                organizationId,
+            )
 
         assertThat(filter).isEqualTo(setOf(UserRole.ADMIN))
     }

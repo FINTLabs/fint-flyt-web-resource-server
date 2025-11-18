@@ -1,6 +1,5 @@
 package no.novari.flyt.resourceserver.security.user.permission
 
-import java.util.UUID
 import no.novari.cache.FintCache
 import no.novari.kafka.consuming.ErrorHandlerConfiguration
 import no.novari.kafka.consuming.ErrorHandlerFactory
@@ -11,13 +10,13 @@ import no.novari.kafka.topic.name.TopicNamePrefixParameters
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.kafka.listener.ConcurrentMessageListenerContainer
+import java.util.UUID
 
 class UserPermissionCachingListenerFactory {
-
     fun create(
         containerFactoryService: ParameterizedListenerContainerFactoryService,
         userPermissionCache: FintCache<UUID, UserPermission>,
-        errorHandlerFactory: ErrorHandlerFactory
+        errorHandlerFactory: ErrorHandlerFactory,
     ): ConcurrentMessageListenerContainer<String, UserPermission> =
         containerFactoryService.createBatchListenerContainerFactory(
             UserPermission::class.java,
@@ -26,11 +25,11 @@ class UserPermissionCachingListenerFactory {
                     log.debug(
                         "Consuming user permission: {} {}",
                         consumerRecord.key(),
-                        consumerRecord.value().sourceApplicationIds
+                        consumerRecord.value().sourceApplicationIds,
                     )
                     userPermissionCache.put(
                         UUID.fromString(consumerRecord.key()),
-                        consumerRecord.value()
+                        consumerRecord.value(),
                     )
                 }
             },
@@ -46,8 +45,8 @@ class UserPermissionCachingListenerFactory {
                     .stepBuilder<UserPermission>()
                     .noRetries()
                     .skipFailedRecords()
-                    .build()
-            )
+                    .build(),
+            ),
         ).createContainer(
             EntityTopicNameParameters
                 .builder()
@@ -56,10 +55,10 @@ class UserPermissionCachingListenerFactory {
                         .stepBuilder()
                         .orgIdApplicationDefault()
                         .domainContextApplicationDefault()
-                        .build()
+                        .build(),
                 )
                 .resourceName("userpermission")
-                .build()
+                .build(),
         )
 
     private companion object {

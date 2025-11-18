@@ -12,21 +12,26 @@ import org.springframework.context.annotation.Bean
 @ConditionalOnProperty(
     prefix = "novari.flyt.resource-server.security.api",
     value = ["internal-client.enabled"],
-    havingValue = "true"
+    havingValue = "true",
 )
 class InternalClientApiConfiguration {
-
     @Bean
     @ConfigurationProperties("novari.flyt.resource-server.security.api.internal-client")
-    fun internalClientApiSecurityProperties() = InternalClientApiSecurityProperties()
+    fun internalClientApiSecurityProperties(): InternalClientApiSecurityProperties {
+        return InternalClientApiSecurityProperties()
+    }
 
     @Bean
     fun internalClientAuthorityMappingService(
-        authorityMappingService: AuthorityMappingService
-    ) = InternalClientAuthorityMappingService(authorityMappingService)
+        authorityMappingService: AuthorityMappingService,
+    ): InternalClientAuthorityMappingService {
+        return InternalClientAuthorityMappingService(authorityMappingService)
+    }
 
     @Bean
     fun internalClientJwtConverter(
-        internalClientAuthorityMappingService: InternalClientAuthorityMappingService
-    ) = InternalClientJwtConverter(internalClientAuthorityMappingService)
+        internalClientAuthorityMappingService: InternalClientAuthorityMappingService,
+    ): InternalClientJwtConverter {
+        return InternalClientJwtConverter(internalClientAuthorityMappingService)
+    }
 }
