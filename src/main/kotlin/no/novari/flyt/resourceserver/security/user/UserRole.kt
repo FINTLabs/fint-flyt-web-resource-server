@@ -1,6 +1,8 @@
 package no.novari.flyt.resourceserver.security.user
 
-enum class UserRole(val claimValue: String) {
+enum class UserRole(
+    val claimValue: String,
+) {
     USER("https://role-catalog.vigoiks.no/vigo/flyt/user"),
     DEVELOPER("https://role-catalog.vigoiks.no/vigo/flyt/developer"),
     ADMIN("https://role-catalog.vigoiks.no/vigo/flyt/admin"),

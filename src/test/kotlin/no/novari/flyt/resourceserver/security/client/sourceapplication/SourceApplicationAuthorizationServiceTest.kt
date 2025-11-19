@@ -27,12 +27,13 @@ class SourceApplicationAuthorizationServiceTest {
         val authorities = Mockito.mock(Collection::class.java) as Collection<GrantedAuthority>
         Mockito.`when`(authentication.authorities).thenReturn(authorities)
 
-        Mockito.`when`(
-            authorityMappingService.extractLongValues(
-                AuthorityPrefix.SOURCE_APPLICATION_ID,
-                authorities,
-            ),
-        ).thenReturn(setOf(1L))
+        Mockito
+            .`when`(
+                authorityMappingService.extractLongValues(
+                    AuthorityPrefix.SOURCE_APPLICATION_ID,
+                    authorities,
+                ),
+            ).thenReturn(setOf(1L))
 
         assertThat(service.getSourceApplicationId(authentication)).isEqualTo(1L)
 
@@ -50,12 +51,13 @@ class SourceApplicationAuthorizationServiceTest {
         val authorities = Mockito.mock(Collection::class.java) as Collection<GrantedAuthority>
         Mockito.`when`(authentication.authorities).thenReturn(authorities)
 
-        Mockito.`when`(
-            authorityMappingService.extractLongValues(
-                AuthorityPrefix.SOURCE_APPLICATION_ID,
-                authorities,
-            ),
-        ).thenReturn(emptySet())
+        Mockito
+            .`when`(
+                authorityMappingService.extractLongValues(
+                    AuthorityPrefix.SOURCE_APPLICATION_ID,
+                    authorities,
+                ),
+            ).thenReturn(emptySet())
 
         org.junit.jupiter.api.Assertions.assertThrows(NoSourceApplicationIdException::class.java) {
             service.getSourceApplicationId(authentication)
@@ -75,12 +77,13 @@ class SourceApplicationAuthorizationServiceTest {
         val authorities = Mockito.mock(Collection::class.java) as Collection<GrantedAuthority>
         Mockito.`when`(authentication.authorities).thenReturn(authorities)
 
-        Mockito.`when`(
-            authorityMappingService.extractLongValues(
-                AuthorityPrefix.SOURCE_APPLICATION_ID,
-                authorities,
-            ),
-        ).thenReturn(setOf(1L, 2L))
+        Mockito
+            .`when`(
+                authorityMappingService.extractLongValues(
+                    AuthorityPrefix.SOURCE_APPLICATION_ID,
+                    authorities,
+                ),
+            ).thenReturn(setOf(1L, 2L))
 
         org.junit.jupiter.api.Assertions.assertThrows(MultipleSourceApplicationIdsException::class.java) {
             service.getSourceApplicationId(authentication)

@@ -89,9 +89,10 @@ class SecurityConfiguration {
             UrlPaths.INTERNAL_CLIENT_API,
             internalClientJwtConverter,
             AuthorityAuthorizationManager.hasAnyAuthority(
-                *internalClientAuthorityMappingService.createInternalClientIdAuthorityStrings(
-                    internalClientApiSecurityProperties.authorizedClientIds,
-                ).toTypedArray(),
+                *internalClientAuthorityMappingService
+                    .createInternalClientIdAuthorityStrings(
+                        internalClientApiSecurityProperties.authorizedClientIds,
+                    ).toTypedArray(),
             ),
         )
 
@@ -118,9 +119,10 @@ class SecurityConfiguration {
             UrlPaths.EXTERNAL_API,
             sourceApplicationJwtConverter,
             AuthorityAuthorizationManager.hasAnyAuthority(
-                *sourceApplicationAuthorityMappingService.createSourceApplicationAuthorityStrings(
-                    externalApiSecurityProperties.authorizedSourceApplicationIds,
-                ).toTypedArray(),
+                *sourceApplicationAuthorityMappingService
+                    .createSourceApplicationAuthorityStrings(
+                        externalApiSecurityProperties.authorizedSourceApplicationIds,
+                    ).toTypedArray(),
             ),
         )
 

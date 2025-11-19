@@ -26,12 +26,13 @@ class UserAuthorizationServiceTest {
         val authentication = Mockito.mock(Authentication::class.java)
         val authorities = Mockito.mock(Collection::class.java) as Collection<GrantedAuthority>
         Mockito.`when`(authentication.authorities).thenReturn(authorities)
-        Mockito.`when`(
-            authorityMappingService.extractLongValues(
-                AuthorityPrefix.SOURCE_APPLICATION_ID,
-                authorities,
-            ),
-        ).thenReturn(emptySet())
+        Mockito
+            .`when`(
+                authorityMappingService.extractLongValues(
+                    AuthorityPrefix.SOURCE_APPLICATION_ID,
+                    authorities,
+                ),
+            ).thenReturn(emptySet())
 
         val exception =
             org.junit.jupiter.api.Assertions.assertThrows(ResponseStatusException::class.java) {
@@ -51,12 +52,13 @@ class UserAuthorizationServiceTest {
         val authentication = Mockito.mock(Authentication::class.java)
         val authorities = Mockito.mock(Collection::class.java) as Collection<GrantedAuthority>
         Mockito.`when`(authentication.authorities).thenReturn(authorities)
-        Mockito.`when`(
-            authorityMappingService.extractLongValues(
-                AuthorityPrefix.SOURCE_APPLICATION_ID,
-                authorities,
-            ),
-        ).thenReturn(setOf(2L, 3L))
+        Mockito
+            .`when`(
+                authorityMappingService.extractLongValues(
+                    AuthorityPrefix.SOURCE_APPLICATION_ID,
+                    authorities,
+                ),
+            ).thenReturn(setOf(2L, 3L))
 
         val exception =
             org.junit.jupiter.api.Assertions.assertThrows(ResponseStatusException::class.java) {
@@ -76,12 +78,13 @@ class UserAuthorizationServiceTest {
         val authentication = Mockito.mock(Authentication::class.java)
         val authorities = Mockito.mock(Collection::class.java) as Collection<GrantedAuthority>
         Mockito.`when`(authentication.authorities).thenReturn(authorities)
-        Mockito.`when`(
-            authorityMappingService.extractLongValues(
-                AuthorityPrefix.SOURCE_APPLICATION_ID,
-                authorities,
-            ),
-        ).thenReturn(setOf(2L, 3L))
+        Mockito
+            .`when`(
+                authorityMappingService.extractLongValues(
+                    AuthorityPrefix.SOURCE_APPLICATION_ID,
+                    authorities,
+                ),
+            ).thenReturn(setOf(2L, 3L))
 
         org.junit.jupiter.api.Assertions.assertDoesNotThrow {
             service.checkIfUserHasAccessToSourceApplication(authentication, 3L)
@@ -100,12 +103,13 @@ class UserAuthorizationServiceTest {
         val authorities = Mockito.mock(Collection::class.java) as Collection<GrantedAuthority>
         Mockito.`when`(authentication.authorities).thenReturn(authorities)
 
-        Mockito.`when`(
-            authorityMappingService.extractStringValues(
-                AuthorityPrefix.ROLE,
-                authorities,
-            ),
-        ).thenReturn(emptySet())
+        Mockito
+            .`when`(
+                authorityMappingService.extractStringValues(
+                    AuthorityPrefix.ROLE,
+                    authorities,
+                ),
+            ).thenReturn(emptySet())
 
         assertThat(service.userHasRole(authentication, UserRole.USER)).isFalse()
 
@@ -122,12 +126,13 @@ class UserAuthorizationServiceTest {
         val authorities = Mockito.mock(Collection::class.java) as Collection<GrantedAuthority>
         Mockito.`when`(authentication.authorities).thenReturn(authorities)
 
-        Mockito.`when`(
-            authorityMappingService.extractStringValues(
-                AuthorityPrefix.ROLE,
-                authorities,
-            ),
-        ).thenReturn(setOf("roleAuthorityValue1", "roleAuthorityValue2"))
+        Mockito
+            .`when`(
+                authorityMappingService.extractStringValues(
+                    AuthorityPrefix.ROLE,
+                    authorities,
+                ),
+            ).thenReturn(setOf("roleAuthorityValue1", "roleAuthorityValue2"))
 
         assertThat(service.userHasRole(authentication, UserRole.DEVELOPER)).isFalse()
 
@@ -144,12 +149,13 @@ class UserAuthorizationServiceTest {
         val authorities = Mockito.mock(Collection::class.java) as Collection<GrantedAuthority>
         Mockito.`when`(authentication.authorities).thenReturn(authorities)
 
-        Mockito.`when`(
-            authorityMappingService.extractStringValues(
-                AuthorityPrefix.ROLE,
-                authorities,
-            ),
-        ).thenReturn(setOf("roleAuthorityValue1", UserRole.DEVELOPER.name))
+        Mockito
+            .`when`(
+                authorityMappingService.extractStringValues(
+                    AuthorityPrefix.ROLE,
+                    authorities,
+                ),
+            ).thenReturn(setOf("roleAuthorityValue1", UserRole.DEVELOPER.name))
 
         assertThat(service.userHasRole(authentication, UserRole.DEVELOPER)).isTrue()
 

@@ -13,12 +13,13 @@ class SourceApplicationAuthorityMappingServiceTest {
 
     @Test
     fun `given id should create granted authority`() {
-        Mockito.`when`(
-            authorityMappingService.toAuthority(
-                AuthorityPrefix.SOURCE_APPLICATION_ID,
-                "2",
-            ),
-        ).thenReturn("SOURCE_APPLICATION_ID_2")
+        Mockito
+            .`when`(
+                authorityMappingService.toAuthority(
+                    AuthorityPrefix.SOURCE_APPLICATION_ID,
+                    "2",
+                ),
+            ).thenReturn("SOURCE_APPLICATION_ID_2")
 
         val authority = service.createSourceApplicationAuthority(2L)
 

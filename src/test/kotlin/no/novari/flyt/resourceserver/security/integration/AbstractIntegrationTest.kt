@@ -72,7 +72,8 @@ abstract class AbstractIntegrationTest {
         objectIdentifier: PersonalTokenObjectIdentifier,
         sourceApplicationIds: Set<Long>,
     ) {
-        Mockito.`when`(userPermissionCache!!.getOptional(objectIdentifier.uuid))
+        Mockito
+            .`when`(userPermissionCache!!.getOptional(objectIdentifier.uuid))
             .thenReturn(
                 Optional.of(
                     UserPermission(
@@ -88,17 +89,18 @@ abstract class AbstractIntegrationTest {
         authorized: Boolean,
         sourceApplicationId: Long?,
     ) {
-        Mockito.`when`(
-            sourceApplicationAuthorizationRequestService!!.getClientAuthorization(clientId.claimValue),
-        ).thenReturn(
-            Optional.of(
-                SourceApplicationAuthorization(
-                    authorized = authorized,
-                    clientId = clientId.claimValue,
-                    sourceApplicationId = sourceApplicationId,
+        Mockito
+            .`when`(
+                sourceApplicationAuthorizationRequestService!!.getClientAuthorization(clientId.claimValue),
+            ).thenReturn(
+                Optional.of(
+                    SourceApplicationAuthorization(
+                        authorized = authorized,
+                        clientId = clientId.claimValue,
+                        sourceApplicationId = sourceApplicationId,
+                    ),
                 ),
-            ),
-        )
+            )
     }
 
     protected fun performIntegrationTest(testParameters: TestParameters) {

@@ -18,9 +18,10 @@ class InternalClientAuthorityMappingServiceTest {
 
     @Test
     fun `createInternalClientIdAuthority should map value`() {
-        Mockito.`when`(
-            authorityMappingService.toAuthority(AuthorityPrefix.CLIENT_ID, "client-1"),
-        ).thenReturn("CLIENT_ID_client-1")
+        Mockito
+            .`when`(
+                authorityMappingService.toAuthority(AuthorityPrefix.CLIENT_ID, "client-1"),
+            ).thenReturn("CLIENT_ID_client-1")
 
         val authority = service.createInternalClientIdAuthority("client-1")
 
@@ -29,12 +30,14 @@ class InternalClientAuthorityMappingServiceTest {
 
     @Test
     fun `createInternalClientIdAuthorityStrings should map every id`() {
-        Mockito.`when`(
-            authorityMappingService.toAuthority(AuthorityPrefix.CLIENT_ID, "client-1"),
-        ).thenReturn("CLIENT_ID_client-1")
-        Mockito.`when`(
-            authorityMappingService.toAuthority(AuthorityPrefix.CLIENT_ID, "client-2"),
-        ).thenReturn("CLIENT_ID_client-2")
+        Mockito
+            .`when`(
+                authorityMappingService.toAuthority(AuthorityPrefix.CLIENT_ID, "client-1"),
+            ).thenReturn("CLIENT_ID_client-1")
+        Mockito
+            .`when`(
+                authorityMappingService.toAuthority(AuthorityPrefix.CLIENT_ID, "client-2"),
+            ).thenReturn("CLIENT_ID_client-2")
 
         val values = service.createInternalClientIdAuthorityStrings(listOf("client-1", "client-2"))
 
@@ -43,9 +46,10 @@ class InternalClientAuthorityMappingServiceTest {
 
     @Test
     fun `createInternalClientIdAuthorityString should delegate to mapping service`() {
-        Mockito.`when`(
-            authorityMappingService.toAuthority(AuthorityPrefix.CLIENT_ID, "client-3"),
-        ).thenReturn("CLIENT_ID_client-3")
+        Mockito
+            .`when`(
+                authorityMappingService.toAuthority(AuthorityPrefix.CLIENT_ID, "client-3"),
+            ).thenReturn("CLIENT_ID_client-3")
 
         val value = service.createInternalClientIdAuthorityString("client-3")
 

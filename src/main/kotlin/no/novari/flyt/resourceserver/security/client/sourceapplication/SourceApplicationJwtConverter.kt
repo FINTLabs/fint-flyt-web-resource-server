@@ -18,7 +18,8 @@ class SourceApplicationJwtConverter(
                 ?: throw BadCredentialsException("Missing subject for source application authentication")
 
         val authorization =
-            sourceApplicationAuthorizationRequestService.getClientAuthorization(subject)
+            sourceApplicationAuthorizationRequestService
+                .getClientAuthorization(subject)
                 .orElseThrow { BadCredentialsException("Client authorization not found for subject: $subject") }
 
         val sourceApplicationId =

@@ -13,12 +13,14 @@ class UserRoleAuthorityMappingServiceTest {
 
     @Test
     fun `createRoleAuthorities should convert each role`() {
-        Mockito.`when`(
-            authorityMappingService.toAuthority(AuthorityPrefix.ROLE, UserRole.USER.name),
-        ).thenReturn("ROLE_USER")
-        Mockito.`when`(
-            authorityMappingService.toAuthority(AuthorityPrefix.ROLE, UserRole.DEVELOPER.name),
-        ).thenReturn("ROLE_DEVELOPER")
+        Mockito
+            .`when`(
+                authorityMappingService.toAuthority(AuthorityPrefix.ROLE, UserRole.USER.name),
+            ).thenReturn("ROLE_USER")
+        Mockito
+            .`when`(
+                authorityMappingService.toAuthority(AuthorityPrefix.ROLE, UserRole.DEVELOPER.name),
+            ).thenReturn("ROLE_DEVELOPER")
 
         val roleAuthorities = service.createRoleAuthorities(setOf(UserRole.USER, UserRole.DEVELOPER))
 
@@ -28,9 +30,10 @@ class UserRoleAuthorityMappingServiceTest {
 
     @Test
     fun `createRoleAuthority should convert single role`() {
-        Mockito.`when`(
-            authorityMappingService.toAuthority(AuthorityPrefix.ROLE, UserRole.USER.name),
-        ).thenReturn("ROLE_USER")
+        Mockito
+            .`when`(
+                authorityMappingService.toAuthority(AuthorityPrefix.ROLE, UserRole.USER.name),
+            ).thenReturn("ROLE_USER")
 
         val roleAuthority = service.createRoleAuthority(UserRole.USER)
 

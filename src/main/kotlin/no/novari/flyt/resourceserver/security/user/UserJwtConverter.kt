@@ -34,13 +34,15 @@ class UserJwtConverter(
         val objectIdentifier = UUID.fromString(objectIdentifierString)
         val authorities = mutableSetOf<GrantedAuthority>()
 
-        userPermissionCache.getOptional(objectIdentifier)
+        userPermissionCache
+            .getOptional(objectIdentifier)
             .map(UserPermission::sourceApplicationIds)
             .map(sourceApplicationAuthorityMappingService::createSourceApplicationAuthorities)
             .ifPresent(authorities::addAll)
 
         val roleValues =
-            jwt.getClaimAsStringList(UserClaim.ROLES.tokenClaimName)
+            jwt
+                .getClaimAsStringList(UserClaim.ROLES.tokenClaimName)
                 ?.toSet()
                 .orEmpty()
         log.debug("Extracted roles from JWT: {}", roleValues)

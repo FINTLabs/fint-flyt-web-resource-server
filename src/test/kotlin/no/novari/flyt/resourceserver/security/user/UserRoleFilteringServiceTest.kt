@@ -28,7 +28,8 @@ class UserRoleFilteringServiceTest {
     @Test
     fun `known and approved role should be returned`() {
         val organizationId = "testOrganizationId"
-        Mockito.`when`(internalApiSecurityProperties.userRoleFilterPerOrgId)
+        Mockito
+            .`when`(internalApiSecurityProperties.userRoleFilterPerOrgId)
             .thenReturn(mapOf(organizationId to setOf(UserRole.USER)))
 
         val filter = service.filter(setOf(UserRole.USER.claimValue), organizationId)
@@ -39,7 +40,8 @@ class UserRoleFilteringServiceTest {
     @Test
     fun `known role but empty filter should return empty`() {
         val organizationId = "testOrganizationId"
-        Mockito.`when`(internalApiSecurityProperties.userRoleFilterPerOrgId)
+        Mockito
+            .`when`(internalApiSecurityProperties.userRoleFilterPerOrgId)
             .thenReturn(mapOf(organizationId to emptySet()))
 
         val filter = service.filter(setOf(UserRole.USER.claimValue), organizationId)
@@ -49,7 +51,8 @@ class UserRoleFilteringServiceTest {
 
     @Test
     fun `no filter for organization should return empty`() {
-        Mockito.`when`(internalApiSecurityProperties.userRoleFilterPerOrgId)
+        Mockito
+            .`when`(internalApiSecurityProperties.userRoleFilterPerOrgId)
             .thenReturn(mapOf("otherOrg" to setOf(UserRole.USER)))
 
         val filter = service.filter(setOf(UserRole.USER.claimValue), "missingOrg")
@@ -60,7 +63,8 @@ class UserRoleFilteringServiceTest {
     @Test
     fun `mixed roles should only return approved roles`() {
         val organizationId = "testOrganizationId1"
-        Mockito.`when`(internalApiSecurityProperties.userRoleFilterPerOrgId)
+        Mockito
+            .`when`(internalApiSecurityProperties.userRoleFilterPerOrgId)
             .thenReturn(
                 mapOf(
                     organizationId to setOf(UserRole.ADMIN),

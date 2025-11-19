@@ -46,9 +46,10 @@ class SourceApplicationJwtConverterTest {
     fun `token with subject but no authorization should throw`() {
         val jwt = Mockito.mock(Jwt::class.java)
         Mockito.`when`(jwt.subject).thenReturn("subjectValue")
-        Mockito.`when`(
-            sourceApplicationAuthorizationRequestService.getClientAuthorization("subjectValue"),
-        ).thenReturn(Optional.empty())
+        Mockito
+            .`when`(
+                sourceApplicationAuthorizationRequestService.getClientAuthorization("subjectValue"),
+            ).thenReturn(Optional.empty())
 
         assertThatThrownBy { sourceApplicationJwtConverter.convert(jwt) }
             .isInstanceOf(BadCredentialsException::class.java)
@@ -68,12 +69,14 @@ class SourceApplicationJwtConverterTest {
         val sourceApplicationAuthorization = Mockito.mock(SourceApplicationAuthorization::class.java)
         Mockito.`when`(sourceApplicationAuthorization.authorized).thenReturn(true)
         Mockito.`when`(sourceApplicationAuthorization.sourceApplicationId).thenReturn(3L)
-        Mockito.`when`(
-            sourceApplicationAuthorizationRequestService.getClientAuthorization("subjectValue"),
-        ).thenReturn(Optional.of(sourceApplicationAuthorization))
+        Mockito
+            .`when`(
+                sourceApplicationAuthorizationRequestService.getClientAuthorization("subjectValue"),
+            ).thenReturn(Optional.of(sourceApplicationAuthorization))
 
         val grantedAuthority = Mockito.mock(GrantedAuthority::class.java)
-        Mockito.`when`(sourceApplicationAuthorityMappingService.createSourceApplicationAuthority(3L))
+        Mockito
+            .`when`(sourceApplicationAuthorityMappingService.createSourceApplicationAuthority(3L))
             .thenReturn(grantedAuthority)
 
         val authentication = sourceApplicationJwtConverter.convert(jwt)

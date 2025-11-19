@@ -18,48 +18,48 @@ class UserPermissionCachingListenerFactory {
         userPermissionCache: FintCache<UUID, UserPermission>,
         errorHandlerFactory: ErrorHandlerFactory,
     ): ConcurrentMessageListenerContainer<String, UserPermission> =
-        containerFactoryService.createBatchListenerContainerFactory(
-            UserPermission::class.java,
-            { consumerRecords ->
-                consumerRecords.forEach { consumerRecord ->
-                    log.debug(
-                        "Consuming user permission: {} {}",
-                        consumerRecord.key(),
-                        consumerRecord.value().sourceApplicationIds,
-                    )
-                    userPermissionCache.put(
-                        UUID.fromString(consumerRecord.key()),
-                        consumerRecord.value(),
-                    )
-                }
-            },
-            ListenerConfiguration
-                .stepBuilder()
-                .groupIdApplicationDefault()
-                .maxPollRecordsKafkaDefault()
-                .maxPollIntervalKafkaDefault()
-                .seekToBeginningOnAssignment()
-                .build(),
-            errorHandlerFactory.createErrorHandler(
-                ErrorHandlerConfiguration
-                    .stepBuilder<UserPermission>()
-                    .noRetries()
-                    .skipFailedRecords()
+        containerFactoryService
+            .createBatchListenerContainerFactory(
+                UserPermission::class.java,
+                { consumerRecords ->
+                    consumerRecords.forEach { consumerRecord ->
+                        log.debug(
+                            "Consuming user permission: {} {}",
+                            consumerRecord.key(),
+                            consumerRecord.value().sourceApplicationIds,
+                        )
+                        userPermissionCache.put(
+                            UUID.fromString(consumerRecord.key()),
+                            consumerRecord.value(),
+                        )
+                    }
+                },
+                ListenerConfiguration
+                    .stepBuilder()
+                    .groupIdApplicationDefault()
+                    .maxPollRecordsKafkaDefault()
+                    .maxPollIntervalKafkaDefault()
+                    .seekToBeginningOnAssignment()
                     .build(),
-            ),
-        ).createContainer(
-            EntityTopicNameParameters
-                .builder()
-                .topicNamePrefixParameters(
-                    TopicNamePrefixParameters
-                        .stepBuilder()
-                        .orgIdApplicationDefault()
-                        .domainContextApplicationDefault()
+                errorHandlerFactory.createErrorHandler(
+                    ErrorHandlerConfiguration
+                        .stepBuilder<UserPermission>()
+                        .noRetries()
+                        .skipFailedRecords()
                         .build(),
-                )
-                .resourceName("userpermission")
-                .build(),
-        )
+                ),
+            ).createContainer(
+                EntityTopicNameParameters
+                    .builder()
+                    .topicNamePrefixParameters(
+                        TopicNamePrefixParameters
+                            .stepBuilder()
+                            .orgIdApplicationDefault()
+                            .domainContextApplicationDefault()
+                            .build(),
+                    ).resourceName("userpermission")
+                    .build(),
+            )
 
     private companion object {
         private val log: Logger = LoggerFactory.getLogger(this::class.java)

@@ -46,7 +46,8 @@ class UserJwtConverterTest {
 
     @Test
     fun `no organization id claim throws exception`() {
-        Mockito.`when`(jwt.getClaimAsString(UserClaim.ORGANIZATION_ID.tokenClaimName))
+        Mockito
+            .`when`(jwt.getClaimAsString(UserClaim.ORGANIZATION_ID.tokenClaimName))
             .thenReturn(null)
 
         assertThatThrownBy { converter.convert(jwt) }
@@ -55,7 +56,8 @@ class UserJwtConverterTest {
 
     @Test
     fun `no object identifier claim throws exception`() {
-        Mockito.`when`(jwt.getClaimAsString(UserClaim.ORGANIZATION_ID.tokenClaimName))
+        Mockito
+            .`when`(jwt.getClaimAsString(UserClaim.ORGANIZATION_ID.tokenClaimName))
             .thenReturn("testOrganizationId")
 
         assertThatThrownBy { converter.convert(jwt) }
@@ -64,13 +66,16 @@ class UserJwtConverterTest {
 
     @Test
     fun `valid token without permissions should return no authorities`() {
-        Mockito.`when`(jwt.getClaimAsString(UserClaim.ORGANIZATION_ID.tokenClaimName))
+        Mockito
+            .`when`(jwt.getClaimAsString(UserClaim.ORGANIZATION_ID.tokenClaimName))
             .thenReturn("testOrganizationId")
         val objectIdentifier = UUID.fromString("377cfaae-ef8f-4060-86b6-1cd083bfde07")
-        Mockito.`when`(jwt.getClaimAsString(UserClaim.OBJECT_IDENTIFIER.tokenClaimName))
+        Mockito
+            .`when`(jwt.getClaimAsString(UserClaim.OBJECT_IDENTIFIER.tokenClaimName))
             .thenReturn(objectIdentifier.toString())
 
-        Mockito.`when`(userPermissionCache.getOptional(objectIdentifier))
+        Mockito
+            .`when`(userPermissionCache.getOptional(objectIdentifier))
             .thenReturn(Optional.empty())
         Mockito.`when`(jwt.getClaimAsStringList(UserClaim.ROLES.tokenClaimName)).thenReturn(listOf())
 
@@ -93,10 +98,12 @@ class UserJwtConverterTest {
 
     @Test
     fun `valid token with permissions adds authorities`() {
-        Mockito.`when`(jwt.getClaimAsString(UserClaim.ORGANIZATION_ID.tokenClaimName))
+        Mockito
+            .`when`(jwt.getClaimAsString(UserClaim.ORGANIZATION_ID.tokenClaimName))
             .thenReturn("testOrganizationId")
         val objectIdentifier = UUID.fromString("377cfaae-ef8f-4060-86b6-1cd083bfde07")
-        Mockito.`when`(jwt.getClaimAsString(UserClaim.OBJECT_IDENTIFIER.tokenClaimName))
+        Mockito
+            .`when`(jwt.getClaimAsString(UserClaim.OBJECT_IDENTIFIER.tokenClaimName))
             .thenReturn(objectIdentifier.toString())
 
         val userPermission = Mockito.mock(UserPermission::class.java)
@@ -105,26 +112,32 @@ class UserJwtConverterTest {
 
         val grantedAuthority1 = Mockito.mock(GrantedAuthority::class.java)
         val grantedAuthority2 = Mockito.mock(GrantedAuthority::class.java)
-        Mockito.`when`(
-            sourceApplicationAuthorityMappingService.createSourceApplicationAuthorities(sourceApplicationIds),
-        ).thenReturn(setOf(grantedAuthority1, grantedAuthority2))
+        Mockito
+            .`when`(
+                sourceApplicationAuthorityMappingService.createSourceApplicationAuthorities(sourceApplicationIds),
+            ).thenReturn(setOf(grantedAuthority1, grantedAuthority2))
 
-        Mockito.`when`(userPermissionCache.getOptional(objectIdentifier))
+        Mockito
+            .`when`(userPermissionCache.getOptional(objectIdentifier))
             .thenReturn(Optional.of(userPermission))
 
         val roleClaims = setOf("TEST_ROLE_1", "TEST_ROLE_2")
-        Mockito.`when`(jwt.getClaimAsStringList(UserClaim.ROLES.tokenClaimName))
+        Mockito
+            .`when`(jwt.getClaimAsStringList(UserClaim.ROLES.tokenClaimName))
             .thenReturn(roleClaims.toList())
 
-        Mockito.`when`(userRoleFilteringService.filter(roleClaims, "testOrganizationId"))
+        Mockito
+            .`when`(userRoleFilteringService.filter(roleClaims, "testOrganizationId"))
             .thenReturn(setOf(UserRole.ADMIN))
-        Mockito.`when`(userRoleHierarchyService.getProvidedAndImpliedRoles(setOf(UserRole.ADMIN)))
+        Mockito
+            .`when`(userRoleHierarchyService.getProvidedAndImpliedRoles(setOf(UserRole.ADMIN)))
             .thenReturn(setOf(UserRole.ADMIN, UserRole.USER))
 
         val roleAuthority = Mockito.mock(GrantedAuthority::class.java)
-        Mockito.`when`(
-            userRoleAuthorityMappingService.createRoleAuthorities(setOf(UserRole.ADMIN, UserRole.USER)),
-        ).thenReturn(setOf(roleAuthority))
+        Mockito
+            .`when`(
+                userRoleAuthorityMappingService.createRoleAuthorities(setOf(UserRole.ADMIN, UserRole.USER)),
+            ).thenReturn(setOf(roleAuthority))
 
         val authentication = converter.convert(jwt)
         assertThat(authentication).isInstanceOf(JwtAuthenticationToken::class.java)
@@ -138,13 +151,15 @@ class UserJwtConverterTest {
         Mockito.verify(jwt).getClaimAsString(UserClaim.ORGANIZATION_ID.tokenClaimName)
         Mockito.verify(jwt).getClaimAsString(UserClaim.OBJECT_IDENTIFIER.tokenClaimName)
         Mockito.verify(userPermission).sourceApplicationIds
-        Mockito.verify(sourceApplicationAuthorityMappingService)
+        Mockito
+            .verify(sourceApplicationAuthorityMappingService)
             .createSourceApplicationAuthorities(sourceApplicationIds)
         Mockito.verify(userPermissionCache).getOptional(objectIdentifier)
         Mockito.verify(jwt).getClaimAsStringList(UserClaim.ROLES.tokenClaimName)
         Mockito.verify(userRoleFilteringService).filter(roleClaims, "testOrganizationId")
         Mockito.verify(userRoleHierarchyService).getProvidedAndImpliedRoles(setOf(UserRole.ADMIN))
-        Mockito.verify(userRoleAuthorityMappingService)
+        Mockito
+            .verify(userRoleAuthorityMappingService)
             .createRoleAuthorities(setOf(UserRole.ADMIN, UserRole.USER))
         Mockito.verifyNoMoreInteractions(
             userPermission,
