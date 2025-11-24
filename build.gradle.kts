@@ -54,9 +54,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-cache")
     implementation("org.springframework.kafka:spring-kafka")
 
-    implementation("no.novari:kafka:5.0.0-rc-19") {
-        exclude(group = "org.springframework.boot", module = "spring-boot-starter-webflux")
-    }
+    implementation("no.novari:kafka:5.0.0-rc-20")
     implementation("no.novari:flyt-cache:2.0.0-rc-2")
 
     annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
