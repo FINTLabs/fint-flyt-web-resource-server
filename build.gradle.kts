@@ -2,7 +2,7 @@ import org.gradle.jvm.toolchain.JavaLanguageVersion
 import org.springframework.boot.gradle.plugin.SpringBootPlugin
 
 plugins {
-    id("org.springframework.boot") version "3.5.7" apply false
+    id("org.springframework.boot") version "3.5.8" apply false
     id("io.spring.dependency-management") version "1.1.7"
     id("maven-publish")
     id("java-library")
@@ -55,7 +55,7 @@ dependencies {
     implementation("org.springframework.kafka:spring-kafka")
 
     implementation("no.novari:kafka:5.0.0")
-    implementation("no.novari:flyt-cache:2.0.0")
+    implementation("no.novari:flyt-cache:2.0.1")
 
     annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
     kapt("org.springframework.boot:spring-boot-configuration-processor")
