@@ -1,6 +1,7 @@
 novari:
   org-id: novari.no
-  application-id: flyt-resource-server-test
+fint:
+  application-id: flyt-web-resource-server-test
 
 spring:
   security:

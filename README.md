@@ -9,7 +9,7 @@ consistent semantics.
 
 - **Segmented servlet filter chains** — `SecurityConfiguration` wires dedicated `SecurityFilterChain`s per API segment
   (actuator, internal admin/user, internal client, external) and applies the shared `AuthorizationLogFilter`.
-- **Multi-tenant policy control** — API segments are toggled through `novari.flyt.resource-server.security.api.*`
+- **Multi-tenant policy control** — API segments are toggled through `novari.flyt.web-resource-server.security.api.*`
   properties, allowing each service to expose only the surfaces needed by its organization.
 - **Kafka-backed authorization** — `SourceApplicationAuthorizationRequestService` performs request/reply lookups for
   source-application IDs, while `UserPermissionCachingListenerFactory` streams user permissions into cache.
@@ -80,12 +80,12 @@ Key properties exposed by the starter:
 
 | Property                                                            | Description                                                                                     |
 |---------------------------------------------------------------------|-------------------------------------------------------------------------------------------------|
-| `novari.flyt.resource-server.security.api.internal.enabled`         | Enables the internal admin/user APIs and registers the Kafka-backed user authorization beans.   |
-| `novari.flyt.resource-server.security.api.internal.authorized-org-id-role-pairs-json` | JSON map of `{ "orgId": ["USER","ADMIN"] }` that filters allowed roles per organization.      |
-| `novari.flyt.resource-server.security.api.internal-client.enabled`  | Turns on the internal client API filter chain.                                                  |
-| `novari.flyt.resource-server.security.api.internal-client.authorized-client-ids` | List of JWT subjects that may call `/api/intern-klient/**`.                                  |
-| `novari.flyt.resource-server.security.api.external.enabled`         | Turns on the external API filter chain.                                                         |
-| `novari.flyt.resource-server.security.api.external.authorized-source-application-ids` | List of source-application IDs authorized for `/api/**`.                                     |
+| `novari.flyt.web-resource-server.security.api.internal.enabled`         | Enables the internal admin/user APIs and registers the Kafka-backed user authorization beans.   |
+| `novari.flyt.web-resource-server.security.api.internal.authorized-org-id-role-pairs-json` | JSON map of `{ "orgId": ["USER","ADMIN"] }` that filters allowed roles per organization.      |
+| `novari.flyt.web-resource-server.security.api.internal-client.enabled`  | Turns on the internal client API filter chain.                                                  |
+| `novari.flyt.web-resource-server.security.api.internal-client.authorized-client-ids` | List of JWT subjects that may call `/api/intern-klient/**`.                                  |
+| `novari.flyt.web-resource-server.security.api.external.enabled`         | Turns on the external API filter chain.                                                         |
+| `novari.flyt.web-resource-server.security.api.external.authorized-source-application-ids` | List of source-application IDs authorized for `/api/**`.                                     |
 | `novari.kafka.application-id`                                       | Used for request/reply topic naming and listener group IDs.                                     |
 | `spring.security.oauth2.resourceserver.jwt.issuer-uri`              | Issuer for JWT validation (`https://idp.felleskomponent.no/nidp/oauth/nam`).                    |
 | `novari.cache.default-cache-entry-time-to-live`                     | Default cache TTL (10 years by default) for cached permission entries.                          |
