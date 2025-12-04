@@ -52,7 +52,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server")
     implementation("org.springframework.boot:spring-boot-starter-cache")
-    implementation("org.springframework.kafka:spring-kafka")
+    api("org.springframework.kafka:spring-kafka")
 
     api("org.springframework.boot:spring-boot-autoconfigure")
 
