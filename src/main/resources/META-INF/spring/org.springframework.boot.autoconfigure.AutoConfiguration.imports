@@ -1,0 +1,5 @@
+no.novari.flyt.webresourceserver.security.AuthorizationServiceConfiguration
+no.novari.flyt.webresourceserver.security.ExternalClientApiConfiguration
+no.novari.flyt.webresourceserver.security.InternalClientApiConfiguration
+no.novari.flyt.webresourceserver.security.InternalUserApiConfiguration
+no.novari.flyt.webresourceserver.security.SecurityConfiguration
