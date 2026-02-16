@@ -55,7 +55,7 @@ dependencies {
     api("org.springframework.boot:spring-boot-autoconfigure")
 
     api("no.novari:kafka:6.0.0")
-    api("no.novari:flyt-cache:2.1.0-rc-3")
+    api("no.novari:flyt-cache:3.0.0")
 
     annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
     kapt("org.springframework.boot:spring-boot-configuration-processor")
