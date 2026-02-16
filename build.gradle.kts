@@ -1,19 +1,21 @@
+import com.github.benmanes.gradle.versions.updates.DependencyUpdatesTask
 import org.gradle.jvm.toolchain.JavaLanguageVersion
+import org.gradle.kotlin.dsl.named
 import org.springframework.boot.gradle.plugin.SpringBootPlugin
 
 plugins {
-    id("org.springframework.boot") version "3.5.8" apply false
+    id("org.springframework.boot") version "3.5.10" apply false
     id("io.spring.dependency-management") version "1.1.7"
     id("maven-publish")
     id("java-library")
     id("com.github.ben-manes.versions") version "0.53.0"
-    id("org.jlleitschuh.gradle.ktlint") version "13.1.0"
-    kotlin("jvm") version "2.2.21"
-    kotlin("plugin.spring") version "2.2.21"
-    kotlin("kapt") version "2.2.21"
+    id("org.jlleitschuh.gradle.ktlint") version "14.0.1"
+    kotlin("jvm") version "2.3.10"
+    kotlin("plugin.spring") version "2.3.10"
+    kotlin("kapt") version "2.3.10"
 }
 
-private val kotlinVersion = "2.2.21"
+private val kotlinVersion = "2.3.10"
 extra["kotlin.version"] = kotlinVersion
 
 group = "no.novari"
@@ -21,13 +23,9 @@ version = findProperty("version")?.toString() ?: "1.0-SNAPSHOT"
 
 java {
     toolchain {
-        languageVersion.set(JavaLanguageVersion.of(21))
+        languageVersion.set(JavaLanguageVersion.of(25))
     }
     withSourcesJar()
-}
-
-kotlin {
-    jvmToolchain(21)
 }
 
 repositories {
@@ -56,8 +54,8 @@ dependencies {
 
     api("org.springframework.boot:spring-boot-autoconfigure")
 
-    api("no.novari:kafka:5.0.0")
-    api("no.novari:flyt-cache:2.0.1")
+    api("no.novari:kafka:6.0.0")
+    api("no.novari:flyt-cache:2.1.0-rc-3")
 
     annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
     kapt("org.springframework.boot:spring-boot-configuration-processor")
@@ -100,5 +98,22 @@ publishing {
         create<MavenPublication>("maven") {
             from(components["java"])
         }
+    }
+}
+
+ktlint {
+    version.set("1.8.0")
+}
+
+fun isNonStable(version: String): Boolean {
+    val stableKeyword = listOf("RELEASE", "FINAL", "GA").any { version.uppercase().contains(it) }
+    val regex = "^[0-9,.v-]+(-r)?$".toRegex()
+    val isStable = stableKeyword || regex.matches(version)
+    return !isStable
+}
+
+tasks.named<DependencyUpdatesTask>("dependencyUpdates") {
+    rejectVersionIf {
+        isNonStable(candidate.version)
     }
 }

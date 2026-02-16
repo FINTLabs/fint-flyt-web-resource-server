@@ -100,6 +100,7 @@ object TestParametersSource {
             -> "${UrlPaths.EXTERNAL_API}/dummy"
 
             GLOBAL -> "/not/matching/any/filter"
+
             ACTUATOR -> "/actuator/dummy"
         }
     }
@@ -118,6 +119,7 @@ object TestParametersSource {
                     -> ExpectedResult(HttpStatus.FORBIDDEN)
 
                     ACTUATOR -> ExpectedResult(HttpStatus.OK)
+
                     else -> ExpectedResult(HttpStatus.UNAUTHORIZED)
                 }
             },
@@ -127,15 +129,24 @@ object TestParametersSource {
                 setOf(UserRole.USER),
             ) to { category ->
                 when (category) {
-                    INTERNAL_USER_API_IF_INTERNAL_API_ENABLED ->
+                    INTERNAL_USER_API_IF_INTERNAL_API_ENABLED -> {
                         ExpectedResult(
                             HttpStatus.OK,
                             setOf("ROLE_USER"),
                         )
+                    }
 
-                    INTERNAL_ADMIN_API_IF_INTERNAL_API_ENABLED -> ExpectedResult(HttpStatus.FORBIDDEN)
-                    ACTUATOR -> ExpectedResult(HttpStatus.OK)
-                    else -> ExpectedResult(HttpStatus.UNAUTHORIZED)
+                    INTERNAL_ADMIN_API_IF_INTERNAL_API_ENABLED -> {
+                        ExpectedResult(HttpStatus.FORBIDDEN)
+                    }
+
+                    ACTUATOR -> {
+                        ExpectedResult(HttpStatus.OK)
+                    }
+
+                    else -> {
+                        ExpectedResult(HttpStatus.UNAUTHORIZED)
+                    }
                 }
             },
             TokenFactory.createPersonalToken(
@@ -144,15 +155,24 @@ object TestParametersSource {
                 setOf(UserRole.USER),
             ) to { category ->
                 when (category) {
-                    INTERNAL_USER_API_IF_INTERNAL_API_ENABLED ->
+                    INTERNAL_USER_API_IF_INTERNAL_API_ENABLED -> {
                         ExpectedResult(
                             HttpStatus.OK,
                             setOf("ROLE_USER"),
                         )
+                    }
 
-                    INTERNAL_ADMIN_API_IF_INTERNAL_API_ENABLED -> ExpectedResult(HttpStatus.FORBIDDEN)
-                    ACTUATOR -> ExpectedResult(HttpStatus.OK)
-                    else -> ExpectedResult(HttpStatus.UNAUTHORIZED)
+                    INTERNAL_ADMIN_API_IF_INTERNAL_API_ENABLED -> {
+                        ExpectedResult(HttpStatus.FORBIDDEN)
+                    }
+
+                    ACTUATOR -> {
+                        ExpectedResult(HttpStatus.OK)
+                    }
+
+                    else -> {
+                        ExpectedResult(HttpStatus.UNAUTHORIZED)
+                    }
                 }
             },
             TokenFactory.createPersonalToken(
@@ -161,15 +181,24 @@ object TestParametersSource {
                 setOf(UserRole.USER),
             ) to { category ->
                 when (category) {
-                    INTERNAL_USER_API_IF_INTERNAL_API_ENABLED ->
+                    INTERNAL_USER_API_IF_INTERNAL_API_ENABLED -> {
                         ExpectedResult(
                             HttpStatus.OK,
                             setOf("ROLE_USER", "SOURCE_APPLICATION_ID_1", "SOURCE_APPLICATION_ID_2"),
                         )
+                    }
 
-                    INTERNAL_ADMIN_API_IF_INTERNAL_API_ENABLED -> ExpectedResult(HttpStatus.FORBIDDEN)
-                    ACTUATOR -> ExpectedResult(HttpStatus.OK)
-                    else -> ExpectedResult(HttpStatus.UNAUTHORIZED)
+                    INTERNAL_ADMIN_API_IF_INTERNAL_API_ENABLED -> {
+                        ExpectedResult(HttpStatus.FORBIDDEN)
+                    }
+
+                    ACTUATOR -> {
+                        ExpectedResult(HttpStatus.OK)
+                    }
+
+                    else -> {
+                        ExpectedResult(HttpStatus.UNAUTHORIZED)
+                    }
                 }
             },
             TokenFactory.createPersonalToken(
@@ -183,6 +212,7 @@ object TestParametersSource {
                     -> ExpectedResult(HttpStatus.FORBIDDEN)
 
                     ACTUATOR -> ExpectedResult(HttpStatus.OK)
+
                     else -> ExpectedResult(HttpStatus.UNAUTHORIZED)
                 }
             },
@@ -197,6 +227,7 @@ object TestParametersSource {
                     -> ExpectedResult(HttpStatus.FORBIDDEN)
 
                     ACTUATOR -> ExpectedResult(HttpStatus.OK)
+
                     else -> ExpectedResult(HttpStatus.UNAUTHORIZED)
                 }
             },
@@ -208,14 +239,20 @@ object TestParametersSource {
                 when (category) {
                     INTERNAL_USER_API_IF_INTERNAL_API_ENABLED,
                     INTERNAL_ADMIN_API_IF_INTERNAL_API_ENABLED,
-                    ->
+                    -> {
                         ExpectedResult(
                             HttpStatus.OK,
                             setOf("ROLE_USER", "ROLE_ADMIN"),
                         )
+                    }
 
-                    ACTUATOR -> ExpectedResult(HttpStatus.OK)
-                    else -> ExpectedResult(HttpStatus.UNAUTHORIZED)
+                    ACTUATOR -> {
+                        ExpectedResult(HttpStatus.OK)
+                    }
+
+                    else -> {
+                        ExpectedResult(HttpStatus.UNAUTHORIZED)
+                    }
                 }
             },
             TokenFactory.createPersonalToken(
@@ -226,14 +263,20 @@ object TestParametersSource {
                 when (category) {
                     INTERNAL_USER_API_IF_INTERNAL_API_ENABLED,
                     INTERNAL_ADMIN_API_IF_INTERNAL_API_ENABLED,
-                    ->
+                    -> {
                         ExpectedResult(
                             HttpStatus.OK,
                             setOf("ROLE_USER", "ROLE_ADMIN"),
                         )
+                    }
 
-                    ACTUATOR -> ExpectedResult(HttpStatus.OK)
-                    else -> ExpectedResult(HttpStatus.UNAUTHORIZED)
+                    ACTUATOR -> {
+                        ExpectedResult(HttpStatus.OK)
+                    }
+
+                    else -> {
+                        ExpectedResult(HttpStatus.UNAUTHORIZED)
+                    }
                 }
             },
             TokenFactory.createPersonalToken(
@@ -244,7 +287,7 @@ object TestParametersSource {
                 when (category) {
                     INTERNAL_USER_API_IF_INTERNAL_API_ENABLED,
                     INTERNAL_ADMIN_API_IF_INTERNAL_API_ENABLED,
-                    ->
+                    -> {
                         ExpectedResult(
                             HttpStatus.OK,
                             setOf(
@@ -254,9 +297,15 @@ object TestParametersSource {
                                 "SOURCE_APPLICATION_ID_2",
                             ),
                         )
+                    }
 
-                    ACTUATOR -> ExpectedResult(HttpStatus.OK)
-                    else -> ExpectedResult(HttpStatus.UNAUTHORIZED)
+                    ACTUATOR -> {
+                        ExpectedResult(HttpStatus.OK)
+                    }
+
+                    else -> {
+                        ExpectedResult(HttpStatus.UNAUTHORIZED)
+                    }
                 }
             },
             TokenFactory.createPersonalToken(
@@ -267,7 +316,7 @@ object TestParametersSource {
                 when (category) {
                     INTERNAL_USER_API_IF_INTERNAL_API_ENABLED,
                     INTERNAL_ADMIN_API_IF_INTERNAL_API_ENABLED,
-                    ->
+                    -> {
                         ExpectedResult(
                             HttpStatus.OK,
                             setOf(
@@ -277,9 +326,15 @@ object TestParametersSource {
                                 "SOURCE_APPLICATION_ID_2",
                             ),
                         )
+                    }
 
-                    ACTUATOR -> ExpectedResult(HttpStatus.OK)
-                    else -> ExpectedResult(HttpStatus.UNAUTHORIZED)
+                    ACTUATOR -> {
+                        ExpectedResult(HttpStatus.OK)
+                    }
+
+                    else -> {
+                        ExpectedResult(HttpStatus.UNAUTHORIZED)
+                    }
                 }
             },
             TokenFactory.createPersonalToken(
@@ -293,6 +348,7 @@ object TestParametersSource {
                     -> ExpectedResult(HttpStatus.FORBIDDEN)
 
                     ACTUATOR -> ExpectedResult(HttpStatus.OK)
+
                     else -> ExpectedResult(HttpStatus.UNAUTHORIZED)
                 }
             },
@@ -304,14 +360,20 @@ object TestParametersSource {
                 when (category) {
                     INTERNAL_USER_API_IF_INTERNAL_API_ENABLED,
                     INTERNAL_ADMIN_API_IF_INTERNAL_API_ENABLED,
-                    ->
+                    -> {
                         ExpectedResult(
                             HttpStatus.OK,
                             setOf("ROLE_USER", "ROLE_ADMIN", "ROLE_DEVELOPER"),
                         )
+                    }
 
-                    ACTUATOR -> ExpectedResult(HttpStatus.OK)
-                    else -> ExpectedResult(HttpStatus.UNAUTHORIZED)
+                    ACTUATOR -> {
+                        ExpectedResult(HttpStatus.OK)
+                    }
+
+                    else -> {
+                        ExpectedResult(HttpStatus.UNAUTHORIZED)
+                    }
                 }
             },
             TokenFactory.createPersonalToken(
@@ -322,14 +384,20 @@ object TestParametersSource {
                 when (category) {
                     INTERNAL_USER_API_IF_INTERNAL_API_ENABLED,
                     INTERNAL_ADMIN_API_IF_INTERNAL_API_ENABLED,
-                    ->
+                    -> {
                         ExpectedResult(
                             HttpStatus.OK,
                             setOf("ROLE_USER", "ROLE_ADMIN", "ROLE_DEVELOPER"),
                         )
+                    }
 
-                    ACTUATOR -> ExpectedResult(HttpStatus.OK)
-                    else -> ExpectedResult(HttpStatus.UNAUTHORIZED)
+                    ACTUATOR -> {
+                        ExpectedResult(HttpStatus.OK)
+                    }
+
+                    else -> {
+                        ExpectedResult(HttpStatus.UNAUTHORIZED)
+                    }
                 }
             },
             TokenFactory.createPersonalToken(
@@ -340,7 +408,7 @@ object TestParametersSource {
                 when (category) {
                     INTERNAL_USER_API_IF_INTERNAL_API_ENABLED,
                     INTERNAL_ADMIN_API_IF_INTERNAL_API_ENABLED,
-                    ->
+                    -> {
                         ExpectedResult(
                             HttpStatus.OK,
                             setOf(
@@ -351,9 +419,15 @@ object TestParametersSource {
                                 "SOURCE_APPLICATION_ID_2",
                             ),
                         )
+                    }
 
-                    ACTUATOR -> ExpectedResult(HttpStatus.OK)
-                    else -> ExpectedResult(HttpStatus.UNAUTHORIZED)
+                    ACTUATOR -> {
+                        ExpectedResult(HttpStatus.OK)
+                    }
+
+                    else -> {
+                        ExpectedResult(HttpStatus.UNAUTHORIZED)
+                    }
                 }
             },
             TokenFactory.createPersonalToken(
@@ -364,7 +438,7 @@ object TestParametersSource {
                 when (category) {
                     INTERNAL_USER_API_IF_INTERNAL_API_ENABLED,
                     INTERNAL_ADMIN_API_IF_INTERNAL_API_ENABLED,
-                    ->
+                    -> {
                         ExpectedResult(
                             HttpStatus.OK,
                             setOf(
@@ -375,9 +449,15 @@ object TestParametersSource {
                                 "SOURCE_APPLICATION_ID_2",
                             ),
                         )
+                    }
 
-                    ACTUATOR -> ExpectedResult(HttpStatus.OK)
-                    else -> ExpectedResult(HttpStatus.UNAUTHORIZED)
+                    ACTUATOR -> {
+                        ExpectedResult(HttpStatus.OK)
+                    }
+
+                    else -> {
+                        ExpectedResult(HttpStatus.UNAUTHORIZED)
+                    }
                 }
             },
             TokenFactory.createClientToken(ClientId.AUTHORIZED_FOR_INTERNAL_CLIENT_API) to { category ->
@@ -399,15 +479,24 @@ object TestParametersSource {
             },
             TokenFactory.createClientToken(ClientId.WITH_EXTERNAL_CLIENT_SA_AUTHORIZATION_ID_1) to { category ->
                 when (category) {
-                    INTERNAL_CLIENT_API_IF_ENABLED -> ExpectedResult(HttpStatus.FORBIDDEN)
-                    EXTERNAL_CLIENT_API_IF_ENABLED ->
+                    INTERNAL_CLIENT_API_IF_ENABLED -> {
+                        ExpectedResult(HttpStatus.FORBIDDEN)
+                    }
+
+                    EXTERNAL_CLIENT_API_IF_ENABLED -> {
                         ExpectedResult(
                             HttpStatus.OK,
                             setOf("SOURCE_APPLICATION_ID_1"),
                         )
+                    }
 
-                    ACTUATOR -> ExpectedResult(HttpStatus.OK)
-                    else -> ExpectedResult(HttpStatus.UNAUTHORIZED)
+                    ACTUATOR -> {
+                        ExpectedResult(HttpStatus.OK)
+                    }
+
+                    else -> {
+                        ExpectedResult(HttpStatus.UNAUTHORIZED)
+                    }
                 }
             },
             TokenFactory.createClientToken(ClientId.WITH_NO_EXTERNAL_CLIENT_SA_AUTHORIZATION) to { category ->
