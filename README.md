@@ -97,7 +97,7 @@ Kafka bootstrap credentials, and any organization-specific JSON payloads mention
 
 Prerequisites:
 
-- Java 21+
+- Java 25+
 - Gradle (wrapper included)
 - Kafka broker (for running the permission listener/request-reply interactions)
 
