@@ -1,48 +1,48 @@
 # FINT Flyt Web Resource Server
 
-Auto-configuration for Spring Boot (Servlet stack) that standardizes OAuth2 resource-server behavior for FINT Flyt
-services. It provisions dedicated `SecurityFilterChain`s for each internal/external API segment, enriches JWTs with
-Kafka-backed permissions, and caches derived authorities so downstream applications can guard HTTP endpoints with
-consistent semantics.
+Auto-konfigurasjon for Spring Boot (Servlet-stack) som standardiserer OAuth2 resource-server-oppførsel for FINT Flyt-
+tjenester. Den setter opp dedikerte `SecurityFilterChain`-er for hvert interne/eksterne API-segment, beriker JWT-er med
+Kafka-baserte rettigheter, og cacher utledede authorities slik at nedstrøms applikasjoner kan beskytte HTTP-endepunkter
+med konsistent semantikk.
 
-## Highlights
+## Høydepunkter
 
-- **Segmented servlet filter chains** — `SecurityConfiguration` wires dedicated `SecurityFilterChain`s per API segment
-  (actuator, internal admin/user, internal client, external) and applies the shared `AuthorizationLogFilter`.
-- **Multi-tenant policy control** — API segments are toggled through `novari.flyt.web-resource-server.security.api.*`
-  properties, allowing each service to expose only the surfaces needed by its organization.
-- **Kafka-backed authorization** — `SourceApplicationAuthorizationRequestService` performs request/reply lookups for
-  source-application IDs, while `UserPermissionCachingListenerFactory` streams user permissions into cache.
-- **FINT cache integration** — Long-lived permission data is stored in a `FintCache` to avoid repeated Kafka round-trips
-  and to speed up role checks.
-- **Observability ready** — Ships with Spring Boot Actuator enabled so every host service inherits health and metrics
-  probes under `/actuator/**`.
+- **Segmenterte servlet filter chains** — `SecurityConfiguration` setter opp dedikerte `SecurityFilterChain`-er per
+  API-segment (actuator, internal admin/user, internal client, external) og bruker det delte `AuthorizationLogFilter`-et.
+- **Multi-tenant policy-kontroll** — API-segmenter styres via `novari.flyt.web-resource-server.security.api.*`-
+  properties, slik at hver tjeneste kan eksponere kun de overflatene organisasjonen trenger.
+- **Kafka-basert autorisasjon** — `SourceApplicationAuthorizationRequestService` utfører request/reply-oppslag for
+  source-application-ID-er, mens `UserPermissionCachingListenerFactory` strømmer brukerrettigheter inn i cache.
+- **FINT cache-integrasjon** — Langlevde rettighetsdata lagres i en `FintCache` for å unngå gjentatte Kafka round-trips
+  og for å øke hastigheten på rollesjekker.
+- **Klar for observability** — Leveres med Spring Boot Actuator aktivert slik at hver vertstjeneste arver health- og
+  metrics-probes under `/actuator/**`.
 
-## Architecture Overview
+## Arkitekturoversikt
 
-| Component                                   | Responsibility                                                                                                     |
+| Komponent                                   | Ansvar                                                                                                             |
 |---------------------------------------------|--------------------------------------------------------------------------------------------------------------------|
-| `SecurityConfiguration`                     | Wires the actuator, admin, user, internal-client, and external servlet filter chains with the proper matchers.     |
-| `SecurityFilterChainFactoryService`         | Applies cross-cutting servlet security config (logging, CSRF off, JWT converter hookup, deny/permit helpers).      |
-| `SourceApplicationJwtConverter`             | Converts external client JWTs into authorities by requesting authorization details over Kafka.                     |
-| `InternalClientJwtConverter`                | Maps internal client subject claims to `CLIENT_ID_*` authorities used by the internal-client filter chain.         |
-| `UserJwtConverter`                          | Enriches user tokens with org-filtered roles and cached source-application IDs retrieved from Kafka.               |
-| `UserPermissionCachingListenerFactory`      | Builds a Kafka listener that keeps the `FintCache<UUID, UserPermission>` populated for the JWT converter.          |
-| `SourceApplicationAuthorizationRequestService` | Manages Kafka request/reply infrastructure that resolves client IDs to source-application IDs.                   |
-| `UserAuthorizationService`                  | Utility used by consumers of this starter to assert role membership or application-level access at runtime.        |
+| `SecurityConfiguration`                     | Setter opp servlet filter chains for actuator, admin, user, internal-client og external med riktige matchers.      |
+| `SecurityFilterChainFactoryService`         | Anvender tverrgående servlet-sikkerhetskonfigurasjon (logging, CSRF av, JWT-converter-oppkobling, deny/permit-hjelpere). |
+| `SourceApplicationJwtConverter`             | Konverterer eksterne klient-JWT-er til authorities ved å be om autorisasjonsdetaljer over Kafka.                   |
+| `InternalClientJwtConverter`                | Mapper interne klient-subject-claims til `CLIENT_ID_*`-authorities brukt av internal-client filter chain.          |
+| `UserJwtConverter`                          | Beriker brukertokens med org-filtrerte roller og cachede source-application-ID-er hentet fra Kafka.                |
+| `UserPermissionCachingListenerFactory`      | Bygger en Kafka-listener som holder `FintCache<UUID, UserPermission>` oppdatert for JWT-converteren.                |
+| `SourceApplicationAuthorizationRequestService` | Håndterer Kafka request/reply-infrastruktur som løser klient-ID-er til source-application-ID-er.                |
+| `UserAuthorizationService`                  | Verktøy brukt av konsumenter av denne starteren for å verifisere rollemedlemskap eller applikasjonsnivå-tilgang ved kjøretid. |
 
 ## HTTP API
 
-Base paths guarded by the starter (see `UrlPaths`):
+Basispath-er beskyttet av starteren (se `UrlPaths`):
 
-| Method | Path                     | Description                                                                                      | Request body                                   | Response                                                                 |
-|--------|--------------------------|--------------------------------------------------------------------------------------------------|------------------------------------------------|--------------------------------------------------------------------------|
-| `ANY`  | `/api/intern/admin/**`   | Internal admin API requiring at least the `ADMIN` role; disabled unless `internal.enabled=true`. | – (implemented by the host service)            | Protected downstream response, `401/403` when the JWT misses authorities. |
-| `ANY`  | `/api/intern/**`         | Internal user API requiring the `USER` role; filters allowed roles per organization.             | –                                              | Same as above.                                                           |
-| `ANY`  | `/api/intern-klient/**`  | Internal client API secured by specific client IDs embedded in the JWT subject.                  | –                                              | Same as above.                                                           |
-| `ANY`  | `/api/**`                | External API for approved source applications announced through Kafka.                           | –                                              | Same as above.                                                           |
+| Metode | Path                     | Beskrivelse                                                                                       | Request body                                   | Response                                                                 |
+|--------|--------------------------|----------------------------------------------------------------------------------------------------|------------------------------------------------|--------------------------------------------------------------------------|
+| `ANY`  | `/api/intern/admin/**`   | Internal admin API som krever minst `ADMIN`-rollen; deaktivert med mindre `internal.enabled=true`.  | – (implementert av vertstjenesten)             | Beskyttet nedstrøms response, `401/403` når JWT-en mangler authorities.   |
+| `ANY`  | `/api/intern/**`         | Internal user API som krever `USER`-rollen; filtrerer tillatte roller per organisasjon.             | –                                              | Samme som over.                                                          |
+| `ANY`  | `/api/intern-klient/**`  | Internal client API sikret av spesifikke klient-ID-er innebygd i JWT-subject.                       | –                                              | Samme som over.                                                          |
+| `ANY`  | `/api/**`                | External API for godkjente source-applications annonsert via Kafka.                                 | –                                              | Samme som over.                                                          |
 
-Tokens are expected to include the claims below; the starter extracts them to compute granted authorities:
+Tokens forventes å inneholde claims under; starteren ekstraherer disse for å beregne tildelte authorities:
 
 ```json
 {
@@ -55,62 +55,63 @@ Tokens are expected to include the claims below; the starter extracts them to co
 }
 ```
 
-Errors fall back to Spring Security defaults: missing/invalid tokens result in `401 Unauthorized`, while denied
-authorities answer with `403 Forbidden`.
+Feil faller tilbake til Spring Security sine standarder: manglende/ugyldige tokens resulterer i `401 Unauthorized`,
+mens avviste authorities svarer med `403 Forbidden`.
 
-## Kafka Integration
+## Kafka-integrasjon
 
-- `SourceApplicationAuthorizationRequestService` creates authorization request topics with the default org/application
-  prefix, spins up short-lived reply topics (2-minute retention), and uses `RequestTemplate` to perform request/reply
-  calls that translate client IDs to source-application IDs.
-- `UserPermissionCachingListenerFactory` subscribes to the `userpermission` entity topic using
-  `ParameterizedListenerContainerFactoryService`, writes records into the shared `FintCache`, and skips failed records
-  through an `ErrorHandlerFactory`.
-- Kafka connection, group IDs, and polling parameters rely on the shared `no.novari:kafka` helpers so the starter
-  inherits FINT defaults (max poll settings, seek-to-beginning bootstrap, etc.).
+- `SourceApplicationAuthorizationRequestService` oppretter authorization-request-topics med standard org/application-
+  prefiks, starter kortlevde reply-topics (2 minutters retention), og bruker `RequestTemplate` til å utføre
+  request/reply-kall som oversetter klient-ID-er til source-application-ID-er.
+- `UserPermissionCachingListenerFactory` abonnerer på `userpermission`-entity-topicen via
+  `ParameterizedListenerContainerFactoryService`, skriver records inn i den delte `FintCache`-en, og hopper over
+  feilede records gjennom en `ErrorHandlerFactory`.
+- Kafka-tilkobling, group-ID-er og polling-parametere avhenger av de delte `no.novari:kafka`-hjelperne slik at
+  starteren arver FINT-standardene (max poll-innstillinger, seek-to-beginning bootstrap, osv.).
 
-## Scheduled Tasks
+## Planlagte oppgaver
 
-No scheduled jobs are defined; permission lifetimes are managed entirely through Kafka listeners and the configured cache
-TTL (`novari.cache.default-cache-entry-time-to-live`) so no cron-like cleanup is needed.
+Ingen scheduled jobs er definert; levetiden til rettigheter håndteres utelukkende gjennom Kafka-listeners og den
+konfigurerte cache-TTL-en (`novari.cache.default-cache-entry-time-to-live`), så ingen cron-lignende opprydding er
+nødvendig.
 
-## Configuration
+## Konfigurasjon
 
-Key properties exposed by the starter:
+Sentrale properties eksponert av starteren:
 
-| Property                                                            | Description                                                                                     |
-|---------------------------------------------------------------------|-------------------------------------------------------------------------------------------------|
-| `novari.flyt.web-resource-server.security.api.internal.enabled`         | Enables the internal admin/user APIs and registers the Kafka-backed user authorization beans.   |
-| `novari.flyt.web-resource-server.security.api.internal.authorized-org-id-role-pairs-json` | JSON map of `{ "orgId": ["USER","ADMIN"] }` that filters allowed roles per organization.      |
-| `novari.flyt.web-resource-server.security.api.internal-client.enabled`  | Turns on the internal client API filter chain.                                                  |
-| `novari.flyt.web-resource-server.security.api.internal-client.authorized-client-ids` | List of JWT subjects that may call `/api/intern-klient/**`.                                  |
-| `novari.flyt.web-resource-server.security.api.external.enabled`         | Turns on the external API filter chain.                                                         |
-| `novari.flyt.web-resource-server.security.api.external.authorized-source-application-ids` | List of source-application IDs authorized for `/api/**`.                                     |
-| `novari.kafka.application-id`                                       | Used for request/reply topic naming and listener group IDs.                                     |
-| `spring.security.oauth2.resourceserver.jwt.issuer-uri`              | Issuer for JWT validation (`https://idp.felleskomponent.no/nidp/oauth/nam`).                    |
-| `novari.cache.default-cache-entry-time-to-live`                     | Default cache TTL (10 years by default) for cached permission entries.                          |
+| Property                                                            | Beskrivelse                                                                                      |
+|-----------------------------------------------------------------------|---------------------------------------------------------------------------------------------------|
+| `novari.flyt.web-resource-server.security.api.internal.enabled`         | Aktiverer internal admin/user API-ene og registrerer de Kafka-baserte user-authorization-beans-ene. |
+| `novari.flyt.web-resource-server.security.api.internal.authorized-org-id-role-pairs-json` | JSON-map av `{ "orgId": ["USER","ADMIN"] }` som filtrerer tillatte roller per organisasjon. |
+| `novari.flyt.web-resource-server.security.api.internal-client.enabled`  | Slår på internal client API filter chain.                                                          |
+| `novari.flyt.web-resource-server.security.api.internal-client.authorized-client-ids` | Liste over JWT-subjects som kan kalle `/api/intern-klient/**`.                        |
+| `novari.flyt.web-resource-server.security.api.external.enabled`         | Slår på external API filter chain.                                                                 |
+| `novari.flyt.web-resource-server.security.api.external.authorized-source-application-ids` | Liste over source-application-ID-er autorisert for `/api/**`.                        |
+| `novari.kafka.application-id`                                        | Brukes til navngiving av request/reply-topics og listener group-ID-er.                             |
+| `spring.security.oauth2.resourceserver.jwt.issuer-uri`               | Issuer for JWT-validering (`https://idp.felleskomponent.no/nidp/oauth/nam`).                       |
+| `novari.cache.default-cache-entry-time-to-live`                      | Standard cache-TTL (10 år som standard) for cachede rettighetsoppføringer.                          |
 
-Secrets supplied via the consuming service’s deployment (Kubernetes secret, Vault, etc.) must provide OAuth client data,
-Kafka bootstrap credentials, and any organization-specific JSON payloads mentioned above.
+Secrets levert via den konsumerende tjenestens deployment (Kubernetes secret, Vault, osv.) må inneholde OAuth-
+klientdata, Kafka bootstrap-credentials, og eventuelle organisasjonsspesifikke JSON-payloads nevnt over.
 
-## Running Locally
+## Kjøre lokalt
 
-Prerequisites:
+Forutsetninger:
 
 - Java 25+
-- Gradle (wrapper included)
-- Kafka broker (for running the permission listener/request-reply interactions)
+- Gradle (wrapper inkludert)
+- Kafka broker (for å kjøre permission-listeneren/request-reply-interaksjonene)
 
-Useful commands:
+Nyttige kommandoer:
 
 ```shell
-./gradlew clean build         # compile and run the full test suite
-./gradlew test                # unit tests only
-./gradlew publishToMavenLocal # install the starter locally so other apps can depend on it during development
+./gradlew clean build         # kompiler og kjør hele testsuiten
+./gradlew test                # kun unit tests
+./gradlew publishToMavenLocal # installer starteren lokalt slik at andre apper kan avhenge av den under utvikling
 ```
 
-To experiment with the starter inside another Spring Boot service, add `no.novari:fint-flyt-web-resource-server` as a
-dependency, run a local Kafka broker (e.g., docker-compose), and enable the desired API segment:
+For å eksperimentere med starteren inne i en annen Spring Boot-tjeneste, legg til `no.novari:fint-flyt-web-resource-server`
+som en dependency, kjør en lokal Kafka broker (f.eks. docker-compose), og aktiver ønsket API-segment:
 
 ```shell
 SPRING_APPLICATION_JSON='{
@@ -136,48 +137,51 @@ SPRING_APPLICATION_JSON='{
 
 ## Deployment
 
-- Artifacts are published to `https://repo.fintlabs.no/releases` via `./gradlew publish`, reusing the Gradle publishing
-  credentials (`REPOSILITE_USERNAME/PASSWORD`).
-- Consumers pull the starter as a Maven dependency; Spring Boot automatically discovers the auto-configurations through
+- Artefakter publiseres til `https://repo.fintlabs.no/releases` via `./gradlew publish`, og gjenbruker Gradle sine
+  publiseringscredentials (`REPOSILITE_USERNAME/PASSWORD`).
+- Konsumenter henter starteren som en Maven-dependency; Spring Boot oppdager automatisk auto-konfigurasjonene gjennom
   `META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports`.
-- Coordinate releases with downstream services so they can bump the dependency version and align Kafka/OAuth settings.
+- Koordiner releaser med nedstrøms tjenester slik at de kan oppgradere dependency-versjonen og tilpasse Kafka/OAuth-
+  innstillinger.
 
-## Security
+## Sikkerhet
 
-- Configures Spring Security’s servlet resource server with issuer validation against `https://idp.felleskomponent.no`.
-- Path-level segmentation ensures `/api/intern*` endpoints stay internal while `/api/**` is limited to authorized source
-  applications derived from Kafka.
-- `AuthorityMappingService` and `AuthorityPrefix` standardize how authorities are encoded and later parsed by consumer
-  services.
-- `AuthorizationLogFilter` traces Authorization headers (at TRACE level) to help diagnose token issues without leaking
-  them in higher log levels.
-- Internal role evaluation filters token roles per organization and expands implied roles (Developer → Admin → User).
+- Konfigurerer Spring Security sin servlet resource server med issuer-validering mot `https://idp.felleskomponent.no`.
+- Path-nivå-segmentering sikrer at `/api/intern*`-endepunkter forblir interne mens `/api/**` er begrenset til
+  autoriserte source-applications utledet fra Kafka.
+- `AuthorityMappingService` og `AuthorityPrefix` standardiserer hvordan authorities kodes og senere parses av
+  konsumerende tjenester.
+- `AuthorizationLogFilter` sporer Authorization-headere (på TRACE-nivå) for å hjelpe med å diagnostisere token-
+  problemer uten å lekke dem på høyere loggnivåer.
+- Intern rolleevaluering filtrerer token-roller per organisasjon og utvider implisitte roller (Developer → Admin → User).
 
-## Observability & Operations
+## Observability og drift
 
-- Health and readiness probes are inherited through Spring Boot Actuator (`/actuator/health`, `/actuator/readiness`,
-  `/actuator/prometheus` when enabled by the host app).
-- Cache state can be inspected via `FintCacheManager` metrics once Micrometer is enabled in the consuming service.
-- Kafka listeners log consumed permission events at DEBUG so operators can trace authorization changes when needed.
+- Health- og readiness-probes arves gjennom Spring Boot Actuator (`/actuator/health`, `/actuator/readiness`,
+  `/actuator/prometheus` når aktivert av vertsappen).
+- Cache-tilstand kan inspiseres via `FintCacheManager`-metrics når Micrometer er aktivert i den konsumerende
+  tjenesten.
+- Kafka-listeners logger konsumerte permission-events på DEBUG slik at operatører kan spore autorisasjonsendringer
+  ved behov.
 
-## Development Tips
+## Utviklingstips
 
-- When updating `authorized-org-id-role-pairs-json`, keep the payload valid JSON; the starter logs parse failures on
-  startup.
-- Use `UserAuthorizationService` inside host services to gate handlers the same way the filter chains do.
-- Integration tests can mock `ReplyTopicService` and `RequestTemplateFactory` to avoid Kafka while still covering the
-  JWT converters.
-- `UserPermissionCachingListenerFactory` reuses default Kafka settings; override the listener configuration only if you
-  truly need different poll sizes or retry logic.
+- Når `authorized-org-id-role-pairs-json` oppdateres, sørg for at payloaden er gyldig JSON; starteren logger parse-
+  feil ved oppstart.
+- Bruk `UserAuthorizationService` inne i vertstjenester for å beskytte handlers på samme måte som filter chains gjør.
+- Integrasjonstester kan mocke `ReplyTopicService` og `RequestTemplateFactory` for å unngå Kafka mens JWT-converterne
+  fortsatt dekkes.
+- `UserPermissionCachingListenerFactory` gjenbruker standard Kafka-innstillinger; overstyr listener-konfigurasjonen
+  kun hvis du virkelig trenger andre poll-størrelser eller retry-logikk.
 
-## Contributing
+## Bidra
 
-1. Create a topic branch.
-2. Run `./gradlew test` (or `./gradlew clean build`) before opening a PR.
-3. Coordinate dependency version bumps with consumers and document any new configuration keys.
-4. Add or adjust unit tests when changing converters, mapping services, or Kafka listeners.
+1. Opprett en topic-branch.
+2. Kjør `./gradlew test` (eller `./gradlew clean build`) før du åpner en PR.
+3. Koordiner dependency-versjonsoppgraderinger med konsumenter og dokumenter eventuelle nye konfigurasjonsnøkler.
+4. Legg til eller juster unit tests når du endrer converters, mapping services, eller Kafka-listeners.
 
 ———
 
-FINT Flyt Web Resource Server is maintained by the FINT Flyt team. Reach out on the internal Slack channel or create an
-issue in this repository for questions or enhancements.
+FINT Flyt Web Resource Server vedlikeholdes av FINT Flyt-teamet. Ta kontakt på den interne Slack-kanalen eller opprett
+en issue i dette repositoriet for spørsmål eller forbedringer.
