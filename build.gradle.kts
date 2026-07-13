@@ -4,7 +4,7 @@ import org.gradle.kotlin.dsl.named
 import org.springframework.boot.gradle.plugin.SpringBootPlugin
 
 plugins {
-    id("org.springframework.boot") version "3.5.15" apply false
+    id("org.springframework.boot") version "3.5.16" apply false
     id("io.spring.dependency-management") version "1.1.7"
     id("maven-publish")
     id("java-library")
@@ -54,7 +54,7 @@ dependencies {
 
     api("org.springframework.boot:spring-boot-autoconfigure")
 
-    api("no.novari:kafka:6.1.0")
+    api("no.novari:kafka:6.2.0")
     api("no.novari:flyt-cache:3.0.0")
 
     annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
