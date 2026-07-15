@@ -50,19 +50,21 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server")
     implementation("org.springframework.boot:spring-boot-starter-cache")
-    api("org.springframework.kafka:spring-kafka")
 
+    implementation("com.github.ben-manes.caffeine:caffeine")
+
+    api("org.springframework.kafka:spring-kafka")
     api("org.springframework.boot:spring-boot-autoconfigure")
+    api("org.springframework.boot:spring-boot-starter-oauth2-client")
 
     api("no.novari:kafka:6.2.0")
-    api("no.novari:flyt-cache:3.0.0")
 
     annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
     kapt("org.springframework.boot:spring-boot-configuration-processor")
 
-    testImplementation("org.springframework.kafka:spring-kafka-test")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.springframework.security:spring-security-test")
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
 tasks.test {

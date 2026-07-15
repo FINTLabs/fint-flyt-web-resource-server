@@ -4,9 +4,11 @@ import no.novari.flyt.webresourceserver.security.properties.InternalApiSecurityP
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.mockito.Mockito
+import org.mockito.Mockito.mock
+import org.mockito.Mockito.verifyNoInteractions
 
 class UserRoleFilteringServiceTest {
-    private val internalApiSecurityProperties = Mockito.mock(InternalApiSecurityProperties::class.java)
+    private val internalApiSecurityProperties = mock(InternalApiSecurityProperties::class.java)
     private val service = UserRoleFilteringService(internalApiSecurityProperties)
 
     @Test
@@ -14,7 +16,7 @@ class UserRoleFilteringServiceTest {
         val filter = service.filter(emptySet(), "testOrganizationId")
 
         assertThat(filter).isEmpty()
-        Mockito.verifyNoInteractions(internalApiSecurityProperties)
+        verifyNoInteractions(internalApiSecurityProperties)
     }
 
     @Test
@@ -22,7 +24,7 @@ class UserRoleFilteringServiceTest {
         val filter = service.filter(setOf("unknownRole1", "unknownRole2"), "testOrganizationId")
 
         assertThat(filter).isEmpty()
-        Mockito.verifyNoInteractions(internalApiSecurityProperties)
+        verifyNoInteractions(internalApiSecurityProperties)
     }
 
     @Test
