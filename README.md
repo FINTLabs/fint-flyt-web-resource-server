@@ -11,7 +11,7 @@ claim-håndtering for JWT-er, og lar vertstjenester kontrollere brukerrettighete
 - **Multi-tenant policy-kontroll** — API-segmenter styres via `novari.flyt.web-resource-server.security.api.*`-
   properties, slik at hver tjeneste kan eksponere kun de overflatene organisasjonen trenger.
 - **HTTP-basert brukerautorisasjon** — `UserAuthorizationService` bruker OAuth2 client credentials mot
-  authorization-service og cacher både tillatte og avviste `(bruker, source-application)`-svar i 15 sekunder.
+  authorization-service for hver kontroll av `(bruker, source-application)`.
 - **Kafka for eksterne klienter** — `SourceApplicationAuthorizationRequestService` beholder request/reply-oppslag for
   klient-ID-er som eksponeres via eksterne API-er.
 - **Klar for observability** — Leveres med Spring Boot Actuator aktivert slik at hver vertstjeneste arver health- og
@@ -28,7 +28,7 @@ claim-håndtering for JWT-er, og lar vertstjenester kontrollere brukerrettighete
 | `UserJwtConverter`                             | Beriker brukertokens med org-filtrerte roller; source-application-tilgang hentes ikke ved JWT-konvertering.              |
 | `SourceApplicationAuthorizationRequestService` | Håndterer Kafka request/reply-infrastruktur som løser klient-ID-er til source-application-ID-er.                         |
 | `UserAuthorizationService`                     | Verktøy brukt av konsumenter for rolle- og source-application-sjekker ved kjøretid.                                      |
-| `CachingUserAuthorizationClient`               | Cacher positive og negative HTTP-svar i 15 sekunder; utløpte svar brukes aldri når authorization-service feiler.         |
+| `RestClientUserAuthorizationClient`            | Utfører HTTP-kall mot authorization-service for hver brukerautorisasjonskontroll.                                         |
 
 ## HTTP API
 
@@ -62,7 +62,7 @@ mens avviste authorities svarer med `403 Forbidden`.
 Brukerautorisasjon utføres med `client_credentials` mot authorization-service-endepunktet
 `POST /api/intern-klient/authorization/users/actions/authorize-source-applications`. Vertstjenester sender et
 objektidentifier og et kandidatsett av source-application-ID-er; svaret er tillatelsesinterseksjonen. En enkeltsjekk
-gir `403`, og en feil ved oppfriskning av en utløpt cache gir `503` — tidligere cacheverdier brukes ikke.
+gir `403`, mens feil eller utilgjengelighet hos authorization-service gir `503`.
 
 ## Kafka-integrasjon
 
@@ -71,10 +71,6 @@ gir `403`, og en feil ved oppfriskning av en utløpt cache gir `503` — tidlige
   request/reply-kall som oversetter klient-ID-er til source-application-ID-er.
 - Kafka-tilkobling, group-ID-er og polling-parametere avhenger av de delte `no.novari:kafka`-hjelperne slik at
   starteren kan utføre request/reply for eksterne klienter.
-
-## Planlagte oppgaver
-
-Ingen scheduled jobs er definert. Brukerautorisasjonscache opphører automatisk etter 15 sekunder.
 
 ## Konfigurasjon
 
@@ -92,8 +88,6 @@ Sentrale properties eksponert av starteren:
 | `spring.security.oauth2.resourceserver.jwt.issuer-uri`                                    | Issuer for JWT-validering (`https://idp.felleskomponent.no/nidp/oauth/nam`).                                               |
 | `novari.flyt.web-resource-server.security.authorization.base-url`                         | Base-URL for authorization-service (standard `http://fint-flyt-authorization-service:8080`).                               |
 | `novari.flyt.web-resource-server.security.authorization.client-registration-id`           | OAuth2 client registration (standard `authorization-service`).                                                             |
-| `novari.flyt.web-resource-server.security.authorization.cache.ttl`                        | TTL for positive og negative brukerrettighetssvar (standard `15s`).                                                        |
-| `novari.flyt.web-resource-server.security.authorization.cache.stale-if-error`             | Tillatt stale-periode etter TTL når authorization-service ikke svarer (standard `2m`).                                     |
 
 Tjenester som bruker `UserAuthorizationService` må levere OAuth2 client-credentials for registreringen
 `authorization-service`; starteren oppretter ikke HTTP-klienten i apper uten OAuth2-klientinfrastruktur. Eventuelle
@@ -161,14 +155,15 @@ SPRING_APPLICATION_JSON='{
 
 - Health- og readiness-probes arves gjennom Spring Boot Actuator (`/actuator/health`, `/actuator/readiness`,
   `/actuator/prometheus` når aktivert av vertsappen).
-- OAuth2-klientkall og feil ved cacheoppfriskning logges av vertstjenesten; en utdatert cacheverdi blir aldri servert.
+- OAuth2-klientkall og feil fra authorization-service logges av vertstjenesten. Autorisasjon krever et nytt, vellykket
+  oppslag hos authorization-service.
 
 ## Utviklingstips
 
 - Når `authorized-org-id-role-pairs-json` oppdateres, sørg for at payloaden er gyldig JSON; starteren logger parse-
   feil ved oppstart.
 - Bruk `UserAuthorizationService` inne i vertstjenester for å beskytte handlers på samme måte som filter chains gjør.
-- Integrasjonstester kan mocke `UserAuthorizationClient` for å verifisere `403`, `503` og cacheoppførsel uten HTTP.
+- Integrasjonstester kan mocke `UserAuthorizationClient` for å verifisere `403` og `503` uten HTTP.
 
 ## Bidra
 

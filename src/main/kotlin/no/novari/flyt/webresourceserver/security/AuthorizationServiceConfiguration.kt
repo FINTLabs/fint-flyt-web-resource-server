@@ -2,7 +2,6 @@ package no.novari.flyt.webresourceserver.security
 
 import no.novari.flyt.webresourceserver.security.client.sourceapplication.SourceApplicationAuthorizationService
 import no.novari.flyt.webresourceserver.security.user.UserAuthorizationService
-import no.novari.flyt.webresourceserver.security.user.authorization.CachingUserAuthorizationClient
 import no.novari.flyt.webresourceserver.security.user.authorization.RestClientUserAuthorizationClient
 import no.novari.flyt.webresourceserver.security.user.authorization.UserAuthorizationClient
 import no.novari.flyt.webresourceserver.security.user.authorization.UserAuthorizationClientProperties
@@ -87,10 +86,5 @@ class AuthorizationServiceConfiguration {
     @ConditionalOnBean(name = ["userAuthorizationRestClient"])
     fun userAuthorizationClient(
         @Qualifier("userAuthorizationRestClient") restClient: RestClient,
-        properties: UserAuthorizationClientProperties,
-    ): UserAuthorizationClient =
-        CachingUserAuthorizationClient(
-            RestClientUserAuthorizationClient(restClient),
-            properties.cache,
-        )
+    ): UserAuthorizationClient = RestClientUserAuthorizationClient(restClient)
 }

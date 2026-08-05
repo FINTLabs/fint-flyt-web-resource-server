@@ -9,6 +9,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.mockito.Mockito.mock
+import org.mockito.Mockito.times
 import org.mockito.Mockito.verify
 import org.mockito.Mockito.`when`
 import org.springframework.http.HttpStatus
@@ -66,6 +67,38 @@ class UserAuthorizationServiceTest {
         val exception =
             assertThrows<ResponseStatusException> {
                 service.checkIfUserHasAccessToSourceApplication(authentication(objectIdentifier), 3L)
+            }
+
+        assertThat(exception.statusCode).isEqualTo(HttpStatus.SERVICE_UNAVAILABLE)
+    }
+
+    @Test
+    fun `identical authorization checks call authorization service every time`() {
+        val objectIdentifier = UUID.randomUUID()
+        val authentication = authentication(objectIdentifier)
+        `when`(userAuthorizationClient.getAuthorizedSourceApplicationIds(objectIdentifier, setOf(3L)))
+            .thenReturn(setOf(3L))
+
+        service.checkIfUserHasAccessToSourceApplication(authentication, 3L)
+        service.checkIfUserHasAccessToSourceApplication(authentication, 3L)
+
+        verify(userAuthorizationClient, times(2))
+            .getAuthorizedSourceApplicationIds(objectIdentifier, setOf(3L))
+    }
+
+    @Test
+    fun `authorization service failure after a successful check throws service unavailable`() {
+        val objectIdentifier = UUID.randomUUID()
+        val authentication = authentication(objectIdentifier)
+        `when`(userAuthorizationClient.getAuthorizedSourceApplicationIds(objectIdentifier, setOf(3L)))
+            .thenReturn(setOf(3L))
+            .thenThrow(UserAuthorizationClientException("unavailable", IllegalStateException()))
+
+        service.checkIfUserHasAccessToSourceApplication(authentication, 3L)
+
+        val exception =
+            assertThrows<ResponseStatusException> {
+                service.checkIfUserHasAccessToSourceApplication(authentication, 3L)
             }
 
         assertThat(exception.statusCode).isEqualTo(HttpStatus.SERVICE_UNAVAILABLE)
