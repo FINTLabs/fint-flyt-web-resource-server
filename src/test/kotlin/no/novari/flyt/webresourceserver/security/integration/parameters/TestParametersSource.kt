@@ -184,7 +184,7 @@ object TestParametersSource {
                     INTERNAL_USER_API_IF_INTERNAL_API_ENABLED -> {
                         ExpectedResult(
                             HttpStatus.OK,
-                            setOf("ROLE_USER", "SOURCE_APPLICATION_ID_1", "SOURCE_APPLICATION_ID_2"),
+                            setOf("ROLE_USER"),
                         )
                     }
 
@@ -290,12 +290,7 @@ object TestParametersSource {
                     -> {
                         ExpectedResult(
                             HttpStatus.OK,
-                            setOf(
-                                "ROLE_USER",
-                                "ROLE_ADMIN",
-                                "SOURCE_APPLICATION_ID_1",
-                                "SOURCE_APPLICATION_ID_2",
-                            ),
+                            setOf("ROLE_USER", "ROLE_ADMIN"),
                         )
                     }
 
@@ -319,12 +314,7 @@ object TestParametersSource {
                     -> {
                         ExpectedResult(
                             HttpStatus.OK,
-                            setOf(
-                                "ROLE_USER",
-                                "ROLE_ADMIN",
-                                "SOURCE_APPLICATION_ID_1",
-                                "SOURCE_APPLICATION_ID_2",
-                            ),
+                            setOf("ROLE_USER", "ROLE_ADMIN"),
                         )
                     }
 
@@ -411,13 +401,7 @@ object TestParametersSource {
                     -> {
                         ExpectedResult(
                             HttpStatus.OK,
-                            setOf(
-                                "ROLE_USER",
-                                "ROLE_ADMIN",
-                                "ROLE_DEVELOPER",
-                                "SOURCE_APPLICATION_ID_1",
-                                "SOURCE_APPLICATION_ID_2",
-                            ),
+                            setOf("ROLE_USER", "ROLE_ADMIN", "ROLE_DEVELOPER"),
                         )
                     }
 
@@ -441,13 +425,7 @@ object TestParametersSource {
                     -> {
                         ExpectedResult(
                             HttpStatus.OK,
-                            setOf(
-                                "ROLE_USER",
-                                "ROLE_ADMIN",
-                                "ROLE_DEVELOPER",
-                                "SOURCE_APPLICATION_ID_1",
-                                "SOURCE_APPLICATION_ID_2",
-                            ),
+                            setOf("ROLE_USER", "ROLE_ADMIN", "ROLE_DEVELOPER"),
                         )
                     }
 

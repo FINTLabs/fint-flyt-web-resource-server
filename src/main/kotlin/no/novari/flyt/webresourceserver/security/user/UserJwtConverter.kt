@@ -1,8 +1,5 @@
 package no.novari.flyt.webresourceserver.security.user
 
-import no.novari.cache.FintCache
-import no.novari.flyt.webresourceserver.security.client.sourceapplication.SourceApplicationAuthorityMappingService
-import no.novari.flyt.webresourceserver.security.user.permission.UserPermission
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.core.convert.converter.Converter
@@ -14,9 +11,7 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtAut
 import java.util.UUID
 
 class UserJwtConverter(
-    private val userPermissionCache: FintCache<UUID, UserPermission>,
     private val userRoleFilteringService: UserRoleFilteringService,
-    private val sourceApplicationAuthorityMappingService: SourceApplicationAuthorityMappingService,
     private val userRoleHierarchyService: UserRoleHierarchyService,
     private val userRoleAuthorityMappingService: UserRoleAuthorityMappingService,
 ) : Converter<Jwt, AbstractAuthenticationToken> {
@@ -31,14 +26,8 @@ class UserJwtConverter(
             throw BadCredentialsException("Missing required claims for user authentication")
         }
 
-        val objectIdentifier = UUID.fromString(objectIdentifierString)
+        UUID.fromString(objectIdentifierString)
         val authorities = mutableSetOf<GrantedAuthority>()
-
-        userPermissionCache
-            .getOptional(objectIdentifier)
-            .map(UserPermission::sourceApplicationIds)
-            .map(sourceApplicationAuthorityMappingService::createSourceApplicationAuthorities)
-            .ifPresent(authorities::addAll)
 
         val roleValues =
             jwt

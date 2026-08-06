@@ -7,7 +7,10 @@ import no.novari.flyt.webresourceserver.security.client.sourceapplication.except
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.mockito.Mockito
+import org.mockito.Mockito.mock
+import org.mockito.Mockito.verify
+import org.mockito.Mockito.verifyNoMoreInteractions
+import org.mockito.Mockito.`when`
 import org.springframework.security.core.Authentication
 import org.springframework.security.core.GrantedAuthority
 
@@ -17,83 +20,80 @@ class SourceApplicationAuthorizationServiceTest {
 
     @BeforeEach
     fun setup() {
-        authorityMappingService = Mockito.mock(AuthorityMappingService::class.java)
+        authorityMappingService = mock(AuthorityMappingService::class.java)
         service = SourceApplicationAuthorizationService(authorityMappingService)
     }
 
     @Test
     fun `given single authority should return id`() {
-        val authentication = Mockito.mock(Authentication::class.java)
-        val authorities = Mockito.mock(Collection::class.java) as Collection<GrantedAuthority>
-        Mockito.`when`(authentication.authorities).thenReturn(authorities)
+        val authentication = mock(Authentication::class.java)
+        val authorities = mock(Collection::class.java) as Collection<GrantedAuthority>
+        `when`(authentication.authorities).thenReturn(authorities)
 
-        Mockito
-            .`when`(
-                authorityMappingService.extractLongValues(
-                    AuthorityPrefix.SOURCE_APPLICATION_ID,
-                    authorities,
-                ),
-            ).thenReturn(setOf(1L))
+        `when`(
+            authorityMappingService.extractLongValues(
+                AuthorityPrefix.SOURCE_APPLICATION_ID,
+                authorities,
+            ),
+        ).thenReturn(setOf(1L))
 
         assertThat(service.getSourceApplicationId(authentication)).isEqualTo(1L)
 
-        Mockito.verify(authentication).authorities
-        Mockito.verify(authorityMappingService).extractLongValues(
+        verify(authentication).authorities
+        verify(authorityMappingService).extractLongValues(
             AuthorityPrefix.SOURCE_APPLICATION_ID,
             authorities,
         )
-        Mockito.verifyNoMoreInteractions(authentication, authorityMappingService)
+        verifyNoMoreInteractions(authentication, authorityMappingService)
     }
 
     @Test
     fun `given no authority should throw`() {
-        val authentication = Mockito.mock(Authentication::class.java)
-        val authorities = Mockito.mock(Collection::class.java) as Collection<GrantedAuthority>
-        Mockito.`when`(authentication.authorities).thenReturn(authorities)
+        val authentication = mock(Authentication::class.java)
+        val authorities = mock(Collection::class.java) as Collection<GrantedAuthority>
+        `when`(authentication.authorities).thenReturn(authorities)
 
-        Mockito
-            .`when`(
-                authorityMappingService.extractLongValues(
-                    AuthorityPrefix.SOURCE_APPLICATION_ID,
-                    authorities,
-                ),
-            ).thenReturn(emptySet())
+        `when`(
+            authorityMappingService.extractLongValues(
+                AuthorityPrefix.SOURCE_APPLICATION_ID,
+                authorities,
+            ),
+        ).thenReturn(emptySet())
 
         org.junit.jupiter.api.Assertions.assertThrows(NoSourceApplicationIdException::class.java) {
             service.getSourceApplicationId(authentication)
         }
 
-        Mockito.verify(authentication).authorities
-        Mockito.verify(authorityMappingService).extractLongValues(
+        verify(authentication).authorities
+        verify(authorityMappingService).extractLongValues(
             AuthorityPrefix.SOURCE_APPLICATION_ID,
             authorities,
         )
-        Mockito.verifyNoMoreInteractions(authentication, authorityMappingService)
+        verifyNoMoreInteractions(authentication, authorityMappingService)
     }
 
     @Test
     fun `given multiple authorities should throw`() {
-        val authentication = Mockito.mock(Authentication::class.java)
-        val authorities = Mockito.mock(Collection::class.java) as Collection<GrantedAuthority>
-        Mockito.`when`(authentication.authorities).thenReturn(authorities)
+        val authentication = mock(Authentication::class.java)
+        val authorities = mock(Collection::class.java) as Collection<GrantedAuthority>
+        `when`(authentication.authorities).thenReturn(authorities)
 
-        Mockito
-            .`when`(
-                authorityMappingService.extractLongValues(
-                    AuthorityPrefix.SOURCE_APPLICATION_ID,
-                    authorities,
-                ),
-            ).thenReturn(setOf(1L, 2L))
+        `when`(
+            authorityMappingService.extractLongValues(
+                AuthorityPrefix.SOURCE_APPLICATION_ID,
+                authorities,
+            ),
+        ).thenReturn(setOf(1L, 2L))
 
         org.junit.jupiter.api.Assertions.assertThrows(MultipleSourceApplicationIdsException::class.java) {
             service.getSourceApplicationId(authentication)
         }
 
-        Mockito.verify(authentication).authorities
-        Mockito.verify(authorityMappingService).extractLongValues(
+        verify(authentication).authorities
+        verify(authorityMappingService).extractLongValues(
             AuthorityPrefix.SOURCE_APPLICATION_ID,
             authorities,
         )
-        Mockito.verifyNoMoreInteractions(authentication, authorityMappingService)
+        verifyNoMoreInteractions(authentication, authorityMappingService)
     }
 }

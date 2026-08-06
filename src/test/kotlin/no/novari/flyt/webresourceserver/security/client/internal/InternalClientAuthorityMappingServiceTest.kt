@@ -6,9 +6,10 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.mockito.Mockito
+import org.mockito.Mockito.mock
 
 class InternalClientAuthorityMappingServiceTest {
-    private val authorityMappingService = Mockito.mock(AuthorityMappingService::class.java)
+    private val authorityMappingService = mock(AuthorityMappingService::class.java)
     private lateinit var service: InternalClientAuthorityMappingService
 
     @BeforeEach

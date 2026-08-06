@@ -5,10 +5,11 @@ import no.novari.flyt.webresourceserver.security.AuthorityPrefix
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.mockito.Mockito
+import org.mockito.Mockito.mock
 import org.springframework.security.core.GrantedAuthority
 
 class UserRoleAuthorityMappingServiceTest {
-    private val authorityMappingService = Mockito.mock(AuthorityMappingService::class.java)
+    private val authorityMappingService = mock(AuthorityMappingService::class.java)
     private val service = UserRoleAuthorityMappingService(authorityMappingService)
 
     @Test
