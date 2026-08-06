@@ -9,7 +9,8 @@ import org.springframework.beans.factory.ObjectProvider
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.boot.autoconfigure.AutoConfiguration
 import org.springframework.boot.autoconfigure.AutoConfigureAfter
-import org.springframework.boot.autoconfigure.condition.ConditionalOnBean
+import org.springframework.boot.autoconfigure.condition.ConditionalOnClass
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.boot.autoconfigure.security.oauth2.client.OAuth2ClientAutoConfiguration
 import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean
@@ -24,6 +25,7 @@ import org.springframework.web.client.RestClient
 
 @AutoConfiguration
 @AutoConfigureAfter(OAuth2ClientAutoConfiguration::class)
+@ConditionalOnClass(ClientRegistrationRepository::class)
 @EnableConfigurationProperties(UserAuthorizationClientProperties::class)
 class AuthorizationServiceConfiguration {
     @Bean
@@ -34,16 +36,19 @@ class AuthorizationServiceConfiguration {
     }
 
     @Bean
-    @ConditionalOnBean(UserAuthorizationClient::class)
+    @ConditionalOnProperty(
+        prefix = "spring.security.oauth2.client.registration.authorization-service",
+        name = ["client-id"],
+    )
     fun userAuthorizationService(
         authorityMappingService: AuthorityMappingService,
         userAuthorizationClient: UserAuthorizationClient,
     ): UserAuthorizationService = UserAuthorizationService(authorityMappingService, userAuthorizationClient)
 
     @Bean
-    @ConditionalOnBean(
-        ClientRegistrationRepository::class,
-        OAuth2AuthorizedClientService::class,
+    @ConditionalOnProperty(
+        prefix = "spring.security.oauth2.client.registration.authorization-service",
+        name = ["client-id"],
     )
     fun userAuthorizationAuthorizedClientManager(
         clientRegistrationRepository: ClientRegistrationRepository,
@@ -64,7 +69,10 @@ class AuthorizationServiceConfiguration {
     }
 
     @Bean("userAuthorizationRestClient")
-    @ConditionalOnBean(name = ["userAuthorizationAuthorizedClientManager"])
+    @ConditionalOnProperty(
+        prefix = "spring.security.oauth2.client.registration.authorization-service",
+        name = ["client-id"],
+    )
     fun userAuthorizationRestClient(
         userAuthorizationAuthorizedClientManager: OAuth2AuthorizedClientManager,
         clientHttpRequestFactory: ObjectProvider<ClientHttpRequestFactory>,
@@ -83,7 +91,10 @@ class AuthorizationServiceConfiguration {
     }
 
     @Bean
-    @ConditionalOnBean(name = ["userAuthorizationRestClient"])
+    @ConditionalOnProperty(
+        prefix = "spring.security.oauth2.client.registration.authorization-service",
+        name = ["client-id"],
+    )
     fun userAuthorizationClient(
         @Qualifier("userAuthorizationRestClient") restClient: RestClient,
     ): UserAuthorizationClient = RestClientUserAuthorizationClient(restClient)
