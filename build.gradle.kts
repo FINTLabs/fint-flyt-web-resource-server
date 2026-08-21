@@ -15,8 +15,10 @@ plugins {
     kotlin("kapt") version "2.4.10"
 }
 
-private val kotlinVersion = "2.4.0"
+private val kotlinVersion = "2.4.10"
 extra["kotlin.version"] = kotlinVersion
+extra["jackson-bom.version"] = "2.21.5"
+extra["log4j2.version"] = "2.25.5"
 
 group = "no.novari"
 version = findProperty("version")?.toString() ?: "1.0-SNAPSHOT"
@@ -43,6 +45,12 @@ dependencyManagement {
 }
 
 dependencies {
+    constraints {
+        implementation("at.yawk.lz4:lz4-java:1.11.1") {
+            because("Fixes CVE-2026-59949 in the kafka-clients transitive dependency")
+        }
+    }
+
     implementation(kotlin("stdlib"))
     implementation(kotlin("reflect"))
 
