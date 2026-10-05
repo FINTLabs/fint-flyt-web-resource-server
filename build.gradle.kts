@@ -66,8 +66,6 @@ dependencies {
             because("Fixes CVE-2026-59949 in the kafka-clients transitive dependency")
         }
     }
-
-    implementation(kotlin("stdlib"))
     implementation(kotlin("reflect"))
 
     implementation("org.springframework.boot:spring-boot-starter-actuator")
@@ -78,12 +76,9 @@ dependencies {
     api("org.springframework.boot:spring-boot-starter-oauth2-client")
 
     api("no.novari:kafka:6.2.0")
-
-    annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
     kapt("org.springframework.boot:spring-boot-configuration-processor")
 
     testImplementation("org.springframework.boot:spring-boot-starter-test")
-    testImplementation("org.springframework.security:spring-security-test")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
