@@ -4,7 +4,6 @@ import org.gradle.kotlin.dsl.named
 import org.springframework.boot.gradle.plugin.SpringBootPlugin
 
 buildscript {
-    configurations.classpath { resolutionStrategy.activateDependencyLocking() }
     repositories {
         gradlePluginPortal()
     }
