@@ -84,7 +84,7 @@ dependencies {
     api("org.springframework.boot:spring-boot-autoconfigure")
     api("org.springframework.boot:spring-boot-starter-oauth2-client")
 
-    api("no.novari:kafka:6.2.0")
+    api("no.novari:kafka:6.3.0")
     kapt("org.springframework.boot:spring-boot-configuration-processor")
 
     testImplementation("org.springframework.boot:spring-boot-starter-test")
