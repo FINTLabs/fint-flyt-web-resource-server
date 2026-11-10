@@ -10,8 +10,8 @@ import java.time.Duration
  * Looks up the source application of a client in fint-flyt-authorization-service.
  *
  * The lookup runs for every incoming request on the external API, so found clients are cached for [CACHE_TTL].
- * Returns `null` on 404 without caching it, so a newly registered client is picked up at once.
- * Other errors are thrown and not cached.
+ * Concurrent misses for the same client share one lookup. Returns `null` on 404 without caching it, so a newly
+ * registered client is picked up at once. Other errors are thrown and not cached.
  */
 class SourceApplicationAuthorizationClient(
     private val restClient: RestClient,
@@ -24,18 +24,19 @@ class SourceApplicationAuthorizationClient(
             .build<String, SourceApplicationAuthorization>()
 
     fun getClientAuthorization(clientId: String): SourceApplicationAuthorization? =
-        cache.getIfPresent(clientId) ?: fetch(clientId)?.also { cache.put(clientId, it) }
-
-    private fun fetch(clientId: String): SourceApplicationAuthorization? =
         try {
-            restClient
-                .get()
-                .uri("/clients/{clientId}", clientId)
-                .retrieve()
-                .body<SourceApplicationAuthorization>()
+            cache.get(clientId, ::fetch)
         } catch (_: HttpClientErrorException.NotFound) {
             null
         }
+
+    private fun fetch(clientId: String): SourceApplicationAuthorization =
+        restClient
+            .get()
+            .uri("/clients/{clientId}", clientId)
+            .retrieve()
+            .body<SourceApplicationAuthorization>()
+            ?: throw IllegalStateException("Authorization service returned an empty response")
 
     private companion object {
         val CACHE_TTL: Duration = Duration.ofMinutes(1)

@@ -118,13 +118,10 @@ spring:
             client-id: ${fint.flyt.authorization.sso.client-id}
             client-secret: ${fint.flyt.authorization.sso.client-secret}
             provider: fint-idp
-  http:
-    client:
-      connect-timeout: 2s
-      read-timeout: 5s
 ```
 
-`spring.http.client.*` gjelder alle `RestClient`-er i appen som ikke har egen request factory.
+Kallene mot authorization-service og tokenhentingen fra NAM har 2s connect- og 5s read-timeout. Setter appen
+`spring.http.client.connect-timeout` eller `spring.http.client.read-timeout`, gjelder de i stedet.
 
 ## Konfigurasjon
 
@@ -150,8 +147,8 @@ Tjenester som bruker `UserAuthorizationService` eller external API må levere OA
 - `no.novari:kafka` og `spring-kafka` følger ikke lenger med transitivt. Apper som bruker Kafka, må ha dem direkte.
 - `SourceApplicationAuthorizationRequestService` er fjernet. Tester kan mocke `SourceApplicationAuthorizationClient`.
 - `SourceApplicationJwtConverter` opprettes bare når external API er på.
-- `userAuthorizationRestClient` heter nå `authorizationServiceRestClient`, og den bruker timeouts fra `spring.http.client.*`
-  i stedet for en `ClientHttpRequestFactory`-bean fra appen.
+- `userAuthorizationRestClient` heter nå `authorizationServiceRestClient`. Den bruker ikke lenger en
+  `ClientHttpRequestFactory`-bean fra appen, men egne timeouts (se over).
 
 ## Kjøre lokalt
 

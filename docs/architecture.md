@@ -93,8 +93,8 @@ C4Container
 
 Calls to authorization-service use the OAuth2 registration `authorization-service` with the client
 `fint-flyt-authorization-oauth2-client` (`fint.flyt.authorization.sso.*`). Base URL:
-`http://fint-flyt-authorization-service:8080${server.servlet.context-path:}`. Timeouts come from
-`spring.http.client.*` in the host app.
+`http://fint-flyt-authorization-service:8080${server.servlet.context-path:}`. The calls and the token
+request to NAM time out after 2s connect and 5s read, unless the host app sets `spring.http.client.*`.
 
 | Call                                                                                | Used for                       |
 |-------------------------------------------------------------------------------------|--------------------------------|

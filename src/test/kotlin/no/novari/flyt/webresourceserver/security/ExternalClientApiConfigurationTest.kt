@@ -5,6 +5,7 @@ import no.novari.flyt.webresourceserver.security.client.sourceapplication.Source
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.springframework.boot.autoconfigure.AutoConfigurations
+import org.springframework.boot.autoconfigure.http.client.HttpClientAutoConfiguration
 import org.springframework.boot.autoconfigure.security.oauth2.client.servlet.OAuth2ClientAutoConfiguration
 import org.springframework.boot.autoconfigure.web.client.RestClientAutoConfiguration
 import org.springframework.boot.test.context.runner.WebApplicationContextRunner
@@ -15,6 +16,7 @@ class ExternalClientApiConfigurationTest {
             .withConfiguration(
                 AutoConfigurations.of(
                     OAuth2ClientAutoConfiguration::class.java,
+                    HttpClientAutoConfiguration::class.java,
                     RestClientAutoConfiguration::class.java,
                     AuthorizationServiceConfiguration::class.java,
                     ExternalClientApiConfiguration::class.java,

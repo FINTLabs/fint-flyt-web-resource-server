@@ -9,6 +9,8 @@ import org.junit.jupiter.api.assertThrows
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.`when`
+import org.springframework.boot.http.client.ClientHttpRequestFactoryBuilder
+import org.springframework.boot.http.client.ClientHttpRequestFactorySettings
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpMethod
 import org.springframework.http.HttpStatus
@@ -29,19 +31,23 @@ import org.springframework.test.web.client.response.MockRestResponseCreators.wit
 import org.springframework.web.client.HttpServerErrorException
 import org.springframework.web.client.RestClient
 import java.time.Instant
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.Executors
+import java.util.concurrent.TimeUnit
 
 class SourceApplicationAuthorizationClientTest {
     private val url = "http://fint-flyt-authorization-service:8080/api/intern-klient/authorization/clients/client-1"
-    private val restClientBuilder = RestClient.builder()
-    private val server = MockRestServiceServer.bindTo(restClientBuilder).build()
-    private val client =
-        SourceApplicationAuthorizationClient(
-            AuthorizationServiceConfiguration().authorizationServiceRestClient(
+    private val restClientBuilder =
+        AuthorizationServiceConfiguration()
+            .authorizationServiceRestClient(
                 authorizedClientManager(),
-                restClientBuilder,
+                RestClient.builder(),
+                ClientHttpRequestFactoryBuilder.detect(),
+                ClientHttpRequestFactorySettings.defaults(),
                 UserAuthorizationClientProperties(),
-            ),
-        )
+            ).mutate()
+    private val server = MockRestServiceServer.bindTo(restClientBuilder).build()
+    private val client = SourceApplicationAuthorizationClient(restClientBuilder.build())
 
     @AfterEach
     fun verify() {
@@ -83,6 +89,30 @@ class SourceApplicationAuthorizationClientTest {
 
         assertThrows<HttpServerErrorException> { client.getClientAuthorization("client-1") }
         assertThat(client.getClientAuthorization("client-1")?.sourceApplicationId).isEqualTo(3L)
+    }
+
+    @Test
+    fun `concurrent misses for the same client share one lookup`() {
+        val firstLookupStarted = CountDownLatch(1)
+        val release = CountDownLatch(1)
+        server.expect(once(), requestTo(url)).andRespond { request ->
+            firstLookupStarted.countDown()
+            release.await(5, TimeUnit.SECONDS)
+            withSuccess("""{"authorized":true,"sourceApplicationId":3}""", MediaType.APPLICATION_JSON)
+                .createResponse(request)
+        }
+        val executor = Executors.newFixedThreadPool(8)
+
+        val results =
+            (1..8).map {
+                executor.submit<SourceApplicationAuthorization?> { client.getClientAuthorization("client-1") }
+            }
+        firstLookupStarted.await(5, TimeUnit.SECONDS)
+        Thread.sleep(100)
+        release.countDown()
+
+        assertThat(results.map { it.get(5, TimeUnit.SECONDS)?.sourceApplicationId }).containsOnly(3L)
+        executor.shutdown()
     }
 
     private fun authorizedClientManager(): OAuth2AuthorizedClientManager {
