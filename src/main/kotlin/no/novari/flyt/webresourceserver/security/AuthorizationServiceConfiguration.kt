@@ -5,7 +5,6 @@ import no.novari.flyt.webresourceserver.security.user.UserAuthorizationService
 import no.novari.flyt.webresourceserver.security.user.authorization.RestClientUserAuthorizationClient
 import no.novari.flyt.webresourceserver.security.user.authorization.UserAuthorizationClient
 import no.novari.flyt.webresourceserver.security.user.authorization.UserAuthorizationClientProperties
-import org.springframework.beans.factory.ObjectProvider
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.boot.autoconfigure.AutoConfiguration
 import org.springframework.boot.autoconfigure.AutoConfigureAfter
@@ -14,7 +13,6 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.boot.autoconfigure.security.oauth2.client.OAuth2ClientAutoConfiguration
 import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean
-import org.springframework.http.client.ClientHttpRequestFactory
 import org.springframework.security.oauth2.client.AuthorizedClientServiceOAuth2AuthorizedClientManager
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientManager
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientProviderBuilder
@@ -50,7 +48,7 @@ class AuthorizationServiceConfiguration {
         prefix = "spring.security.oauth2.client.registration.authorization-service",
         name = ["client-id"],
     )
-    fun userAuthorizationAuthorizedClientManager(
+    fun authorizationServiceAuthorizedClientManager(
         clientRegistrationRepository: ClientRegistrationRepository,
         authorizedClientService: OAuth2AuthorizedClientService,
     ): OAuth2AuthorizedClientManager {
@@ -68,26 +66,25 @@ class AuthorizationServiceConfiguration {
         return manager
     }
 
-    @Bean("userAuthorizationRestClient")
+    // Shared by user and source application authorization. Timeouts come from spring.http.client.* in the host app.
+    @Bean
     @ConditionalOnProperty(
         prefix = "spring.security.oauth2.client.registration.authorization-service",
         name = ["client-id"],
     )
-    fun userAuthorizationRestClient(
-        userAuthorizationAuthorizedClientManager: OAuth2AuthorizedClientManager,
-        clientHttpRequestFactory: ObjectProvider<ClientHttpRequestFactory>,
+    fun authorizationServiceRestClient(
+        @Qualifier("authorizationServiceAuthorizedClientManager") authorizedClientManager:
+            OAuth2AuthorizedClientManager,
         restClientBuilder: RestClient.Builder,
         properties: UserAuthorizationClientProperties,
     ): RestClient {
-        val interceptor = OAuth2ClientHttpRequestInterceptor(userAuthorizationAuthorizedClientManager)
+        val interceptor = OAuth2ClientHttpRequestInterceptor(authorizedClientManager)
         interceptor.setClientRegistrationIdResolver { properties.clientRegistrationId }
 
-        val builder =
-            restClientBuilder
-                .requestInterceptor(interceptor)
-                .baseUrl("${properties.baseUrl}/api/intern-klient/authorization/users")
-        clientHttpRequestFactory.ifAvailable { builder.requestFactory(it) }
-        return builder.build()
+        return restClientBuilder
+            .requestInterceptor(interceptor)
+            .baseUrl("${properties.baseUrl}/api/intern-klient/authorization")
+            .build()
     }
 
     @Bean
@@ -96,6 +93,6 @@ class AuthorizationServiceConfiguration {
         name = ["client-id"],
     )
     fun userAuthorizationClient(
-        @Qualifier("userAuthorizationRestClient") restClient: RestClient,
+        @Qualifier("authorizationServiceRestClient") restClient: RestClient,
     ): UserAuthorizationClient = RestClientUserAuthorizationClient(restClient)
 }

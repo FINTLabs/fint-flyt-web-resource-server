@@ -1,7 +1,7 @@
 package no.novari.flyt.webresourceserver.security.integration
 
 import no.novari.flyt.webresourceserver.security.client.sourceapplication.SourceApplicationAuthorization
-import no.novari.flyt.webresourceserver.security.client.sourceapplication.SourceApplicationAuthorizationRequestService
+import no.novari.flyt.webresourceserver.security.client.sourceapplication.SourceApplicationAuthorizationClient
 import no.novari.flyt.webresourceserver.security.integration.parameters.ExpectedResult
 import no.novari.flyt.webresourceserver.security.integration.parameters.TestParameters
 import no.novari.flyt.webresourceserver.security.integration.values.ClientId
@@ -17,7 +17,6 @@ import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpMethod
 import org.springframework.security.oauth2.jwt.JwtDecoder
 import org.springframework.test.context.bean.override.mockito.MockitoBean
-import java.util.Optional
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 abstract class AbstractIntegrationTest {
@@ -28,11 +27,11 @@ abstract class AbstractIntegrationTest {
     private lateinit var testRestTemplate: TestRestTemplate
 
     @MockitoBean
-    private var sourceApplicationAuthorizationRequestService: SourceApplicationAuthorizationRequestService? = null
+    private var sourceApplicationAuthorizationClient: SourceApplicationAuthorizationClient? = null
 
     @BeforeEach
     fun setUp() {
-        sourceApplicationAuthorizationRequestService?.let {
+        sourceApplicationAuthorizationClient?.let {
             mockExternalClientSourceApplicationAuthorizations(
                 ClientId.WITH_EXTERNAL_CLIENT_SA_AUTHORIZATION_ID_1,
                 authorized = true,
@@ -52,14 +51,12 @@ abstract class AbstractIntegrationTest {
         sourceApplicationId: Long?,
     ) {
         `when`(
-            sourceApplicationAuthorizationRequestService!!.getClientAuthorization(clientId.claimValue),
+            sourceApplicationAuthorizationClient!!.getClientAuthorization(clientId.claimValue),
         ).thenReturn(
-            Optional.of(
-                SourceApplicationAuthorization(
-                    authorized = authorized,
-                    clientId = clientId.claimValue,
-                    sourceApplicationId = sourceApplicationId,
-                ),
+            SourceApplicationAuthorization(
+                authorized = authorized,
+                clientId = clientId.claimValue,
+                sourceApplicationId = sourceApplicationId,
             ),
         )
     }

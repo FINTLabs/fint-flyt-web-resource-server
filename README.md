@@ -12,23 +12,23 @@ claim-håndtering for JWT-er, og lar vertstjenester kontrollere brukerrettighete
   properties, slik at hver tjeneste kan eksponere kun de overflatene organisasjonen trenger.
 - **HTTP-basert brukerautorisasjon** — `UserAuthorizationService` bruker OAuth2 client credentials mot
   authorization-service for hver kontroll av `(bruker, source-application)`.
-- **Kafka for eksterne klienter** — `SourceApplicationAuthorizationRequestService` beholder request/reply-oppslag for
-  klient-ID-er som eksponeres via eksterne API-er.
+- **HTTP-basert source application-autorisasjon** — `SourceApplicationJwtConverter` slår opp klient-ID-en hos
+  authorization-service og cacher treff i ett minutt.
 - **Klar for observability** — Leveres med Spring Boot Actuator aktivert slik at hver vertstjeneste arver health- og
   metrics-probes under `/actuator/**`.
 
 ## Arkitekturoversikt
 
-| Komponent                                      | Ansvar                                                                                                                   |
-|------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------|
-| `SecurityConfiguration`                        | Setter opp servlet filter chains for actuator, admin, user, internal-client og external med riktige matchers.            |
-| `SecurityFilterChainFactoryService`            | Anvender tverrgående servlet-sikkerhetskonfigurasjon (logging, CSRF av, JWT-converter-oppkobling, deny/permit-hjelpere). |
-| `SourceApplicationJwtConverter`                | Konverterer eksterne klient-JWT-er til authorities ved å be om autorisasjonsdetaljer over Kafka.                         |
-| `InternalClientJwtConverter`                   | Mapper interne klient-subject-claims til `CLIENT_ID_*`-authorities brukt av internal-client filter chain.                |
-| `UserJwtConverter`                             | Beriker brukertokens med org-filtrerte roller; source-application-tilgang hentes ikke ved JWT-konvertering.              |
-| `SourceApplicationAuthorizationRequestService` | Håndterer Kafka request/reply-infrastruktur som løser klient-ID-er til source-application-ID-er.                         |
-| `UserAuthorizationService`                     | Verktøy brukt av konsumenter for rolle- og source-application-sjekker ved kjøretid.                                      |
-| `RestClientUserAuthorizationClient`            | Utfører HTTP-kall mot authorization-service for hver brukerautorisasjonskontroll.                                         |
+| Komponent                              | Ansvar                                                                                                                   |
+|----------------------------------------|--------------------------------------------------------------------------------------------------------------------------|
+| `SecurityConfiguration`                | Setter opp servlet filter chains for actuator, admin, user, internal-client og external med riktige matchers.            |
+| `SecurityFilterChainFactoryService`    | Anvender tverrgående servlet-sikkerhetskonfigurasjon (logging, CSRF av, JWT-converter-oppkobling, deny/permit-hjelpere). |
+| `SourceApplicationJwtConverter`        | Konverterer eksterne klient-JWT-er til authorities via `SourceApplicationAuthorizationClient`.                           |
+| `InternalClientJwtConverter`           | Mapper interne klient-subject-claims til `CLIENT_ID_*`-authorities brukt av internal-client filter chain.                |
+| `UserJwtConverter`                     | Beriker brukertokens med org-filtrerte roller; source-application-tilgang hentes ikke ved JWT-konvertering.              |
+| `SourceApplicationAuthorizationClient` | Henter source application for en klient-ID fra authorization-service og cacher treff i ett minutt.                       |
+| `UserAuthorizationService`             | Verktøy brukt av konsumenter for rolle- og source-application-sjekker ved kjøretid.                                      |
+| `RestClientUserAuthorizationClient`    | Utfører HTTP-kall mot authorization-service for hver brukerautorisasjonskontroll.                                        |
 
 ## HTTP API
 
@@ -39,7 +39,7 @@ Basispath-er beskyttet av starteren (se `UrlPaths`):
 | `ANY`  | `/api/intern/admin/**`  | Internal admin API som krever minst `ADMIN`-rollen; deaktivert med mindre `internal.enabled=true`. | – (implementert av vertstjenesten) | Beskyttet nedstrøms response, `401/403` når JWT-en mangler authorities. |
 | `ANY`  | `/api/intern/**`        | Internal user API som krever `USER`-rollen; filtrerer tillatte roller per organisasjon.            | –                                  | Samme som over.                                                         |
 | `ANY`  | `/api/intern-klient/**` | Internal client API sikret av spesifikke klient-ID-er innebygd i JWT-subject.                      | –                                  | Samme som over.                                                         |
-| `ANY`  | `/api/**`               | External API for godkjente source-applications annonsert via Kafka.                                | –                                  | Samme som over.                                                         |
+| `ANY`  | `/api/**`               | External API for source applications som authorization-service kjenner klient-ID-en til.           | –                                  | Samme som over.                                                         |
 
 Tokens forventes å inneholde claims under; starteren ekstraherer disse for å beregne tildelte authorities:
 
@@ -64,34 +64,94 @@ Brukerautorisasjon utføres med `client_credentials` mot authorization-service-e
 objektidentifier og et kandidatsett av source-application-ID-er; svaret er tillatelsesinterseksjonen. En enkeltsjekk
 gir `403`, mens feil eller utilgjengelighet hos authorization-service gir `503`.
 
-## Kafka-integrasjon
+Source application-autorisasjon går mot `GET /api/intern-klient/authorization/clients/{clientId}` i hvert kall til
+`/api/**`. Treff caches i ett minutt. `404` caches ikke og gir `401`. Andre feil caches heller ikke, og kallet avvises.
 
-- `SourceApplicationAuthorizationRequestService` oppretter authorization-request-topics med standard org/application-
-  prefiks, starter kortlevde reply-topics (2 minutters retention), og bruker `RequestTemplate` til å utføre
-  request/reply-kall som oversetter klient-ID-er til source-application-ID-er.
-- Kafka-tilkobling, group-ID-er og polling-parametere avhenger av de delte `no.novari:kafka`-hjelperne slik at
-  starteren kan utføre request/reply for eksterne klienter.
+## Oppsett for apper med external API
+
+En app med `novari.flyt.web-resource-server.security.api.external.enabled=true` trenger OAuth-klienten
+`fint-flyt-authorization-oauth2-client` og registreringen `authorization-service`. Uten registreringen feiler appen ved
+oppstart.
+
+Legg secreten inn med `env`, ikke `envFrom`. Den gir `fint.sso.*`, og det kolliderer med andre OAuth-klienter i podden,
+for eksempel `fint-flyt-file-oauth2-client` i gatewayene:
+
+```yaml
+# kustomize/base/oauth2-authorization-client.yaml
+apiVersion: "fintlabs.no/v1alpha1"
+kind: NamOAuthClientApplicationResource
+metadata:
+  name: fint-flyt-authorization-oauth2-client
+spec:
+  grantTypes:
+    - client_credentials
+```
+
+```yaml
+# kustomize/base/flais.yaml, under spec.env
+- name: fint.flyt.authorization.sso.client-id
+  valueFrom:
+    secretKeyRef:
+      name: fint-flyt-authorization-oauth2-client
+      key: fint.sso.client-id
+- name: fint.flyt.authorization.sso.client-secret
+  valueFrom:
+    secretKeyRef:
+      name: fint-flyt-authorization-oauth2-client
+      key: fint.sso.client-secret
+```
+
+I `ra-no` heter nøklene i secreten `fint.flyt.authorization.sso.client-id` og `fint.flyt.authorization.sso.client-secret`,
+så overlayet må patche `secretKeyRef.key`, slik intgr-conf-service gjør.
+
+```yaml
+spring:
+  security:
+    oauth2:
+      client:
+        provider:
+          fint-idp:
+            token-uri: https://idp.felleskomponent.no/nidp/oauth/nam/token
+        registration:
+          authorization-service:
+            authorization-grant-type: client_credentials
+            client-id: ${fint.flyt.authorization.sso.client-id}
+            client-secret: ${fint.flyt.authorization.sso.client-secret}
+            provider: fint-idp
+  http:
+    client:
+      connect-timeout: 2s
+      read-timeout: 5s
+```
+
+`spring.http.client.*` gjelder alle `RestClient`-er i appen som ikke har egen request factory.
 
 ## Konfigurasjon
 
 Sentrale properties eksponert av starteren:
 
-| Property                                                                                  | Beskrivelse                                                                                                                |
-|-------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------|
-| `novari.flyt.web-resource-server.security.api.internal.enabled`                           | Aktiverer internal admin/user API-ene. User-authorization-beans opprettes når OAuth2-klientregistreringen er tilgjengelig. |
-| `novari.flyt.web-resource-server.security.api.internal.authorized-org-id-role-pairs-json` | JSON-map av `{ "orgId": ["USER","ADMIN"] }` som filtrerer tillatte roller per organisasjon.                                |
-| `novari.flyt.web-resource-server.security.api.internal-client.enabled`                    | Slår på internal client API filter chain.                                                                                  |
-| `novari.flyt.web-resource-server.security.api.internal-client.authorized-client-ids`      | Liste over JWT-subjects som kan kalle `/api/intern-klient/**`.                                                             |
-| `novari.flyt.web-resource-server.security.api.external.enabled`                           | Slår på external API filter chain.                                                                                         |
-| `novari.flyt.web-resource-server.security.api.external.authorized-source-application-ids` | Liste over source-application-ID-er autorisert for `/api/**`.                                                              |
-| `novari.kafka.application-id`                                                             | Brukes til navngiving av request/reply-topics og listener group-ID-er.                                                     |
-| `spring.security.oauth2.resourceserver.jwt.issuer-uri`                                    | Issuer for JWT-validering (`https://idp.felleskomponent.no/nidp/oauth/nam`).                                               |
-| `novari.flyt.web-resource-server.security.authorization.base-url`                         | Base-URL for authorization-service (standard `http://fint-flyt-authorization-service:8080`).                               |
-| `novari.flyt.web-resource-server.security.authorization.client-registration-id`           | OAuth2 client registration (standard `authorization-service`).                                                             |
+| Property                                                                                  | Beskrivelse                                                                                                                 |
+|-------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------|
+| `novari.flyt.web-resource-server.security.api.internal.enabled`                           | Aktiverer internal admin/user API-ene. User-authorization-beans opprettes når OAuth2-klientregistreringen er tilgjengelig.  |
+| `novari.flyt.web-resource-server.security.api.internal.authorized-org-id-role-pairs-json` | JSON-map av `{ "orgId": ["USER","ADMIN"] }` som filtrerer tillatte roller per organisasjon.                                 |
+| `novari.flyt.web-resource-server.security.api.internal-client.enabled`                    | Slår på internal client API filter chain.                                                                                   |
+| `novari.flyt.web-resource-server.security.api.internal-client.authorized-client-ids`      | Liste over JWT-subjects som kan kalle `/api/intern-klient/**`.                                                              |
+| `novari.flyt.web-resource-server.security.api.external.enabled`                           | Slår på external API filter chain.                                                                                          |
+| `novari.flyt.web-resource-server.security.api.external.authorized-source-application-ids` | Liste over source-application-ID-er autorisert for `/api/**`.                                                               |
+| `spring.security.oauth2.resourceserver.jwt.issuer-uri`                                    | Issuer for JWT-validering (`https://idp.felleskomponent.no/nidp/oauth/nam`).                                                |
+| `novari.flyt.web-resource-server.security.authorization.base-url`                         | Base-URL for authorization-service (standard `http://fint-flyt-authorization-service:8080${server.servlet.context-path:}`). |
+| `novari.flyt.web-resource-server.security.authorization.client-registration-id`           | OAuth2 client registration (standard `authorization-service`).                                                              |
 
-Tjenester som bruker `UserAuthorizationService` må levere OAuth2 client-credentials for registreringen
-`authorization-service`; starteren oppretter ikke HTTP-klienten i apper uten OAuth2-klientinfrastruktur. Eventuelle
-Kafka-credentials gjelder kun funksjonene som fortsatt bruker request/reply.
+Tjenester som bruker `UserAuthorizationService` eller external API må levere OAuth2 client-credentials for registreringen
+`authorization-service`.
+
+## Oppgradere fra 4.x
+
+- `no.novari:kafka` og `spring-kafka` følger ikke lenger med transitivt. Apper som bruker Kafka, må ha dem direkte.
+- `SourceApplicationAuthorizationRequestService` er fjernet. Tester kan mocke `SourceApplicationAuthorizationClient`.
+- `SourceApplicationJwtConverter` opprettes bare når external API er på.
+- `userAuthorizationRestClient` heter nå `authorizationServiceRestClient`, og den bruker timeouts fra `spring.http.client.*`
+  i stedet for en `ClientHttpRequestFactory`-bean fra appen.
 
 ## Kjøre lokalt
 
@@ -99,7 +159,6 @@ Forutsetninger:
 
 - Java 25+
 - Gradle (wrapper inkludert)
-- Kafka broker (kun nødvendig for external source-application request/reply)
 
 Nyttige kommandoer:
 
@@ -144,7 +203,7 @@ SPRING_APPLICATION_JSON='{
 
 - Konfigurerer Spring Security sin servlet resource server med issuer-validering mot `https://idp.felleskomponent.no`.
 - Path-nivå-segmentering sikrer at `/api/intern*`-endepunkter forblir interne mens `/api/**` er begrenset til
-  autoriserte source-applications utledet via Kafka request/reply.
+  autoriserte source-applications slått opp hos authorization-service.
 - `AuthorityMappingService` og `AuthorityPrefix` standardiserer hvordan authorities kodes og senere parses av
   konsumerende tjenester.
 - `AuthorizationLogFilter` sporer Authorization-headere (på TRACE-nivå) for å hjelpe med å diagnostisere token-
@@ -184,7 +243,7 @@ Commit de oppdaterte lockfilene sammen med endringen. Glemmer du det, feiler byg
 1. Opprett en topic-branch.
 2. Kjør `./gradlew test` (eller `./gradlew clean build`) før du åpner en PR.
 3. Koordiner dependency-versjonsoppgraderinger med konsumenter og dokumenter eventuelle nye konfigurasjonsnøkler.
-4. Legg til eller juster unit tests når du endrer converters, mapping services, eller Kafka-listeners.
+4. Legg til eller juster unit tests når du endrer converters eller mapping services.
 
 ———
 

@@ -17,7 +17,7 @@ class RestClientUserAuthorizationClient(
             val response =
                 restClient
                     .post()
-                    .uri("/actions/authorize-source-applications")
+                    .uri("/users/actions/authorize-source-applications")
                     .body(SourceApplicationAuthorizationRequest(objectIdentifier, sourceApplicationIds))
                     .retrieve()
                     .body<SourceApplicationAuthorizationResponse>()
