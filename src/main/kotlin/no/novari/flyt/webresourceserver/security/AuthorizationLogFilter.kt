@@ -7,7 +7,7 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.web.filter.OncePerRequestFilter
 
-class AuthorizationLogFilter : OncePerRequestFilter() {
+internal class AuthorizationLogFilter : OncePerRequestFilter() {
     override fun doFilterInternal(
         request: HttpServletRequest,
         response: HttpServletResponse,

@@ -17,7 +17,7 @@ import org.springframework.web.client.RestClient
     value = ["external.enabled"],
     havingValue = "true",
 )
-class ExternalClientApiConfiguration {
+internal class ExternalClientApiConfiguration {
     @Bean
     @ConfigurationProperties("novari.flyt.web-resource-server.security.api.external")
     fun externalApiSecurityProperties() = ExternalApiSecurityProperties()

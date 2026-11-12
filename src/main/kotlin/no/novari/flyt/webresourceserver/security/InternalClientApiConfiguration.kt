@@ -14,7 +14,7 @@ import org.springframework.context.annotation.Bean
     value = ["internal-client.enabled"],
     havingValue = "true",
 )
-class InternalClientApiConfiguration {
+internal class InternalClientApiConfiguration {
     @Bean
     @ConfigurationProperties("novari.flyt.web-resource-server.security.api.internal-client")
     fun internalClientApiSecurityProperties(): InternalClientApiSecurityProperties {

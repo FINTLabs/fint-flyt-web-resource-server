@@ -10,11 +10,11 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtAut
 import org.springframework.web.server.ResponseStatusException
 import java.util.UUID
 
-class UserAuthorizationService(
+public class UserAuthorizationService(
     private val authorityMappingService: AuthorityMappingService,
     private val userAuthorizationClient: UserAuthorizationClient,
 ) {
-    fun getUserAuthorizedSourceApplicationIds(
+    public fun getUserAuthorizedSourceApplicationIds(
         authentication: Authentication,
         sourceApplicationIds: Set<Long>,
     ): Set<Long> =
@@ -31,7 +31,7 @@ class UserAuthorizationService(
             )
         }
 
-    fun checkIfUserHasAccessToSourceApplication(
+    public fun checkIfUserHasAccessToSourceApplication(
         authentication: Authentication,
         sourceApplicationId: Long,
     ) {
@@ -49,7 +49,7 @@ class UserAuthorizationService(
         }
     }
 
-    fun userHasRole(
+    public fun userHasRole(
         authentication: Authentication,
         role: UserRole,
     ): Boolean {

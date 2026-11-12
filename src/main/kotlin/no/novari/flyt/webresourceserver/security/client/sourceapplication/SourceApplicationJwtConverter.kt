@@ -6,7 +6,7 @@ import org.springframework.security.authentication.BadCredentialsException
 import org.springframework.security.oauth2.jwt.Jwt
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken
 
-class SourceApplicationJwtConverter(
+public class SourceApplicationJwtConverter internal constructor(
     private val sourceApplicationAuthorizationClient: SourceApplicationAuthorizationClient,
     private val sourceApplicationAuthorityMappingService: SourceApplicationAuthorityMappingService,
 ) : Converter<Jwt, AbstractAuthenticationToken> {

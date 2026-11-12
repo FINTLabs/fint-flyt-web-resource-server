@@ -22,10 +22,10 @@ import org.springframework.security.web.SecurityFilterChain
 
 @EnableWebSecurity
 @AutoConfiguration
-class SecurityConfiguration {
+public class SecurityConfiguration {
     @Order(0)
     @Bean
-    fun actuatorSecurityFilterChain(
+    public fun actuatorSecurityFilterChain(
         http: HttpSecurity,
         securityFilterChainFactoryService: SecurityFilterChainFactoryService,
     ): SecurityFilterChain = securityFilterChainFactoryService.permitAll(http, "/actuator")
@@ -33,7 +33,7 @@ class SecurityConfiguration {
     @Order(1)
     @Bean
     @ConditionalOnBean(InternalUserApiConfiguration::class)
-    fun internalAdminApiFilterChain(
+    public fun internalAdminApiFilterChain(
         http: HttpSecurity,
         userJwtConverter: UserJwtConverter,
         userRoleAuthorityMappingService: UserRoleAuthorityMappingService,
@@ -51,7 +51,7 @@ class SecurityConfiguration {
     @Order(2)
     @Bean
     @ConditionalOnBean(InternalUserApiConfiguration::class)
-    fun internalUserApiFilterChain(
+    public fun internalUserApiFilterChain(
         http: HttpSecurity,
         userJwtConverter: UserJwtConverter,
         userRoleAuthorityMappingService: UserRoleAuthorityMappingService,
@@ -69,7 +69,7 @@ class SecurityConfiguration {
     @Order(1)
     @Bean
     @ConditionalOnMissingBean(InternalUserApiConfiguration::class)
-    fun internalApiDisabledFilterChain(
+    public fun internalApiDisabledFilterChain(
         http: HttpSecurity,
         securityFilterChainFactoryService: SecurityFilterChainFactoryService,
     ): SecurityFilterChain = securityFilterChainFactoryService.denyAll(http, UrlPaths.INTERNAL_API)
@@ -77,7 +77,7 @@ class SecurityConfiguration {
     @Order(3)
     @Bean
     @ConditionalOnBean(InternalClientApiConfiguration::class)
-    fun internalClientApiFilterChain(
+    public fun internalClientApiFilterChain(
         http: HttpSecurity,
         internalClientApiSecurityProperties: InternalClientApiSecurityProperties,
         internalClientJwtConverter: InternalClientJwtConverter,
@@ -99,7 +99,7 @@ class SecurityConfiguration {
     @Order(3)
     @Bean
     @ConditionalOnMissingBean(InternalClientApiConfiguration::class)
-    fun internalClientApiDisabledFilterChain(
+    public fun internalClientApiDisabledFilterChain(
         http: HttpSecurity,
         securityFilterChainFactoryService: SecurityFilterChainFactoryService,
     ): SecurityFilterChain = securityFilterChainFactoryService.denyAll(http, UrlPaths.INTERNAL_CLIENT_API)
@@ -107,7 +107,7 @@ class SecurityConfiguration {
     @Order(4)
     @Bean
     @ConditionalOnBean(ExternalClientApiConfiguration::class)
-    fun externalApiFilterChain(
+    public fun externalApiFilterChain(
         http: HttpSecurity,
         externalApiSecurityProperties: ExternalApiSecurityProperties,
         sourceApplicationJwtConverter: SourceApplicationJwtConverter,
@@ -128,7 +128,7 @@ class SecurityConfiguration {
 
     @Order(5)
     @Bean
-    fun globalFilterChain(
+    public fun globalFilterChain(
         http: HttpSecurity,
         securityFilterChainFactoryService: SecurityFilterChainFactoryService,
     ): SecurityFilterChain = securityFilterChainFactoryService.denyAll(http)

@@ -1,0 +1,214 @@
+public final class no/novari/flyt/webresourceserver/UrlPaths {
+	public static final field EXTERNAL_API Ljava/lang/String;
+	public static final field INSTANCE Lno/novari/flyt/webresourceserver/UrlPaths;
+	public static final field INTERNAL_ADMIN_API Ljava/lang/String;
+	public static final field INTERNAL_API Ljava/lang/String;
+	public static final field INTERNAL_CLIENT_API Ljava/lang/String;
+}
+
+public class no/novari/flyt/webresourceserver/security/AuthorityMappingService {
+	public static final field AUTHORITY_DELIMITER Ljava/lang/String;
+	public static final field Companion Lno/novari/flyt/webresourceserver/security/AuthorityMappingService$Companion;
+	public fun <init> ()V
+	public fun extractLongValues (Lno/novari/flyt/webresourceserver/security/AuthorityPrefix;Ljava/util/Collection;)Ljava/util/Set;
+	public fun extractStringValues (Lno/novari/flyt/webresourceserver/security/AuthorityPrefix;Ljava/util/Collection;)Ljava/util/Set;
+	public fun toAuthority (Lno/novari/flyt/webresourceserver/security/AuthorityPrefix;Ljava/lang/String;)Ljava/lang/String;
+}
+
+public final class no/novari/flyt/webresourceserver/security/AuthorityMappingService$Companion {
+}
+
+public final class no/novari/flyt/webresourceserver/security/AuthorityPrefix : java/lang/Enum {
+	public static final field CLIENT_ID Lno/novari/flyt/webresourceserver/security/AuthorityPrefix;
+	public static final field ORG_ID Lno/novari/flyt/webresourceserver/security/AuthorityPrefix;
+	public static final field ROLE Lno/novari/flyt/webresourceserver/security/AuthorityPrefix;
+	public static final field SOURCE_APPLICATION_ID Lno/novari/flyt/webresourceserver/security/AuthorityPrefix;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
+	public final fun getValue ()Ljava/lang/String;
+	public static fun valueOf (Ljava/lang/String;)Lno/novari/flyt/webresourceserver/security/AuthorityPrefix;
+	public static fun values ()[Lno/novari/flyt/webresourceserver/security/AuthorityPrefix;
+}
+
+public class no/novari/flyt/webresourceserver/security/AuthorizationServiceConfiguration {
+	public fun <init> ()V
+	public fun authorizationServiceAuthorizedClientManager (Lorg/springframework/security/oauth2/client/registration/ClientRegistrationRepository;Lorg/springframework/security/oauth2/client/OAuth2AuthorizedClientService;Lorg/springframework/boot/http/client/ClientHttpRequestFactoryBuilder;Lorg/springframework/boot/http/client/ClientHttpRequestFactorySettings;)Lorg/springframework/security/oauth2/client/OAuth2AuthorizedClientManager;
+	public fun authorizationServiceRestClient (Lorg/springframework/security/oauth2/client/OAuth2AuthorizedClientManager;Lorg/springframework/web/client/RestClient$Builder;Lorg/springframework/boot/http/client/ClientHttpRequestFactoryBuilder;Lorg/springframework/boot/http/client/ClientHttpRequestFactorySettings;Lno/novari/flyt/webresourceserver/security/user/authorization/UserAuthorizationClientProperties;)Lorg/springframework/web/client/RestClient;
+	public fun sourceApplicationAuthorizationService (Lno/novari/flyt/webresourceserver/security/AuthorityMappingService;)Lno/novari/flyt/webresourceserver/security/client/sourceapplication/SourceApplicationAuthorizationService;
+	public fun userAuthorizationClient (Lorg/springframework/web/client/RestClient;)Lno/novari/flyt/webresourceserver/security/user/authorization/UserAuthorizationClient;
+	public fun userAuthorizationService (Lno/novari/flyt/webresourceserver/security/AuthorityMappingService;Lno/novari/flyt/webresourceserver/security/user/authorization/UserAuthorizationClient;)Lno/novari/flyt/webresourceserver/security/user/UserAuthorizationService;
+}
+
+public class no/novari/flyt/webresourceserver/security/InternalUserApiConfiguration {
+	public fun <init> ()V
+	public fun internalApiSecurityProperties ()Lno/novari/flyt/webresourceserver/security/properties/InternalApiSecurityProperties;
+	public fun userJwtConverter (Lno/novari/flyt/webresourceserver/security/user/UserRoleFilteringService;Lno/novari/flyt/webresourceserver/security/user/UserRoleHierarchyService;Lno/novari/flyt/webresourceserver/security/user/UserRoleAuthorityMappingService;)Lno/novari/flyt/webresourceserver/security/user/UserJwtConverter;
+	public fun userRoleAuthorityMappingService (Lno/novari/flyt/webresourceserver/security/AuthorityMappingService;)Lno/novari/flyt/webresourceserver/security/user/UserRoleAuthorityMappingService;
+	public fun userRoleFilteringService (Lno/novari/flyt/webresourceserver/security/properties/InternalApiSecurityProperties;)Lno/novari/flyt/webresourceserver/security/user/UserRoleFilteringService;
+	public fun userRoleHierarchyService ()Lno/novari/flyt/webresourceserver/security/user/UserRoleHierarchyService;
+}
+
+public class no/novari/flyt/webresourceserver/security/SecurityConfiguration {
+	public fun <init> ()V
+	public fun actuatorSecurityFilterChain (Lorg/springframework/security/config/annotation/web/builders/HttpSecurity;Lno/novari/flyt/webresourceserver/security/SecurityFilterChainFactoryService;)Lorg/springframework/security/web/SecurityFilterChain;
+	public fun externalApiFilterChain (Lorg/springframework/security/config/annotation/web/builders/HttpSecurity;Lno/novari/flyt/webresourceserver/security/properties/ExternalApiSecurityProperties;Lno/novari/flyt/webresourceserver/security/client/sourceapplication/SourceApplicationJwtConverter;Lno/novari/flyt/webresourceserver/security/client/sourceapplication/SourceApplicationAuthorityMappingService;Lno/novari/flyt/webresourceserver/security/SecurityFilterChainFactoryService;)Lorg/springframework/security/web/SecurityFilterChain;
+	public fun globalFilterChain (Lorg/springframework/security/config/annotation/web/builders/HttpSecurity;Lno/novari/flyt/webresourceserver/security/SecurityFilterChainFactoryService;)Lorg/springframework/security/web/SecurityFilterChain;
+	public fun internalAdminApiFilterChain (Lorg/springframework/security/config/annotation/web/builders/HttpSecurity;Lno/novari/flyt/webresourceserver/security/user/UserJwtConverter;Lno/novari/flyt/webresourceserver/security/user/UserRoleAuthorityMappingService;Lno/novari/flyt/webresourceserver/security/SecurityFilterChainFactoryService;)Lorg/springframework/security/web/SecurityFilterChain;
+	public fun internalApiDisabledFilterChain (Lorg/springframework/security/config/annotation/web/builders/HttpSecurity;Lno/novari/flyt/webresourceserver/security/SecurityFilterChainFactoryService;)Lorg/springframework/security/web/SecurityFilterChain;
+	public fun internalClientApiDisabledFilterChain (Lorg/springframework/security/config/annotation/web/builders/HttpSecurity;Lno/novari/flyt/webresourceserver/security/SecurityFilterChainFactoryService;)Lorg/springframework/security/web/SecurityFilterChain;
+	public fun internalClientApiFilterChain (Lorg/springframework/security/config/annotation/web/builders/HttpSecurity;Lno/novari/flyt/webresourceserver/security/properties/InternalClientApiSecurityProperties;Lno/novari/flyt/webresourceserver/security/client/internal/InternalClientJwtConverter;Lno/novari/flyt/webresourceserver/security/client/internal/InternalClientAuthorityMappingService;Lno/novari/flyt/webresourceserver/security/SecurityFilterChainFactoryService;)Lorg/springframework/security/web/SecurityFilterChain;
+	public fun internalUserApiFilterChain (Lorg/springframework/security/config/annotation/web/builders/HttpSecurity;Lno/novari/flyt/webresourceserver/security/user/UserJwtConverter;Lno/novari/flyt/webresourceserver/security/user/UserRoleAuthorityMappingService;Lno/novari/flyt/webresourceserver/security/SecurityFilterChainFactoryService;)Lorg/springframework/security/web/SecurityFilterChain;
+}
+
+public class no/novari/flyt/webresourceserver/security/SecurityFilterChainFactoryService {
+	public fun <init> ()V
+	public fun createFilterChain (Lorg/springframework/security/config/annotation/web/builders/HttpSecurity;Ljava/lang/String;Lorg/springframework/core/convert/converter/Converter;Lorg/springframework/security/authorization/AuthorizationManager;)Lorg/springframework/security/web/SecurityFilterChain;
+	public fun denyAll (Lorg/springframework/security/config/annotation/web/builders/HttpSecurity;)Lorg/springframework/security/web/SecurityFilterChain;
+	public fun denyAll (Lorg/springframework/security/config/annotation/web/builders/HttpSecurity;Ljava/lang/String;)Lorg/springframework/security/web/SecurityFilterChain;
+	public fun permitAll (Lorg/springframework/security/config/annotation/web/builders/HttpSecurity;Ljava/lang/String;)Lorg/springframework/security/web/SecurityFilterChain;
+}
+
+public final class no/novari/flyt/webresourceserver/security/client/internal/InternalClientAuthorityMappingService {
+	public fun <init> (Lno/novari/flyt/webresourceserver/security/AuthorityMappingService;)V
+	public final fun createInternalClientIdAuthority (Ljava/lang/String;)Lorg/springframework/security/core/GrantedAuthority;
+	public final fun createInternalClientIdAuthorityString (Ljava/lang/String;)Ljava/lang/String;
+	public final fun createInternalClientIdAuthorityStrings (Ljava/util/Collection;)Ljava/util/Set;
+}
+
+public final class no/novari/flyt/webresourceserver/security/client/internal/InternalClientJwtConverter : org/springframework/core/convert/converter/Converter {
+	public fun <init> (Lno/novari/flyt/webresourceserver/security/client/internal/InternalClientAuthorityMappingService;)V
+	public synthetic fun convert (Ljava/lang/Object;)Ljava/lang/Object;
+	public fun convert (Lorg/springframework/security/oauth2/jwt/Jwt;)Lorg/springframework/security/authentication/AbstractAuthenticationToken;
+}
+
+public class no/novari/flyt/webresourceserver/security/client/sourceapplication/SourceApplicationAuthorityMappingService {
+	public fun <init> (Lno/novari/flyt/webresourceserver/security/AuthorityMappingService;)V
+	public fun createSourceApplicationAuthorities (Ljava/util/Collection;)Ljava/util/Set;
+	public fun createSourceApplicationAuthority (J)Lorg/springframework/security/core/GrantedAuthority;
+	public fun createSourceApplicationAuthorityString (J)Ljava/lang/String;
+	public fun createSourceApplicationAuthorityStrings (Ljava/util/Collection;)Ljava/util/Set;
+}
+
+public final class no/novari/flyt/webresourceserver/security/client/sourceapplication/SourceApplicationAuthorizationService {
+	public fun <init> (Lno/novari/flyt/webresourceserver/security/AuthorityMappingService;)V
+	public final fun getSourceApplicationId (Lorg/springframework/security/core/Authentication;)J
+}
+
+public final class no/novari/flyt/webresourceserver/security/client/sourceapplication/SourceApplicationJwtConverter : org/springframework/core/convert/converter/Converter {
+	public synthetic fun convert (Ljava/lang/Object;)Ljava/lang/Object;
+	public fun convert (Lorg/springframework/security/oauth2/jwt/Jwt;)Lorg/springframework/security/authentication/AbstractAuthenticationToken;
+}
+
+public final class no/novari/flyt/webresourceserver/security/client/sourceapplication/exceptions/MultipleSourceApplicationIdsException : java/lang/RuntimeException {
+	public fun <init> (Ljava/util/Collection;)V
+}
+
+public final class no/novari/flyt/webresourceserver/security/client/sourceapplication/exceptions/NoSourceApplicationIdException : java/lang/RuntimeException {
+	public fun <init> ()V
+}
+
+public final class no/novari/flyt/webresourceserver/security/properties/ExternalApiSecurityProperties {
+	public fun <init> ()V
+	public final fun getAuthorizedSourceApplicationIds ()Ljava/util/Set;
+	public final fun getEnabled ()Z
+	public final fun setAuthorizedSourceApplicationIds (Ljava/util/Set;)V
+	public final fun setEnabled (Z)V
+}
+
+public final class no/novari/flyt/webresourceserver/security/properties/InternalApiSecurityProperties {
+	public fun <init> ()V
+	public final fun getAuthorizedOrgIdRolePairsJson ()Ljava/lang/String;
+	public final fun getEnabled ()Z
+	public final fun getUserRoleFilterPerOrgId ()Ljava/util/Map;
+	public final fun parseAndSetAuthorizedOrgIdRolePairs ()V
+	public final fun setAuthorizedOrgIdRolePairsJson (Ljava/lang/String;)V
+	public final fun setEnabled (Z)V
+}
+
+public final class no/novari/flyt/webresourceserver/security/properties/InternalClientApiSecurityProperties {
+	public fun <init> ()V
+	public final fun getAuthorizedClientIds ()Ljava/util/Set;
+	public final fun getEnabled ()Z
+	public final fun setAuthorizedClientIds (Ljava/util/Set;)V
+	public final fun setEnabled (Z)V
+}
+
+public final class no/novari/flyt/webresourceserver/security/user/UserAuthorizationService {
+	public fun <init> (Lno/novari/flyt/webresourceserver/security/AuthorityMappingService;Lno/novari/flyt/webresourceserver/security/user/authorization/UserAuthorizationClient;)V
+	public final fun checkIfUserHasAccessToSourceApplication (Lorg/springframework/security/core/Authentication;J)V
+	public final fun getUserAuthorizedSourceApplicationIds (Lorg/springframework/security/core/Authentication;Ljava/util/Set;)Ljava/util/Set;
+	public final fun userHasRole (Lorg/springframework/security/core/Authentication;Lno/novari/flyt/webresourceserver/security/user/UserRole;)Z
+}
+
+public final class no/novari/flyt/webresourceserver/security/user/UserClaim : java/lang/Enum {
+	public static final field OBJECT_IDENTIFIER Lno/novari/flyt/webresourceserver/security/user/UserClaim;
+	public static final field ORGANIZATION_ID Lno/novari/flyt/webresourceserver/security/user/UserClaim;
+	public static final field ROLES Lno/novari/flyt/webresourceserver/security/user/UserClaim;
+	public static final field SOURCE_APPLICATION_IDS Lno/novari/flyt/webresourceserver/security/user/UserClaim;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
+	public final fun getTokenClaimName ()Ljava/lang/String;
+	public static fun valueOf (Ljava/lang/String;)Lno/novari/flyt/webresourceserver/security/user/UserClaim;
+	public static fun values ()[Lno/novari/flyt/webresourceserver/security/user/UserClaim;
+}
+
+public final class no/novari/flyt/webresourceserver/security/user/UserJwtConverter : org/springframework/core/convert/converter/Converter {
+	public fun <init> (Lno/novari/flyt/webresourceserver/security/user/UserRoleFilteringService;Lno/novari/flyt/webresourceserver/security/user/UserRoleHierarchyService;Lno/novari/flyt/webresourceserver/security/user/UserRoleAuthorityMappingService;)V
+	public synthetic fun convert (Ljava/lang/Object;)Ljava/lang/Object;
+	public fun convert (Lorg/springframework/security/oauth2/jwt/Jwt;)Lorg/springframework/security/authentication/AbstractAuthenticationToken;
+}
+
+public final class no/novari/flyt/webresourceserver/security/user/UserRole : java/lang/Enum {
+	public static final field ADMIN Lno/novari/flyt/webresourceserver/security/user/UserRole;
+	public static final field Companion Lno/novari/flyt/webresourceserver/security/user/UserRole$Companion;
+	public static final field DEVELOPER Lno/novari/flyt/webresourceserver/security/user/UserRole;
+	public static final field USER Lno/novari/flyt/webresourceserver/security/user/UserRole;
+	public final fun getClaimValue ()Ljava/lang/String;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
+	public static fun valueOf (Ljava/lang/String;)Lno/novari/flyt/webresourceserver/security/user/UserRole;
+	public static fun values ()[Lno/novari/flyt/webresourceserver/security/user/UserRole;
+}
+
+public final class no/novari/flyt/webresourceserver/security/user/UserRole$Companion {
+	public final fun getUserRoleFromValue (Ljava/lang/String;)Lno/novari/flyt/webresourceserver/security/user/UserRole;
+}
+
+public final class no/novari/flyt/webresourceserver/security/user/UserRoleAuthorityMappingService {
+	public fun <init> (Lno/novari/flyt/webresourceserver/security/AuthorityMappingService;)V
+	public final fun createRoleAuthorities (Ljava/util/Collection;)Ljava/util/Set;
+	public final fun createRoleAuthority (Lno/novari/flyt/webresourceserver/security/user/UserRole;)Lorg/springframework/security/core/GrantedAuthority;
+	public final fun createRoleAuthorityString (Lno/novari/flyt/webresourceserver/security/user/UserRole;)Ljava/lang/String;
+	public final fun createRoleAuthorityStrings (Ljava/util/Collection;)Ljava/util/Set;
+}
+
+public final class no/novari/flyt/webresourceserver/security/user/UserRoleFilteringService {
+	public fun <init> (Lno/novari/flyt/webresourceserver/security/properties/InternalApiSecurityProperties;)V
+	public final fun filter (Ljava/util/Collection;Ljava/lang/String;)Ljava/util/Set;
+}
+
+public final class no/novari/flyt/webresourceserver/security/user/UserRoleHierarchyService {
+	public fun <init> ()V
+	public final fun getProvidedAndImpliedRoles (Ljava/util/Collection;)Ljava/util/Set;
+}
+
+public abstract interface class no/novari/flyt/webresourceserver/security/user/authorization/UserAuthorizationClient {
+	public abstract fun getAuthorizedSourceApplicationIds (Ljava/util/UUID;Ljava/util/Set;)Ljava/util/Set;
+}
+
+public final class no/novari/flyt/webresourceserver/security/user/authorization/UserAuthorizationClientException : java/lang/RuntimeException {
+	public fun <init> (Ljava/lang/String;Ljava/lang/Throwable;)V
+}
+
+public final class no/novari/flyt/webresourceserver/security/user/authorization/UserAuthorizationClientProperties {
+	public fun <init> ()V
+	public fun <init> (Ljava/lang/String;Ljava/lang/String;)V
+	public synthetic fun <init> (Ljava/lang/String;Ljava/lang/String;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()Ljava/lang/String;
+	public final fun component2 ()Ljava/lang/String;
+	public final fun copy (Ljava/lang/String;Ljava/lang/String;)Lno/novari/flyt/webresourceserver/security/user/authorization/UserAuthorizationClientProperties;
+	public static synthetic fun copy$default (Lno/novari/flyt/webresourceserver/security/user/authorization/UserAuthorizationClientProperties;Ljava/lang/String;Ljava/lang/String;ILjava/lang/Object;)Lno/novari/flyt/webresourceserver/security/user/authorization/UserAuthorizationClientProperties;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getBaseUrl ()Ljava/lang/String;
+	public final fun getClientRegistrationId ()Ljava/lang/String;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+

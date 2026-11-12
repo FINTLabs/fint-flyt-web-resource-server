@@ -13,7 +13,7 @@ import java.time.Duration
  * Concurrent misses for the same client share one lookup. Returns `null` on 404 without caching it, so a newly
  * registered client is picked up at once. Other errors are thrown and not cached.
  */
-class SourceApplicationAuthorizationClient(
+internal class SourceApplicationAuthorizationClient(
     private val restClient: RestClient,
 ) {
     private val cache =

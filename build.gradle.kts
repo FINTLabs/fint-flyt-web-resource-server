@@ -1,6 +1,7 @@
 import com.github.benmanes.gradle.versions.updates.DependencyUpdatesTask
 import org.gradle.jvm.toolchain.JavaLanguageVersion
 import org.gradle.kotlin.dsl.named
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.springframework.boot.gradle.plugin.SpringBootPlugin
 
 buildscript {
@@ -28,6 +29,7 @@ plugins {
     kotlin("jvm") version "2.4.10"
     kotlin("plugin.spring") version "2.4.10"
     kotlin("kapt") version "2.4.10"
+    id("org.jetbrains.kotlinx.binary-compatibility-validator") version "0.18.2"
 }
 
 private val kotlinVersion = "2.4.10"
@@ -46,9 +48,19 @@ java {
     withSourcesJar()
 }
 
-// Dependabot resolves with JDK 21; an explicit release keeps JVM 25 as the resolution target so gradle.lockfile gets updated.
+// Build with JDK 25, publish for Java 21. binary-compatibility-validator cannot read Java 25 class
+// files. The explicit release also keeps Dependabot (JDK 21) resolving the same lockfile.
 tasks.withType<JavaCompile>().configureEach {
-    options.release.set(25)
+    options.release.set(21)
+}
+
+kotlin {
+    // Locked API: fint-flyt-gateway-starter is compiled against one version, and apps may pull in a newer one.
+    explicitApi()
+    compilerOptions {
+        freeCompilerArgs.add("-Xjdk-release=21")
+        jvmTarget.set(JvmTarget.JVM_21)
+    }
 }
 
 repositories {

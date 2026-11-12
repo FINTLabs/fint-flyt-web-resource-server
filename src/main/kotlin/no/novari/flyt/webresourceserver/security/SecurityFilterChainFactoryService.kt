@@ -16,10 +16,10 @@ import org.springframework.stereotype.Service
 import org.springframework.web.util.pattern.PathPatternParser
 
 @Service
-class SecurityFilterChainFactoryService {
+public class SecurityFilterChainFactoryService {
     private val pathPatternParser = PathPatternParser()
 
-    fun createFilterChain(
+    public fun createFilterChain(
         http: HttpSecurity,
         path: String,
         converter: Converter<Jwt, out AbstractAuthenticationToken>,
@@ -36,7 +36,7 @@ class SecurityFilterChainFactoryService {
             }.build()
     }
 
-    fun permitAll(
+    public fun permitAll(
         http: HttpSecurity,
         path: String,
     ): SecurityFilterChain {
@@ -47,14 +47,14 @@ class SecurityFilterChainFactoryService {
             }.build()
     }
 
-    fun denyAll(
+    public fun denyAll(
         http: HttpSecurity,
         path: String,
     ): SecurityFilterChain {
         return denyAll(http.securityMatcher(matcher(path)))
     }
 
-    fun denyAll(http: HttpSecurity): SecurityFilterChain {
+    public fun denyAll(http: HttpSecurity): SecurityFilterChain {
         return addCommonConfig(http)
             .exceptionHandling { exceptions ->
                 exceptions.authenticationEntryPoint(HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED))

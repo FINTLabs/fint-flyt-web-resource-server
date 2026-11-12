@@ -149,6 +149,10 @@ Tjenester som bruker `UserAuthorizationService` eller external API må levere OA
 - `SourceApplicationJwtConverter` opprettes bare når external API er på.
 - `userAuthorizationRestClient` heter nå `authorizationServiceRestClient`. Den bruker ikke lenger en
   `ClientHttpRequestFactory`-bean fra appen, men egne timeouts (se over).
+- `RestClientUserAuthorizationClient`, `SourceApplicationAuthorizationClient`, `SourceApplicationAuthorization` og
+  auto-konfigurasjonene for external og internal client API er `internal`. `SourceApplicationJwtConverter` kan mockes,
+  men ikke opprettes utenfor biblioteket.
+- Biblioteket er kompilert for Java 21.
 
 ## Kjøre lokalt
 
@@ -234,6 +238,18 @@ Bygget bruker [Gradle dependency locking](https://docs.gradle.org/current/usergu
 ```
 
 Commit de oppdaterte lockfilene sammen med endringen. Glemmer du det, feiler bygget både lokalt og i CI med en feilmelding om at den oppløste versjonen «is not part of the dependency lock state».
+
+## Låst API
+
+Det offentlige API-et er låst med en ABI-dump i `api/flyt-web-resource-server.api`, laget av
+[binary-compatibility-validator](https://github.com/Kotlin/binary-compatibility-validator). fint-flyt-gateway-starter
+er kompilert mot én versjon, mens appen kan dra inn en nyere. En endret signatur feiler da først ved kjøring, med
+`NoSuchMethodError`.
+
+- `./gradlew check` feiler når det kompilerte API-et avviker fra dumpen. Etter en tilsiktet endring: kjør
+  `./gradlew apiDump` og commit dumpen i samme PR. Ved rebase-konflikt i dumpen: kjør `apiDump` på nytt.
+- Fjernede eller endrede linjer i dumpen krever ny major. Nye linjer krever ny minor.
+- `explicitApi()` er på. Hold det appene ikke bruker `internal`.
 
 ## Bidra
 

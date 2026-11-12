@@ -32,9 +32,9 @@ import java.time.Duration
 @AutoConfigureAfter(OAuth2ClientAutoConfiguration::class)
 @ConditionalOnClass(ClientRegistrationRepository::class)
 @EnableConfigurationProperties(UserAuthorizationClientProperties::class)
-class AuthorizationServiceConfiguration {
+public class AuthorizationServiceConfiguration {
     @Bean
-    fun sourceApplicationAuthorizationService(
+    public fun sourceApplicationAuthorizationService(
         authorityMappingService: AuthorityMappingService,
     ): SourceApplicationAuthorizationService {
         return SourceApplicationAuthorizationService(authorityMappingService)
@@ -45,7 +45,7 @@ class AuthorizationServiceConfiguration {
         prefix = "spring.security.oauth2.client.registration.authorization-service",
         name = ["client-id"],
     )
-    fun userAuthorizationService(
+    public fun userAuthorizationService(
         authorityMappingService: AuthorityMappingService,
         userAuthorizationClient: UserAuthorizationClient,
     ): UserAuthorizationService = UserAuthorizationService(authorityMappingService, userAuthorizationClient)
@@ -55,7 +55,7 @@ class AuthorizationServiceConfiguration {
         prefix = "spring.security.oauth2.client.registration.authorization-service",
         name = ["client-id"],
     )
-    fun authorizationServiceAuthorizedClientManager(
+    public fun authorizationServiceAuthorizedClientManager(
         clientRegistrationRepository: ClientRegistrationRepository,
         authorizedClientService: OAuth2AuthorizedClientService,
         requestFactoryBuilder: ClientHttpRequestFactoryBuilder<*>,
@@ -95,7 +95,7 @@ class AuthorizationServiceConfiguration {
         prefix = "spring.security.oauth2.client.registration.authorization-service",
         name = ["client-id"],
     )
-    fun authorizationServiceRestClient(
+    public fun authorizationServiceRestClient(
         @Qualifier("authorizationServiceAuthorizedClientManager") authorizedClientManager:
             OAuth2AuthorizedClientManager,
         restClientBuilder: RestClient.Builder,
@@ -118,7 +118,7 @@ class AuthorizationServiceConfiguration {
         prefix = "spring.security.oauth2.client.registration.authorization-service",
         name = ["client-id"],
     )
-    fun userAuthorizationClient(
+    public fun userAuthorizationClient(
         @Qualifier("authorizationServiceRestClient") restClient: RestClient,
     ): UserAuthorizationClient = RestClientUserAuthorizationClient(restClient)
 
