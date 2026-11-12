@@ -20,23 +20,22 @@ buildscript {
 }
 
 plugins {
-    id("org.springframework.boot") version "3.5.16" apply false
-    id("io.spring.dependency-management") version "1.1.7"
-    id("maven-publish")
-    id("java-library")
-    id("io.github.ben-manes.versions") version "0.67.0"
-    id("org.jlleitschuh.gradle.ktlint") version "14.2.0"
-    kotlin("jvm") version "2.4.10"
-    kotlin("plugin.spring") version "2.4.10"
-    kotlin("kapt") version "2.4.10"
-    id("org.jetbrains.kotlinx.binary-compatibility-validator") version "0.18.2"
+    `java-library`
+    `maven-publish`
+    alias(libs.plugins.spring.boot) apply false
+    alias(libs.plugins.spring.dependency.management)
+    alias(libs.plugins.kotlin.jvm)
+    alias(libs.plugins.kotlin.spring)
+    alias(libs.plugins.kotlin.kapt)
+    alias(libs.plugins.ktlint)
+    alias(libs.plugins.binary.compatibility.validator)
+    alias(libs.plugins.ben.manes.versions)
 }
 
-private val kotlinVersion = "2.4.10"
-extra["kotlin.version"] = kotlinVersion
-extra["jackson-bom.version"] = "2.21.7"
-extra["log4j2.version"] = "2.25.5"
-extra["tomcat.version"] = "10.1.59"
+extra["kotlin.version"] = libs.versions.kotlin.get()
+extra["jackson-bom.version"] = libs.versions.jackson.get()
+extra["log4j2.version"] = libs.versions.log4j2.get()
+extra["tomcat.version"] = libs.versions.tomcat.get()
 
 group = "no.novari"
 version = findProperty("version")?.toString() ?: "1.0-SNAPSHOT"
@@ -134,7 +133,7 @@ publishing {
 }
 
 ktlint {
-    version.set("1.8.0")
+    version.set(libs.versions.ktlint.cli)
 }
 
 fun isNonStable(version: String): Boolean {

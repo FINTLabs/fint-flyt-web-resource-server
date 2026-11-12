@@ -227,7 +227,7 @@ SPRING_APPLICATION_JSON='{
 
 ## Låsing av avhengigheter
 
-Bygget bruker [Gradle dependency locking](https://docs.gradle.org/current/userguide/dependency_locking.html), slik at hvert bygg løser opp nøyaktig de samme direkte og transitive versjonene. De låste versjonene ligger i de committede `gradle.lockfile`-filene. En PR viser derfor alle transitive versjonsendringer den fører med seg. Gradle-plugins låses ikke, fordi Dependabot bare oppdaterer `gradle.lockfile`; versjonene deres er i stedet låst i `plugins`-blokka.
+Bygget bruker [Gradle dependency locking](https://docs.gradle.org/current/userguide/dependency_locking.html), slik at hvert bygg løser opp nøyaktig de samme direkte og transitive versjonene. De låste versjonene ligger i de committede `gradle.lockfile`-filene. En PR viser derfor alle transitive versjonsendringer den fører med seg. Gradle-plugins låses ikke, fordi Dependabot bare oppdaterer `gradle.lockfile`. Versjonene for plugins, ktlint og overstyringer av Spring Boot-BOM-en ligger i versjonskatalogen `gradle/libs.versions.toml`. Unntaket er constraints på plugin-classpathen i `buildscript`, som i fint-flyt-kafka.
 
 **Automatisk (Dependabot):** Dependabot oppdaterer lockfilene i sine egne PR-er, så det trengs ingen manuelle steg. Hvis to Dependabot-PR-er kommer i konflikt i en lockfile, rebaser Dependabot den gjenværende etter at den første er merget. Skjer ikke det, kommenter `@dependabot recreate` på PR-en.
 
