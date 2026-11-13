@@ -7,7 +7,7 @@ claim-håndtering for JWT-er, og lar vertstjenester kontrollere brukerrettighete
 ## Høydepunkter
 
 - **Segmenterte servlet filter chains** — `SecurityConfiguration` setter opp dedikerte `SecurityFilterChain`-er per
-  API-segment (actuator, internal admin/user, internal client, external) og bruker det delte `AuthorizationLogFilter`-et.
+  API-segment (actuator, internal admin/user, internal client, external).
 - **Multi-tenant policy-kontroll** — API-segmenter styres via `novari.flyt.web-resource-server.security.api.*`-
   properties, slik at hver tjeneste kan eksponere kun de overflatene organisasjonen trenger.
 - **HTTP-basert brukerautorisasjon** — `UserAuthorizationService` bruker OAuth2 client credentials mot
@@ -209,8 +209,6 @@ SPRING_APPLICATION_JSON='{
   autoriserte source-applications slått opp hos authorization-service.
 - `AuthorityMappingService` og `AuthorityPrefix` standardiserer hvordan authorities kodes og senere parses av
   konsumerende tjenester.
-- `AuthorizationLogFilter` sporer Authorization-headere (på TRACE-nivå) for å hjelpe med å diagnostisere token-
-  problemer uten å lekke dem på høyere loggnivåer.
 - Intern rolleevaluering filtrerer token-roller per organisasjon og utvider implisitte roller (Developer → Admin → User).
 
 ## Observability og drift

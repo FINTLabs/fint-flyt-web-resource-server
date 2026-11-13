@@ -6,7 +6,6 @@ import org.springframework.security.authentication.AbstractAuthenticationToken
 import org.springframework.security.authorization.AuthorizationManager
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.oauth2.jwt.Jwt
-import org.springframework.security.oauth2.server.resource.web.authentication.BearerTokenAuthenticationFilter
 import org.springframework.security.web.SecurityFilterChain
 import org.springframework.security.web.access.HttpStatusAccessDeniedHandler
 import org.springframework.security.web.access.intercept.RequestAuthorizationContext
@@ -65,7 +64,6 @@ public class SecurityFilterChainFactoryService {
 
     private fun addCommonConfig(http: HttpSecurity): HttpSecurity {
         return http
-            .addFilterBefore(AuthorizationLogFilter(), BearerTokenAuthenticationFilter::class.java)
             .csrf { it.disable() }
             .httpBasic { it.disable() }
     }
