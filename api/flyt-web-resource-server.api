@@ -38,6 +38,13 @@ public class no/novari/flyt/webresourceserver/security/AuthorizationServiceConfi
 	public fun userAuthorizationService (Lno/novari/flyt/webresourceserver/security/AuthorityMappingService;Lno/novari/flyt/webresourceserver/security/user/authorization/UserAuthorizationClient;)Lno/novari/flyt/webresourceserver/security/user/UserAuthorizationService;
 }
 
+public class no/novari/flyt/webresourceserver/security/InternalClientApiConfiguration {
+	public fun <init> ()V
+	public fun internalClientApiSecurityProperties ()Lno/novari/flyt/webresourceserver/security/properties/InternalClientApiSecurityProperties;
+	public fun internalClientAuthorityMappingService (Lno/novari/flyt/webresourceserver/security/AuthorityMappingService;)Lno/novari/flyt/webresourceserver/security/client/internal/InternalClientAuthorityMappingService;
+	public fun internalClientJwtConverter (Lno/novari/flyt/webresourceserver/security/client/internal/InternalClientAuthorityMappingService;)Lno/novari/flyt/webresourceserver/security/client/internal/InternalClientJwtConverter;
+}
+
 public class no/novari/flyt/webresourceserver/security/InternalUserApiConfiguration {
 	public fun <init> ()V
 	public fun internalApiSecurityProperties ()Lno/novari/flyt/webresourceserver/security/properties/InternalApiSecurityProperties;

@@ -145,13 +145,15 @@ Tjenester som bruker `UserAuthorizationService` eller external API må levere OA
 ## Oppgradere fra 4.x
 
 - `no.novari:kafka` og `spring-kafka` følger ikke lenger med transitivt. Apper som bruker Kafka, må ha dem direkte.
-- `SourceApplicationAuthorizationRequestService` er fjernet. Tester kan mocke `SourceApplicationAuthorizationClient`.
+- `SourceApplicationAuthorizationRequestService` er fjernet. Fjern mocken av den i testene. Trenger testen external
+  API, mock `SourceApplicationJwtConverter` i stedet.
 - `SourceApplicationJwtConverter` opprettes bare når external API er på.
 - `userAuthorizationRestClient` heter nå `authorizationServiceRestClient`. Den bruker ikke lenger en
   `ClientHttpRequestFactory`-bean fra appen, men egne timeouts (se over).
 - `RestClientUserAuthorizationClient`, `SourceApplicationAuthorizationClient`, `SourceApplicationAuthorization` og
-  auto-konfigurasjonene for external og internal client API er `internal`. `SourceApplicationJwtConverter` kan mockes,
-  men ikke opprettes utenfor biblioteket.
+  auto-konfigurasjonen for external API er `internal`. `SourceApplicationJwtConverter` kan mockes, men ikke opprettes
+  utenfor biblioteket. `InternalClientApiConfiguration` er fortsatt `public`, så tester kan laste den med
+  `@ImportAutoConfiguration`.
 - Biblioteket er kompilert for Java 21.
 
 ## Kjøre lokalt
