@@ -6,7 +6,6 @@ import org.springframework.security.authentication.AbstractAuthenticationToken
 import org.springframework.security.authorization.AuthorizationManager
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.oauth2.jwt.Jwt
-import org.springframework.security.oauth2.server.resource.web.authentication.BearerTokenAuthenticationFilter
 import org.springframework.security.web.SecurityFilterChain
 import org.springframework.security.web.access.HttpStatusAccessDeniedHandler
 import org.springframework.security.web.access.intercept.RequestAuthorizationContext
@@ -16,10 +15,10 @@ import org.springframework.stereotype.Service
 import org.springframework.web.util.pattern.PathPatternParser
 
 @Service
-class SecurityFilterChainFactoryService {
+public class SecurityFilterChainFactoryService {
     private val pathPatternParser = PathPatternParser()
 
-    fun createFilterChain(
+    public fun createFilterChain(
         http: HttpSecurity,
         path: String,
         converter: Converter<Jwt, out AbstractAuthenticationToken>,
@@ -36,7 +35,7 @@ class SecurityFilterChainFactoryService {
             }.build()
     }
 
-    fun permitAll(
+    public fun permitAll(
         http: HttpSecurity,
         path: String,
     ): SecurityFilterChain {
@@ -47,14 +46,14 @@ class SecurityFilterChainFactoryService {
             }.build()
     }
 
-    fun denyAll(
+    public fun denyAll(
         http: HttpSecurity,
         path: String,
     ): SecurityFilterChain {
         return denyAll(http.securityMatcher(matcher(path)))
     }
 
-    fun denyAll(http: HttpSecurity): SecurityFilterChain {
+    public fun denyAll(http: HttpSecurity): SecurityFilterChain {
         return addCommonConfig(http)
             .exceptionHandling { exceptions ->
                 exceptions.authenticationEntryPoint(HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED))
@@ -65,7 +64,6 @@ class SecurityFilterChainFactoryService {
 
     private fun addCommonConfig(http: HttpSecurity): HttpSecurity {
         return http
-            .addFilterBefore(AuthorizationLogFilter(), BearerTokenAuthenticationFilter::class.java)
             .csrf { it.disable() }
             .httpBasic { it.disable() }
     }

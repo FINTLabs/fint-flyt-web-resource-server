@@ -4,10 +4,10 @@ import no.novari.flyt.webresourceserver.security.properties.InternalApiSecurityP
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
-class UserRoleFilteringService(
+public class UserRoleFilteringService(
     private val internalApiSecurityProperties: InternalApiSecurityProperties,
 ) {
-    fun filter(
+    public fun filter(
         roleValues: Collection<String>,
         organizationId: String,
     ): Set<UserRole> {

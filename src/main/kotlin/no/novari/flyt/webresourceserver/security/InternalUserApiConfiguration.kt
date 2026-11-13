@@ -16,40 +16,41 @@ import org.springframework.context.annotation.Bean
     value = ["internal.enabled"],
     havingValue = "true",
 )
-class InternalUserApiConfiguration {
+public class InternalUserApiConfiguration {
     @Bean
     @ConfigurationProperties("novari.flyt.web-resource-server.security.api.internal")
-    fun internalApiSecurityProperties(): InternalApiSecurityProperties {
+    public fun internalApiSecurityProperties(): InternalApiSecurityProperties {
         return InternalApiSecurityProperties()
     }
 
     @Bean
-    fun userRoleFilteringService(
+    public fun userRoleFilteringService(
         internalApiSecurityProperties: InternalApiSecurityProperties,
     ): UserRoleFilteringService {
         return UserRoleFilteringService(internalApiSecurityProperties)
     }
 
     @Bean
-    fun userRoleAuthorityMappingService(
+    public fun userRoleAuthorityMappingService(
         authorityMappingService: AuthorityMappingService,
     ): UserRoleAuthorityMappingService {
         return UserRoleAuthorityMappingService(authorityMappingService)
     }
 
     @Bean
-    fun userRoleHierarchyService(): UserRoleHierarchyService {
+    public fun userRoleHierarchyService(): UserRoleHierarchyService {
         return UserRoleHierarchyService()
     }
 
     @Bean
-    fun userJwtConverter(
+    public fun userJwtConverter(
         userRoleFilteringService: UserRoleFilteringService,
         userRoleHierarchyService: UserRoleHierarchyService,
         userRoleAuthorityMappingService: UserRoleAuthorityMappingService,
-    ) = UserJwtConverter(
-        userRoleFilteringService,
-        userRoleHierarchyService,
-        userRoleAuthorityMappingService,
-    )
+    ): UserJwtConverter =
+        UserJwtConverter(
+            userRoleFilteringService,
+            userRoleHierarchyService,
+            userRoleAuthorityMappingService,
+        )
 }

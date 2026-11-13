@@ -10,7 +10,7 @@ import org.springframework.security.oauth2.jwt.Jwt
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken
 import java.util.UUID
 
-class UserJwtConverter(
+public class UserJwtConverter(
     private val userRoleFilteringService: UserRoleFilteringService,
     private val userRoleHierarchyService: UserRoleHierarchyService,
     private val userRoleAuthorityMappingService: UserRoleAuthorityMappingService,

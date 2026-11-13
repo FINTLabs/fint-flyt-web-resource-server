@@ -9,25 +9,26 @@ import org.mockito.Mockito.verify
 import org.mockito.Mockito.verifyNoInteractions
 import org.mockito.Mockito.verifyNoMoreInteractions
 import org.mockito.Mockito.`when`
+import org.springframework.http.HttpStatus
 import org.springframework.security.authentication.BadCredentialsException
 import org.springframework.security.core.GrantedAuthority
 import org.springframework.security.oauth2.jwt.Jwt
-import java.util.Optional
+import org.springframework.web.client.HttpServerErrorException
 
 class SourceApplicationJwtConverterTest {
-    private lateinit var sourceApplicationAuthorizationRequestService: SourceApplicationAuthorizationRequestService
+    private lateinit var sourceApplicationAuthorizationClient: SourceApplicationAuthorizationClient
     private lateinit var sourceApplicationAuthorityMappingService: SourceApplicationAuthorityMappingService
     private lateinit var sourceApplicationJwtConverter: SourceApplicationJwtConverter
 
     @BeforeEach
     fun setUp() {
-        sourceApplicationAuthorizationRequestService =
-            mock(SourceApplicationAuthorizationRequestService::class.java)
+        sourceApplicationAuthorizationClient =
+            mock(SourceApplicationAuthorizationClient::class.java)
         sourceApplicationAuthorityMappingService =
             mock(SourceApplicationAuthorityMappingService::class.java)
         sourceApplicationJwtConverter =
             SourceApplicationJwtConverter(
-                sourceApplicationAuthorizationRequestService,
+                sourceApplicationAuthorizationClient,
                 sourceApplicationAuthorityMappingService,
             )
     }
@@ -41,7 +42,7 @@ class SourceApplicationJwtConverterTest {
             .isInstanceOf(BadCredentialsException::class.java)
 
         verifyNoInteractions(
-            sourceApplicationAuthorizationRequestService,
+            sourceApplicationAuthorizationClient,
             sourceApplicationAuthorityMappingService,
         )
     }
@@ -51,17 +52,28 @@ class SourceApplicationJwtConverterTest {
         val jwt = mock(Jwt::class.java)
         `when`(jwt.subject).thenReturn("subjectValue")
         `when`(
-            sourceApplicationAuthorizationRequestService.getClientAuthorization("subjectValue"),
-        ).thenReturn(Optional.empty())
+            sourceApplicationAuthorizationClient.getClientAuthorization("subjectValue"),
+        ).thenReturn(null)
 
         assertThatThrownBy { sourceApplicationJwtConverter.convert(jwt) }
             .isInstanceOf(BadCredentialsException::class.java)
 
-        verify(sourceApplicationAuthorizationRequestService).getClientAuthorization("subjectValue")
+        verify(sourceApplicationAuthorizationClient).getClientAuthorization("subjectValue")
         verifyNoMoreInteractions(
-            sourceApplicationAuthorizationRequestService,
+            sourceApplicationAuthorizationClient,
             sourceApplicationAuthorityMappingService,
         )
+    }
+
+    @Test
+    fun `failing lookup should not be reported as bad credentials`() {
+        val jwt = mock(Jwt::class.java)
+        `when`(jwt.subject).thenReturn("subjectValue")
+        `when`(sourceApplicationAuthorizationClient.getClientAuthorization("subjectValue"))
+            .thenThrow(HttpServerErrorException(HttpStatus.SERVICE_UNAVAILABLE))
+
+        assertThatThrownBy { sourceApplicationJwtConverter.convert(jwt) }
+            .isInstanceOf(HttpServerErrorException::class.java)
     }
 
     @Test
@@ -73,8 +85,8 @@ class SourceApplicationJwtConverterTest {
         `when`(sourceApplicationAuthorization.authorized).thenReturn(true)
         `when`(sourceApplicationAuthorization.sourceApplicationId).thenReturn(3L)
         `when`(
-            sourceApplicationAuthorizationRequestService.getClientAuthorization("subjectValue"),
-        ).thenReturn(Optional.of(sourceApplicationAuthorization))
+            sourceApplicationAuthorizationClient.getClientAuthorization("subjectValue"),
+        ).thenReturn(sourceApplicationAuthorization)
 
         val grantedAuthority = mock(GrantedAuthority::class.java)
         `when`(sourceApplicationAuthorityMappingService.createSourceApplicationAuthority(3L))
@@ -83,10 +95,10 @@ class SourceApplicationJwtConverterTest {
         val authentication = sourceApplicationJwtConverter.convert(jwt)
         assertThat(authentication.authorities).containsExactly(grantedAuthority)
 
-        verify(sourceApplicationAuthorizationRequestService).getClientAuthorization("subjectValue")
+        verify(sourceApplicationAuthorizationClient).getClientAuthorization("subjectValue")
         verify(sourceApplicationAuthorityMappingService).createSourceApplicationAuthority(3L)
         verifyNoMoreInteractions(
-            sourceApplicationAuthorizationRequestService,
+            sourceApplicationAuthorizationClient,
             sourceApplicationAuthorityMappingService,
         )
     }

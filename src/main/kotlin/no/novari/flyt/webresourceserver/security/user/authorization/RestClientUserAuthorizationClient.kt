@@ -4,7 +4,7 @@ import org.springframework.web.client.RestClient
 import org.springframework.web.client.body
 import java.util.UUID
 
-class RestClientUserAuthorizationClient(
+internal class RestClientUserAuthorizationClient(
     private val restClient: RestClient,
 ) : UserAuthorizationClient {
     override fun getAuthorizedSourceApplicationIds(
@@ -17,7 +17,7 @@ class RestClientUserAuthorizationClient(
             val response =
                 restClient
                     .post()
-                    .uri("/actions/authorize-source-applications")
+                    .uri("/users/actions/authorize-source-applications")
                     .body(SourceApplicationAuthorizationRequest(objectIdentifier, sourceApplicationIds))
                     .retrieve()
                     .body<SourceApplicationAuthorizationResponse>()
@@ -29,11 +29,11 @@ class RestClientUserAuthorizationClient(
     }
 }
 
-data class SourceApplicationAuthorizationRequest(
+internal data class SourceApplicationAuthorizationRequest(
     val objectIdentifier: UUID,
     val sourceApplicationIds: Set<Long>,
 )
 
-data class SourceApplicationAuthorizationResponse(
+internal data class SourceApplicationAuthorizationResponse(
     val authorizedSourceApplicationIds: Set<Long>,
 )

@@ -1,6 +1,7 @@
 import com.github.benmanes.gradle.versions.updates.DependencyUpdatesTask
 import org.gradle.jvm.toolchain.JavaLanguageVersion
 import org.gradle.kotlin.dsl.named
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.springframework.boot.gradle.plugin.SpringBootPlugin
 
 buildscript {
@@ -19,22 +20,22 @@ buildscript {
 }
 
 plugins {
-    id("org.springframework.boot") version "3.5.16" apply false
-    id("io.spring.dependency-management") version "1.1.7"
-    id("maven-publish")
-    id("java-library")
-    id("io.github.ben-manes.versions") version "0.67.0"
-    id("org.jlleitschuh.gradle.ktlint") version "14.2.0"
-    kotlin("jvm") version "2.4.10"
-    kotlin("plugin.spring") version "2.4.10"
-    kotlin("kapt") version "2.4.10"
+    `java-library`
+    `maven-publish`
+    alias(libs.plugins.spring.boot) apply false
+    alias(libs.plugins.spring.dependency.management)
+    alias(libs.plugins.kotlin.jvm)
+    alias(libs.plugins.kotlin.spring)
+    alias(libs.plugins.kotlin.kapt)
+    alias(libs.plugins.ktlint)
+    alias(libs.plugins.binary.compatibility.validator)
+    alias(libs.plugins.ben.manes.versions)
 }
 
-private val kotlinVersion = "2.4.10"
-extra["kotlin.version"] = kotlinVersion
-extra["jackson-bom.version"] = "2.21.7"
-extra["log4j2.version"] = "2.25.5"
-extra["tomcat.version"] = "10.1.59"
+extra["kotlin.version"] = libs.versions.kotlin.get()
+extra["jackson-bom.version"] = libs.versions.jackson.get()
+extra["log4j2.version"] = libs.versions.log4j2.get()
+extra["tomcat.version"] = libs.versions.tomcat.get()
 
 group = "no.novari"
 version = findProperty("version")?.toString() ?: "1.0-SNAPSHOT"
@@ -46,9 +47,19 @@ java {
     withSourcesJar()
 }
 
-// Dependabot resolves with JDK 21; an explicit release keeps JVM 25 as the resolution target so gradle.lockfile gets updated.
+// Build with JDK 25, publish for Java 21. binary-compatibility-validator cannot read Java 25 class
+// files. The explicit release also keeps Dependabot (JDK 21) resolving the same lockfile.
 tasks.withType<JavaCompile>().configureEach {
-    options.release.set(25)
+    options.release.set(21)
+}
+
+kotlin {
+    // Locked API: fint-flyt-gateway-starter is compiled against one version, and apps may pull in a newer one.
+    explicitApi()
+    compilerOptions {
+        freeCompilerArgs.add("-Xjdk-release=21")
+        jvmTarget.set(JvmTarget.JVM_21)
+    }
 }
 
 repositories {
@@ -70,24 +81,15 @@ dependencyLocking {
 }
 
 dependencies {
-    constraints {
-        implementation("at.yawk.lz4:lz4-java:1.13.0") {
-            because("Fixes CVE-2026-59949 in the kafka-clients transitive dependency")
-        }
-        implementation("org.xerial.snappy:snappy-java:1.1.10.12") {
-            because("Fixes CVE-2026-93451, CVE-2026-108106 and CVE-2026-116590 in kafka-clients")
-        }
-    }
     implementation(kotlin("reflect"))
 
     implementation("org.springframework.boot:spring-boot-starter-actuator")
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server")
-    api("org.springframework.kafka:spring-kafka")
     api("org.springframework.boot:spring-boot-autoconfigure")
     api("org.springframework.boot:spring-boot-starter-oauth2-client")
 
-    api("no.novari:kafka:6.3.1")
+    implementation("com.github.ben-manes.caffeine:caffeine")
     kapt("org.springframework.boot:spring-boot-configuration-processor")
 
     testImplementation("org.springframework.boot:spring-boot-starter-test")
@@ -131,7 +133,7 @@ publishing {
 }
 
 ktlint {
-    version.set("1.8.0")
+    version.set(libs.versions.ktlint.cli)
 }
 
 fun isNonStable(version: String): Boolean {
