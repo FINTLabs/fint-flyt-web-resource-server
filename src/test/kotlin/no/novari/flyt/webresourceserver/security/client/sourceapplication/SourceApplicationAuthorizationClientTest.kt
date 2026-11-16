@@ -30,10 +30,12 @@ import org.springframework.test.web.client.response.MockRestResponseCreators.wit
 import org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess
 import org.springframework.web.client.HttpServerErrorException
 import org.springframework.web.client.RestClient
+import java.time.Duration
 import java.time.Instant
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.AtomicLong
 
 class SourceApplicationAuthorizationClientTest {
     private val url = "http://fint-flyt-authorization-service:8080/api/intern-klient/authorization/clients/client-1"
@@ -47,7 +49,8 @@ class SourceApplicationAuthorizationClientTest {
                 UserAuthorizationClientProperties(),
             ).mutate()
     private val server = MockRestServiceServer.bindTo(restClientBuilder).build()
-    private val client = SourceApplicationAuthorizationClient(restClientBuilder.build())
+    private val nanos = AtomicLong()
+    private val client = SourceApplicationAuthorizationClient(restClientBuilder.build(), nanos::get)
 
     @AfterEach
     fun verify() {
@@ -70,6 +73,20 @@ class SourceApplicationAuthorizationClientTest {
         val expected = SourceApplicationAuthorization(authorized = true, clientId = "client-1", sourceApplicationId = 3)
         assertThat(client.getClientAuthorization("client-1")).isEqualTo(expected)
         assertThat(client.getClientAuthorization("client-1")).isEqualTo(expected)
+    }
+
+    @Test
+    fun `fetches the authorization again when the cache entry expires`() {
+        server
+            .expect(once(), requestTo(url))
+            .andRespond(withSuccess("""{"authorized":true,"sourceApplicationId":3}""", MediaType.APPLICATION_JSON))
+        server.expect(once(), requestTo(url)).andRespond(withStatus(HttpStatus.NOT_FOUND))
+
+        assertThat(client.getClientAuthorization("client-1")?.sourceApplicationId).isEqualTo(3L)
+        nanos.addAndGet(Duration.ofSeconds(59).toNanos())
+        assertThat(client.getClientAuthorization("client-1")?.sourceApplicationId).isEqualTo(3L)
+        nanos.addAndGet(Duration.ofSeconds(1).toNanos())
+        assertThat(client.getClientAuthorization("client-1")).isNull()
     }
 
     @Test

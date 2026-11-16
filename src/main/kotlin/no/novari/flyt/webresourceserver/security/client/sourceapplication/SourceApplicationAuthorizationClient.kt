@@ -1,6 +1,7 @@
 package no.novari.flyt.webresourceserver.security.client.sourceapplication
 
 import com.github.benmanes.caffeine.cache.Caffeine
+import com.github.benmanes.caffeine.cache.Ticker
 import org.springframework.web.client.HttpClientErrorException
 import org.springframework.web.client.RestClient
 import org.springframework.web.client.body
@@ -15,10 +16,12 @@ import java.time.Duration
  */
 internal class SourceApplicationAuthorizationClient(
     private val restClient: RestClient,
+    ticker: Ticker = Ticker.systemTicker(),
 ) {
     private val cache =
         Caffeine
             .newBuilder()
+            .ticker(ticker)
             .expireAfterWrite(CACHE_TTL)
             .maximumSize(CACHE_MAX_SIZE)
             .build<String, SourceApplicationAuthorization>()
