@@ -6,10 +6,10 @@ import no.novari.flyt.webresourceserver.security.client.sourceapplication.except
 import no.novari.flyt.webresourceserver.security.client.sourceapplication.exceptions.NoSourceApplicationIdException
 import org.springframework.security.core.Authentication
 
-class SourceApplicationAuthorizationService(
+public class SourceApplicationAuthorizationService(
     private val authorityMappingService: AuthorityMappingService,
 ) {
-    fun getSourceApplicationId(authentication: Authentication): Long {
+    public fun getSourceApplicationId(authentication: Authentication): Long {
         val sourceApplicationIds =
             authorityMappingService.extractLongValues(
                 AuthorityPrefix.SOURCE_APPLICATION_ID,

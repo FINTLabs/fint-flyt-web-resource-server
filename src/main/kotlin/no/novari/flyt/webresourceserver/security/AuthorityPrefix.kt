@@ -1,7 +1,7 @@
 package no.novari.flyt.webresourceserver.security
 
-enum class AuthorityPrefix(
-    val value: String,
+public enum class AuthorityPrefix(
+    public val value: String,
 ) {
     ORG_ID("ORG_ID"),
     ROLE("ROLE"),

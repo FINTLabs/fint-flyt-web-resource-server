@@ -1,7 +1,7 @@
 package no.novari.flyt.webresourceserver.security.user
 
-class UserRoleHierarchyService {
-    fun getProvidedAndImpliedRoles(roles: Collection<UserRole>): Set<UserRole> {
+public class UserRoleHierarchyService {
+    public fun getProvidedAndImpliedRoles(roles: Collection<UserRole>): Set<UserRole> {
         return roles.flatMapTo(mutableSetOf(), ::getProvidedAndImpliedRoles)
     }
 

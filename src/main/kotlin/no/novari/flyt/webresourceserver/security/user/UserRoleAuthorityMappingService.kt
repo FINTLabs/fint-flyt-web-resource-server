@@ -5,22 +5,22 @@ import no.novari.flyt.webresourceserver.security.AuthorityPrefix
 import org.springframework.security.core.GrantedAuthority
 import org.springframework.security.core.authority.SimpleGrantedAuthority
 
-class UserRoleAuthorityMappingService(
+public class UserRoleAuthorityMappingService(
     private val authorityMappingService: AuthorityMappingService,
 ) {
-    fun createRoleAuthorities(roles: Collection<UserRole>): Set<GrantedAuthority> {
+    public fun createRoleAuthorities(roles: Collection<UserRole>): Set<GrantedAuthority> {
         return roles.mapTo(mutableSetOf(), ::createRoleAuthority)
     }
 
-    fun createRoleAuthority(role: UserRole): GrantedAuthority {
+    public fun createRoleAuthority(role: UserRole): GrantedAuthority {
         return SimpleGrantedAuthority(createRoleAuthorityString(role))
     }
 
-    fun createRoleAuthorityStrings(roles: Collection<UserRole>): Set<String> {
+    public fun createRoleAuthorityStrings(roles: Collection<UserRole>): Set<String> {
         return roles.mapTo(mutableSetOf(), ::createRoleAuthorityString)
     }
 
-    fun createRoleAuthorityString(role: UserRole): String {
+    public fun createRoleAuthorityString(role: UserRole): String {
         return authorityMappingService.toAuthority(
             AuthorityPrefix.ROLE,
             role.name,

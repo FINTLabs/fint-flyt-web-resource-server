@@ -1,6 +1,6 @@
 package no.novari.flyt.webresourceserver.security.properties
 
-class InternalClientApiSecurityProperties {
-    var enabled: Boolean = false
-    var authorizedClientIds: Set<String> = emptySet()
+public class InternalClientApiSecurityProperties {
+    public var enabled: Boolean = false
+    public var authorizedClientIds: Set<String> = emptySet()
 }

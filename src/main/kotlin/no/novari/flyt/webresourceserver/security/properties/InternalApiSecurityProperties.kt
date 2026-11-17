@@ -7,14 +7,14 @@ import no.novari.flyt.webresourceserver.security.user.UserRole
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
-class InternalApiSecurityProperties {
-    var enabled: Boolean = false
-    var authorizedOrgIdRolePairsJson: String? = null
-    var userRoleFilterPerOrgId: Map<String, Set<UserRole>> = emptyMap()
+public class InternalApiSecurityProperties {
+    public var enabled: Boolean = false
+    public var authorizedOrgIdRolePairsJson: String? = null
+    public var userRoleFilterPerOrgId: Map<String, Set<UserRole>> = emptyMap()
         private set
 
     @PostConstruct
-    fun parseAndSetAuthorizedOrgIdRolePairs() {
+    public fun parseAndSetAuthorizedOrgIdRolePairs() {
         val json = authorizedOrgIdRolePairsJson ?: return
         try {
             userRoleFilterPerOrgId =

@@ -1,3 +1,11 @@
+novari:
+  flyt:
+    web-resource-server:
+      security:
+        authorization:
+          # authorization-service runs with the same context path as the host app in each namespace.
+          base-url: 'http://fint-flyt-authorization-service:8080${server.servlet.context-path:}'
+
 spring:
   security:
     oauth2:

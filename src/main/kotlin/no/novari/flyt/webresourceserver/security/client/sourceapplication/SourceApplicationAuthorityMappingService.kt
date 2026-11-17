@@ -7,22 +7,22 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.stereotype.Service
 
 @Service
-class SourceApplicationAuthorityMappingService(
+public class SourceApplicationAuthorityMappingService(
     private val authorityMappingService: AuthorityMappingService,
 ) {
-    fun createSourceApplicationAuthorities(sourceApplicationIds: Collection<Long>): Set<GrantedAuthority> {
+    public fun createSourceApplicationAuthorities(sourceApplicationIds: Collection<Long>): Set<GrantedAuthority> {
         return sourceApplicationIds.mapTo(mutableSetOf(), ::createSourceApplicationAuthority)
     }
 
-    fun createSourceApplicationAuthority(sourceApplicationId: Long): GrantedAuthority {
+    public fun createSourceApplicationAuthority(sourceApplicationId: Long): GrantedAuthority {
         return SimpleGrantedAuthority(createSourceApplicationAuthorityString(sourceApplicationId))
     }
 
-    fun createSourceApplicationAuthorityStrings(sourceApplicationIds: Collection<Long>): Set<String> {
+    public fun createSourceApplicationAuthorityStrings(sourceApplicationIds: Collection<Long>): Set<String> {
         return sourceApplicationIds.mapTo(mutableSetOf(), ::createSourceApplicationAuthorityString)
     }
 
-    fun createSourceApplicationAuthorityString(sourceApplicationId: Long): String {
+    public fun createSourceApplicationAuthorityString(sourceApplicationId: Long): String {
         return authorityMappingService.toAuthority(
             AuthorityPrefix.SOURCE_APPLICATION_ID,
             sourceApplicationId.toString(),

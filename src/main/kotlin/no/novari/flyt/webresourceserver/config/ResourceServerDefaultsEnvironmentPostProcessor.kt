@@ -15,7 +15,7 @@ import java.io.IOException
  * Loads the library's bundled flyt-web-resource-server-defaults.yml as default properties so consuming applications
  * get sensible defaults while still being able to override them.
  */
-class ResourceServerDefaultsEnvironmentPostProcessor :
+internal class ResourceServerDefaultsEnvironmentPostProcessor :
     EnvironmentPostProcessor,
     Ordered {
     override fun postProcessEnvironment(

@@ -4,20 +4,20 @@ import org.springframework.security.core.GrantedAuthority
 import org.springframework.stereotype.Service
 
 @Service
-class AuthorityMappingService {
-    fun toAuthority(
+public class AuthorityMappingService {
+    public fun toAuthority(
         prefix: AuthorityPrefix,
         value: String,
     ): String = "${prefix.value}$AUTHORITY_DELIMITER$value"
 
-    fun extractLongValues(
+    public fun extractLongValues(
         prefix: AuthorityPrefix,
         authorities: Collection<GrantedAuthority>,
     ): Set<Long> =
         extractStringValues(prefix, authorities)
             .mapTo(mutableSetOf(), String::toLong)
 
-    fun extractStringValues(
+    public fun extractStringValues(
         prefix: AuthorityPrefix,
         authorities: Collection<GrantedAuthority>,
     ): Set<String> =
@@ -28,7 +28,7 @@ class AuthorityMappingService {
                 mutableSetOf(),
             ) { it.substring(prefix.value.length + AUTHORITY_DELIMITER.length) }
 
-    companion object {
-        const val AUTHORITY_DELIMITER = "_"
+    public companion object {
+        public const val AUTHORITY_DELIMITER: String = "_"
     }
 }

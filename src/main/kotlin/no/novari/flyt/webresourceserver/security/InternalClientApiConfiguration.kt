@@ -14,22 +14,22 @@ import org.springframework.context.annotation.Bean
     value = ["internal-client.enabled"],
     havingValue = "true",
 )
-class InternalClientApiConfiguration {
+public class InternalClientApiConfiguration {
     @Bean
     @ConfigurationProperties("novari.flyt.web-resource-server.security.api.internal-client")
-    fun internalClientApiSecurityProperties(): InternalClientApiSecurityProperties {
+    public fun internalClientApiSecurityProperties(): InternalClientApiSecurityProperties {
         return InternalClientApiSecurityProperties()
     }
 
     @Bean
-    fun internalClientAuthorityMappingService(
+    public fun internalClientAuthorityMappingService(
         authorityMappingService: AuthorityMappingService,
     ): InternalClientAuthorityMappingService {
         return InternalClientAuthorityMappingService(authorityMappingService)
     }
 
     @Bean
-    fun internalClientJwtConverter(
+    public fun internalClientJwtConverter(
         internalClientAuthorityMappingService: InternalClientAuthorityMappingService,
     ): InternalClientJwtConverter {
         return InternalClientJwtConverter(internalClientAuthorityMappingService)
