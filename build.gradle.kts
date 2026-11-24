@@ -101,10 +101,24 @@ tasks.test {
 }
 
 ktlint {
+    version.set(libs.versions.ktlint.cli)
     ignoreFailures.set(false)
     outputToConsole.set(true)
     filter {
         exclude("**/generated/**")
+    }
+}
+
+configurations.matching { it.name.startsWith("ktlint") }.configureEach {
+    resolutionStrategy.eachDependency {
+        // ktlint's parser depends on the Kotlin compiler version requested by ktlint.
+        val requestedVersion = requested.version
+        if (requested.group == "org.jetbrains.kotlin" &&
+            !requestedVersion.isNullOrEmpty() &&
+            target.version != requestedVersion
+        ) {
+            useVersion(requestedVersion)
+        }
     }
 }
 
@@ -130,10 +144,6 @@ publishing {
             from(components["java"])
         }
     }
-}
-
-ktlint {
-    version.set(libs.versions.ktlint.cli)
 }
 
 fun isNonStable(version: String): Boolean {
