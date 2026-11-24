@@ -122,6 +122,11 @@ configurations.matching { it.name.startsWith("ktlint") }.configureEach {
     }
 }
 
+configurations.named("ktlintReporter") {
+    // The JVM reporters get the standard library from kotlin-stdlib.
+    exclude(group = "org.jetbrains.kotlin", module = "kotlin-stdlib-common")
+}
+
 tasks.named("check") {
     dependsOn("ktlintCheck")
 }
